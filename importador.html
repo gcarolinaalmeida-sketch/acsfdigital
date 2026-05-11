@@ -81,7 +81,6 @@
             const textoVisitas = await lerArquivo(fileVisitas);
             const textoPatologia = await lerArquivo(filePatologia);
 
-            // Processar Patologias
             const linhasPatologia = textoPatologia.split('\n');
             const mapaDoencas = {};
             
@@ -94,7 +93,6 @@
                 }
             }
 
-            // Processar Visitas
             const linhasVisitas = textoVisitas.split('\n');
             const familiasMap = {};
             const membrosArray = [];
@@ -110,7 +108,7 @@
                 const idPaciente = colunas[0].trim();
                 const nome = colunas[1].trim();
                 const cns = colunas[2].trim();
-                let dataNasc = colunas[3].trim(); // Formato DD/MM/YYYY
+                let dataNasc = colunas[3].trim(); 
                 const numFamilia = parseInt(colunas[4].trim()) || 0;
                 const isResp = colunas[5].trim() === "1";
 
@@ -119,7 +117,6 @@
                     dataNasc = `${partes[2]}-${partes[1]}-${partes[0]}`;
                 }
 
-                // Identificar Família
                 const idFamiliaInt = 10000 + numFamilia;
                 if (!familiasMap[idFamiliaInt]) {
                     familiasMap[idFamiliaInt] = {
@@ -135,7 +132,172 @@
                     familiasMap[idFamiliaInt].responsavel = nome;
                 }
 
-                // Cruzar com Patologias
                 const condicoesRaw = mapaDoencas[nome.toUpperCase()] || "";
                 let doencasLista = [];
-                let fuma = "Não", alcool = "Não
+                let fuma = "Não", alcool = "Não";
+
+                if (condicoesRaw.includes("HIPERTENSAO")) doencasLista.push("Hipertensão");
+                if (condicoesRaw.includes("DIABETES")) doencasLista.push("Diabetes");
+                if (condicoesRaw.includes("DOMICILIADO")) doencasLista.push("Domiciliado");
+                if (condicoesRaw.includes("SAÚDE MENTAL")) doencasLista.push("Problema Mental");
+                if (condicoesRaw.includes("CARDÍACO")) doencasLista.push("Doença Cardíaca");
+                if (condicoesRaw.includes("CÂNCER")) doencasLista.push("Câncer");
+                if (condicoesRaw.includes("TABAGISTA")) fuma = "Sim";
+                if (condicoesRaw.includes("ÁLCOOL")) alcool = "Sim";
+
+                membrosArray.push({
+                    id: Date.now() + contadorMembros,
+                    familia_id: idFamiliaInt,
+                    nome: nome,
+                    cns: cns,
+                    nascimento: dataNasc,
+                    parentesco: isResp ? "Responsável" : "Outro Parente",
+                    fuma: fuma,
+                    alcool: alcool,
+                    doencas_lista: doencasLista.join(", ")
+                });
+                contadorMembros++;
+            }
+
+            const familiasArray = Object.values(familiasMap);
+            const dadosCompletos = {
+                familias: JSON.stringify(familiasArray),
+                membros: JSON.stringify(membrosArray),
+                visitas: "[]",
+                tarefas: "[]"
+            };
+
+            logEl.innerHTML += `✅ Sucesso!<br>Famílias identificadas: ${contadorFamilias}<br>Cidadãos processados: ${contadorMembros}<br><br>A descarregar o ficheiro...`;
+
+            const jsonStr = JSON.stringify(dadosCompletos);
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Backup_Importado_ACSDigital.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+        } catch (error) {
+            logEl.innerHTML += `<br><span style="color:red;">❌ Erro ao processar: ${error.message}</span>`;
+        }
+    }
+
+    // =======================================================
+    // LÓGICA 2: IMPORTAR DIAS SEM VISITAS (BLINDADO)
+    // =======================================================
+    function normalizarNome(nome) {
+        if (!nome) return "";
+        return nome.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function importarDiasSemVisita() {
+        const input = document.getElementById('arquivoCsvDias');
+        const divResultado = document.getElementById('resultadoImportacao');
+        
+        if (!input.files || input.files.length === 0) {
+            alert("⚠️ Selecione a planilha de atrasos (CSV) primeiro.");
+            return;
+        }
+
+        // Mostra que o botão respondeu ao clique
+        divResultado.innerHTML = `<div style="padding: 15px; background: #ebf8ff; color: #2b6cb0; border-radius: 6px; border-left: 4px solid #3182ce;">⏳ Lendo o arquivo e calculando datas, aguarde...</div>`;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const conteudo = e.target.result;
+                const linhas = conteudo.split('\n');
+                
+                // Proteção contra memória corrompida do navegador
+                let membros = [];
+                let visitas = [];
+                let familias = [];
+                
+                try { membros = JSON.parse(localStorage.getItem('membros')) || []; } catch(err) { console.warn("Memória de membros vazia ou corrompida."); }
+                try { visitas = JSON.parse(localStorage.getItem('visitas')) || []; } catch(err) { console.warn("Memória de visitas vazia ou corrompida."); }
+                try { familias = JSON.parse(localStorage.getItem('familias')) || []; } catch(err) { console.warn("Memória de familias vazia ou corrompida."); }
+                
+                if (membros.length === 0) {
+                    divResultado.innerHTML = `<div style="padding: 15px; background: #fff5f5; border-left: 4px solid #e53e3e; border-radius: 6px; color: #742a2a;"><b>⚠️ Banco de Dados Vazio:</b> Você precisa importar os pacientes do e-SUS na caixa 1 antes de processar os atrasos!</div>`;
+                    return;
+                }
+
+                let atualizados = 0;
+                let naoEncontrados = [];
+                const hoje = new Date();
+
+                for (let i = 1; i < linhas.length; i++) {
+                    const linha = linhas[i].trim();
+                    if (!linha) continue;
+
+                    const partes = linha.split(';');
+                    if (partes.length < 2) continue; 
+
+                    const nomePlanilha = normalizarNome(partes[0]);
+                    const diasAtraso = parseInt(partes[1].trim(), 10);
+
+                    if (isNaN(diasAtraso)) continue;
+
+                    const membroAchado = membros.find(m => normalizarNome(m.nome) === nomePlanilha);
+
+                    if (membroAchado) {
+                        const dataVisita = new Date(hoje);
+                        dataVisita.setDate(hoje.getDate() - diasAtraso);
+                        const dataFormatada = dataVisita.toISOString().split('T')[0];
+
+                        const fam = familias.find(f => f.id == membroAchado.familia_id);
+                        const nomeDestino = fam ? `Família Nº ${fam.numeroFamilia}` : "Família";
+
+                        const novaVisita = {
+                            id: Date.now() + i + Math.floor(Math.random() * 1000), // Proteção extra no ID
+                            familiaId: membroAchado.familia_id,
+                            cidadao: `${nomeDestino} (${membroAchado.nome})`,
+                            membrosAtendidos: [membroAchado.nome],
+                            data: dataFormatada,
+                            turno: "Manhã",
+                            motivos: "Importação de Histórico",
+                            desfecho: "Visita Realizada",
+                            info: `📌 Histórico importado via planilha. Paciente constava com ${diasAtraso} dias sem visita.`,
+                            foto: null,
+                            assinatura: null
+                        };
+
+                        visitas.push(novaVisita);
+                        atualizados++;
+                    } else {
+                        naoEncontrados.push(partes[0].trim());
+                    }
+                }
+
+                // Salva tudo no navegador
+                localStorage.setItem('visitas', JSON.stringify(visitas));
+
+                let htmlResultado = `<div style="padding: 15px; background: #c6f6d5; border-left: 4px solid #22543d; border-radius: 6px; color: #22543d; margin-bottom: 10px;">
+                    <strong>✅ Importação Concluída!</strong><br>
+                    Foram geradas <b>${atualizados}</b> visitas no histórico.
+                </div>`;
+
+                if (naoEncontrados.length > 0) {
+                    htmlResultado += `<div style="padding: 15px; background: #fff5f5; border-left: 4px solid #e53e3e; border-radius: 6px; color: #742a2a;">
+                        <strong>⚠️ Atenção: ${naoEncontrados.length} nomes não foram encontrados.</strong><br>
+                        Os nomes da planilha devem estar iguais aos já cadastrados no app.<br><br>
+                        <div style="font-size: 12px; max-height: 150px; overflow-y: auto; background: white; padding: 10px; border-radius: 4px; border: 1px solid #fed7d7;">
+                            ${naoEncontrados.join('<br>')}
+                        </div>
+                    </div>`;
+                }
+
+                divResultado.innerHTML = htmlResultado;
+
+            } catch (erroGrave) {
+                divResultado.innerHTML = `<div style="padding: 15px; background: #fff5f5; border-left: 4px solid #e53e3e; border-radius: 6px; color: #742a2a;"><b>❌ Erro no sistema:</b> ${erroGrave.message}. <br>Experimente limpar o cache do navegador.</div>`;
+            }
+        };
+        
+        reader.readAsText(input.files[0], 'ISO-8859-1');
+    }
+</script>
+</body>
+</html>
