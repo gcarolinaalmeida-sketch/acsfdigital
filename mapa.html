@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mapa da Microárea - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <style>
+    #mapa { height: 420px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 16px; z-index: 1; }
+    .legenda { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; }
+    .legenda-item { display: flex; align-items: center; gap: 6px; }
+    .legenda-cor { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .filtros-mapa { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .filtros-mapa button { padding: 6px 12px; border: 1px solid #cbd5e0; border-radius: 20px; background: white; font-size: 13px; cursor: pointer; transition: 0.2s; }
+    .filtros-mapa button.ativo { background: #2b6cb0; color: white; border-color: #2b6cb0; }
+    .lista-mapa { max-height: 300px; overflow-y: auto; }
+    .item-mapa { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #edf2f7; cursor: pointer; transition: 0.15s; }
+    .item-mapa:hover { background: #ebf8ff; }
+  </style>
+</head>
+<body style="padding-bottom: 80px;">
+<!-- HAMBÚRGUER MOBILE -->
+<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+
+    <!-- PAINEL -->
+    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
+
+    <div class="nav-divisor"></div>
+
+    <!-- FAMÍLIAS E CIDADÃOS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')">
+        <span>👨‍👩‍👧 Famílias e Cidadãos</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+      </div>
+    </div>
+
+    <!-- VISITAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')">
+        <span>📅 Visitas</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS E METAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')">
+        <span>📊 Relatórios e Metas</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
+      </div>
+    </div>
+
+    <!-- PLANEJAMENTO -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')">
+        <span>🗓️ Planejamento</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
+      </div>
+    </div>
+
+    <div class="nav-divisor"></div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')">
+        <span>⚙️ Configurações</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+      </div>
+    </div>
+
+  </nav>
+    <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div>
+      <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
+      <span id="sidebarMicroarea">Microárea 03</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-actions">
+    <h1>🗺️ Mapa da Microárea</h1>
+    <div class="page-actions-btns">
+      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="box" style="margin-bottom:12px;">
+    <div class="filtros-mapa" id="filtrosMapa">
+      <button class="ativo" onclick="filtrarMapa('todos',this)">🏠 Todas</button>
+      <button onclick="filtrarMapa('atrasada',this)">🚨 Sem visita +30d</button>
+      <button onclick="filtrarMapa('nunca',this)">⚠️ Nunca visitadas</button>
+      <button onclick="filtrarMapa('gestante',this)">🤰 Gestantes</button>
+      <button onclick="filtrarMapa('hipertensao',this)">❤️ Hipertensos</button>
+      <button onclick="filtrarMapa('diabetes',this)">🩸 Diabéticos</button>
+      <button onclick="filtrarMapa('idoso',this)">👴 Idosos</button>
+      <button onclick="filtrarMapa('acamado',this)">🛏️ Acamados</button>
+    </div>
+
+    <div class="legenda">
+      <div class="legenda-item"><div class="legenda-cor" style="background:#38a169;"></div> Visitada recentemente</div>
+      <div class="legenda-item"><div class="legenda-cor" style="background:#ed8936;"></div> Há mais de 30 dias</div>
+      <div class="legenda-item"><div class="legenda-cor" style="background:#e53e3e;"></div> Nunca visitada</div>
+      <div class="legenda-item"><div class="legenda-cor" style="background:#805ad5;"></div> Grupo prioritário</div>
+    </div>
+  </div>
+
+  <div id="avisoEndereco" style="display:none;background:#fffbeb;border:1px solid #f6ad55;border-left:4px solid #ed8936;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#744210;">
+    ⚠️ Algumas famílias não têm endereço completo cadastrado e não aparecem no mapa. Configure o logradouro e bairro no cadastro de cada família.
+  </div>
+
+  <!-- MAPA -->
+  <div id="mapa"></div>
+
+  <!-- BAIRRO DE REFERÊNCIA -->
+  <div class="box no-print" style="margin-bottom:12px;padding:14px;">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <label style="font-size:13px;font-weight:bold;color:#4a5568;white-space:nowrap;">📍 Cidade de referência:</label>
+      <input type="text" id="cidadeReferencia" placeholder="Ex: Guarda-Mor, MG" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
+      <button onclick="centralizarMapa()" style="background:#2b6cb0;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:13px;">🔍 Centralizar</button>
+    </div>
+    <p style="font-size:12px;color:#718096;margin-top:8px;">Dica: As famílias são plotadas buscando o endereço + cidade no mapa. Para mais precisão, cadastre o logradouro completo.</p>
+  </div>
+
+  <!-- LISTA DAS FAMÍLIAS NO MAPA -->
+  <div class="box">
+    <h3>📋 Famílias no Mapa (<span id="contadorMapaFam">0</span>)</h3>
+    <div class="lista-mapa" id="listaMapaFamilias"></div>
+  </div>
+
+  <nav class="bottom-nav no-print">
+    <a href="index.html" class="nav-item">🏠<span>Início</span></a>
+    <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
+    <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
+    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+  </nav>
+</div>
+
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+  let mapa = null;
+  let marcadores = [];
+  let filtroAtivo = 'todos';
+  const cidadeDefault = "Guarda-Mor, MG, Brasil";
+
+  function iniciarMapa() {
+    mapa = L.map('mapa').setView([-17.7833, -47.0833], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(mapa);
+
+    const cidadeSalva = localStorage.getItem("cidadeMapa") || "";
+    if (cidadeSalva) document.getElementById("cidadeReferencia").value = cidadeSalva;
+
+    carregarFamiliasMapa('todos');
+  }
+
+  async function geocodificarEndereco(endereco) {
+    const cidade = document.getElementById("cidadeReferencia").value.trim() || cidadeDefault;
+    const query  = encodeURIComponent(`${endereco}, ${cidade}`);
+    try {
+      const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
+      const dados = await resp.json();
+      if (dados && dados.length > 0) return { lat: parseFloat(dados[0].lat), lon: parseFloat(dados[0].lon) };
+    } catch (e) { console.warn("Geocode falhou:", endereco); }
+    return null;
+  }
+
+  function corFamilia(f) {
+    const hoje = new Date();
+    const memFam = membros.filter(m => m.familia_id == f.id);
+    const temGrupo = memFam.some(m =>
+      m.gestante==="Sim" || m.doencas_lista?.includes("Hipertensão") ||
+      m.doencas_lista?.includes("Diabetes") || m.doencas_lista?.includes("Acamado") ||
+      (m.nascimento && Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25))>=60)
+    );
+    if (temGrupo) return '#805ad5';
+    const vFam = visitas.filter(v => v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+    if (!vFam.length) return '#e53e3e';
+    const dias = Math.floor((hoje - new Date(vFam[0].data)) / (1000*60*60*24));
+    return dias > 30 ? '#ed8936' : '#38a169';
+  }
+
+  function criarIcone(cor) {
+    return L.divIcon({
+      className: '',
+      html: `<div style="width:22px;height:22px;border-radius:50%;background:${cor};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
+      iconSize: [22, 22], iconAnchor: [11, 11]
+    });
+  }
+
+  async function carregarFamiliasMapa(filtro) {
+    filtroAtivo = filtro;
+    marcadores.forEach(m => mapa.removeLayer(m));
+    marcadores = [];
+
+    const hoje = new Date();
+    let familiasFiltradas = familias.filter(f => {
+      if (!f.logradouro) return false;
+      const memFam = membros.filter(m => m.familia_id == f.id);
+      const vFam   = visitas.filter(v => v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+      const ultima = vFam.length ? new Date(vFam[0].data) : null;
+      const dias   = ultima ? Math.floor((hoje-ultima)/(1000*60*60*24)) : 9999;
+
+      if (filtro === 'atrasada') return dias > 30 && ultima !== null;
+      if (filtro === 'nunca')    return !ultima;
+      if (filtro === 'gestante')    return memFam.some(m => m.gestante==="Sim");
+      if (filtro === 'hipertensao') return memFam.some(m => m.doencas_lista?.includes("Hipertensão"));
+      if (filtro === 'diabetes')    return memFam.some(m => m.doencas_lista?.includes("Diabetes"));
+      if (filtro === 'idoso')       return memFam.some(m => m.nascimento && Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25))>=60);
+      if (filtro === 'acamado')     return memFam.some(m => m.doencas_lista?.includes("Acamado"));
+      return true;
+    });
+
+    document.getElementById("contadorMapaFam").textContent = familiasFiltradas.length;
+    renderizarListaMapa(familiasFiltradas);
+
+    let semEndereco = 0;
+    for (const f of familiasFiltradas) {
+      const end = `${f.logradouro||''} ${f.numero||''}, ${f.bairro||''}`.trim();
+      const coords = await geocodificarEndereco(end);
+      if (coords) {
+        const cor = corFamilia(f);
+        const marcador = L.marker([coords.lat, coords.lon], { icon: criarIcone(cor) }).addTo(mapa);
+
+        const vFam = visitas.filter(v=>v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+        const ultimaStr = vFam.length ? vFam[0].data.split('-').reverse().join('/') : 'Nunca';
+        const memFam = membros.filter(m=>m.familia_id==f.id);
+
+        marcador.bindPopup(`
+          <div style="font-size:13px;min-width:200px;">
+            <strong style="color:#2c5282;">Família ${f.numeroFamilia} — ${f.responsavel}</strong><br>
+            <span style="color:#718096;">📍 ${f.logradouro||''}, ${f.numero||''}</span><br>
+            <span style="color:#718096;">👥 ${memFam.length} membro(s)</span><br>
+            <span style="color:#718096;">🕐 Última visita: ${ultimaStr}</span><br>
+            <button onclick="window.location.href='familia_detalhe.html';localStorage.setItem('familiaAtual',${f.id})"
+              style="margin-top:8px;background:#2b6cb0;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;width:100%;font-size:12px;">
+              Ver família →
+            </button>
+          </div>`);
+        marcadores.push(marcador);
+      } else {
+        semEndereco++;
+      }
+    }
+
+    const aviso = document.getElementById("avisoEndereco");
+    aviso.style.display = semEndereco > 0 ? "block" : "none";
+
+    if (marcadores.length > 0) {
+      const grupo = L.featureGroup(marcadores);
+      mapa.fitBounds(grupo.getBounds().pad(0.2));
+    }
+  }
+
+  function renderizarListaMapa(familiasFiltradas) {
+    const lista = document.getElementById("listaMapaFamilias");
+    const hoje  = new Date();
+    if (familiasFiltradas.length === 0) {
+      lista.innerHTML = "<p style='text-align:center;padding:20px;color:#a0aec0;'>Nenhuma família encontrada com este filtro.</p>";
+      return;
+    }
+    lista.innerHTML = familiasFiltradas.sort((a,b)=>a.numeroFamilia-b.numeroFamilia).map(f => {
+      const cor = corFamilia(f);
+      const vFam = visitas.filter(v=>v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+      const ultimaStr = vFam.length ? vFam[0].data.split('-').reverse().join('/') : 'Nunca';
+      return `
+      <div class="item-mapa" onclick="abrirFamilia(${f.id})">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:12px;height:12px;border-radius:50%;background:${cor};flex-shrink:0;"></div>
+          <div>
+            <strong style="font-size:13px;">Fam. ${f.numeroFamilia} — ${f.responsavel}</strong><br>
+            <span style="font-size:12px;color:#718096;">📍 ${f.logradouro||'Sem endereço'} · 🕐 ${ultimaStr}</span>
+          </div>
+        </div>
+        <span style="color:#a0aec0;font-size:16px;">›</span>
+      </div>`;
+    }).join('');
+  }
+
+  function filtrarMapa(filtro, btn) {
+    document.querySelectorAll('.filtros-mapa button').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    carregarFamiliasMapa(filtro);
+  }
+
+  function centralizarMapa() {
+    const cidade = document.getElementById("cidadeReferencia").value.trim();
+    if (cidade) localStorage.setItem("cidadeMapa", cidade);
+    carregarFamiliasMapa(filtroAtivo);
+  }
+
+  window.addEventListener('load', iniciarMapa);
+</script>
+</main>
+</body>
+</html>

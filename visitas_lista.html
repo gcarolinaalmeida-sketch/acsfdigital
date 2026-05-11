@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Força o modo tela cheia no iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ACS Digital">
+  <!-- Ícone para a tela de início do iPad -->
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Histórico de Visitas - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; padding: 0; }
+      .main { margin: 0; width: 100%; }
+      .box { box-shadow: none; border: 1px solid #e2e8f0; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
+    <button onclick="window.location.href='notificacoes.html'" id="btn_notif" style="position:relative;">🔔 Notificações <span id="badgeNotif" style="display:none;background:#e53e3e;color:white;font-size:10px;font-weight:bold;border-radius:99px;padding:1px 6px;margin-left:4px;">0</span></button>
+    <div class="nav-divisor"></div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')"><span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+        <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')"><span>📅 Visitas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')"><span>📊 Relatórios e Metas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
+      </div>
+    </div>
+    <div class="nav-divisor"></div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+        <button onclick="window.location.href='pin.html'">🔒 Alterar PIN</button>
+      </div>
+    </div>
+  </nav>
+  <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
+  </div>
+</aside>
+<div class="main">
+  <div class="page-actions">
+    <h1>Visitas Lançadas</h1>
+    <div class="page-actions-btns no-print">
+      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+      <button onclick="window.location.href='visitas.html'" class="btn btn-primary">➕ Nova Visita</button>
+      <button onclick="window.location.href='pendencias.html'" class="btn btn-warning">⚠️ Pendências</button>
+      <button onclick="window.print()" class="btn btn-success">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="box no-print" style="margin-bottom:16px; padding:16px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+      <input type="text" id="filtroTextoVis" placeholder="🔍 Buscar por família ou nome..." oninput="filtrarVisitas()" style="padding:9px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:14px;">
+      <select id="filtroDesfechoVis" onchange="filtrarVisitas()" style="padding:9px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:14px;">
+        <option value="">📋 Todos os desfechos</option>
+        <option value="Visita Realizada">✅ Realizada</option>
+        <option value="Visita Recusada">❌ Recusada</option>
+        <option value="Ausente">⚠️ Ausente</option>
+      </select>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:10px; align-items:center;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; color:#718096; font-weight:600;">📅 Data inicial</label>
+        <input type="date" id="filtroDataIniVis" onchange="filtrarVisitas()" style="padding:9px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:14px;">
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; color:#718096; font-weight:600;">📅 Data final</label>
+        <input type="date" id="filtroDataFimVis" onchange="filtrarVisitas()" style="padding:9px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:14px;">
+      </div>
+      <button onclick="limparFiltrosVis()" class="btn btn-secondary" style="white-space:nowrap; align-self:flex-end;">✖ Limpar</button>
+    </div>
+    <div style="margin-top:10px; font-size:13px; color:#718096;" id="contadorVisitas"></div>
+  </div>
+
+  <p style="color: #718096; margin-bottom: 20px;">Abaixo estão os registros das últimas visitas domiciliares realizadas.</p>
+
+  <div id="listaVisitasGeral"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Planejamento - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .agenda-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .agenda-grid { grid-template-columns: 1fr; } }
+    
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    .status-aguardando { background: #feebc8; color: #744210; } /* ⏳ Planejada */
+    .status-concluida { background: #c6f6d5; color: #22543d; }  /* ✅ Realizada */
+    
+    .input-mini { width: 60px !important; display: inline-block; padding: 4px !important; text-align: center; }
+  </style>
+</head>
+<body>
+<!-- HAMBÚRGUER MOBILE -->
+<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+
+    <!-- PAINEL -->
+    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
+
+    <div class="nav-divisor"></div>
+
+    <!-- FAMÍLIAS E CIDADÃOS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')">
+        <span>👨‍👩‍👧 Famílias e Cidadãos</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+      </div>
+    </div>
+
+    <!-- VISITAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')">
+        <span>📅 Visitas</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS E METAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')">
+        <span>📊 Relatórios e Metas</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
+      </div>
+    </div>
+
+    <!-- PLANEJAMENTO -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')">
+        <span>🗓️ Planejamento</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
+      </div>
+    </div>
+
+    <div class="nav-divisor"></div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')">
+        <span>⚙️ Configurações</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+      </div>
+    </div>
+
+  </nav>
+    <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div>
+      <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
+      <span id="sidebarMicroarea">Microárea 03</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <h1>📅 Planejamento e Percurso</h1>
+    <div class="date-card" id="mesAnoAtual">Maio de 2026</div>
+  </header>
+
+  <section class="cards" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+    <div class="card">
+      <p>Dias Úteis</p>
+      <h2 id="cardDiasUteis">0</h2>
+    </div>
+    <div class="card">
+      <p>Recepção/UBS</p>
+      <input type="number" id="inputRecepcao" class="input-mini" value="0" onchange="atualizarAgenda()">
+    </div>
+    <div class="card">
+      <p>Dias de Campo</p>
+      <h2 id="cardDiasCampo">0</h2>
+    </div>
+    <div class="card" style="border-left: 4px solid #2b6cb0;">
+      <p>Meta Diária</p>
+      <h2 id="cardMetaDiaria">0</h2>
+    </div>
+  </section>
+
+  <div class="agenda-grid">
+    <div class="box">
+      <h3>🚶 Roteiro do Dia (Percurso)</h3>
+      <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+        <input type="date" id="dataRota" style="flex: 1;">
+        <button onclick="adicionarAoRoteiro()" style="background: #2b6cb0; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">+ Add</button>
+      </div>
+      
+      <div id="containerRoteiro">
+        <select id="selectFamiliaRota" class="form-group" style="margin-bottom: 10px;">
+          <option value="">Selecione uma família...</option>
+        </select>
+        <ul class="activities" id="listaRoteiroDiario">
+          </ul>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>🏥 Escala e Observações</h3>
+      <textarea id="obsAgenda" rows="4" placeholder="Ex: Terça-feira - Reunião de Equipe na UBS..." onchange="salvarAgenda()"></textarea>
+      
+      <div style="margin-top: 20px;">
+        <h4>Resumo do Mês</h4>
+        <ul class="list" id="resumoMesAgenda">
+          </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="script.js"></script>
+<script>
+  // Inicia a página de forma segura quando tudo estiver carregado
+  window.addEventListener('load', function() {
+      popularSelectFamilias();
+      atualizarAgenda();
+      renderizarRoteiro();
+      
+      // Recupera as observações salvas
+      const salvos = JSON.parse(localStorage.getItem("dadosAgenda"));
+      if (salvos) {
+          if (document.getElementById('inputRecepcao')) document.getElementById('inputRecepcao').value = salvos.recepcao;
+          if (document.getElementById('obsAgenda')) document.getElementById('obsAgenda').value = salvos.obs;
+      }
+  });
+
+  function popularSelectFamilias() {
+      const select = document.getElementById('selectFamiliaRota');
+      if (!select) return;
+      
+      // Verifica se a variável familias (do script.js) existe e tem dados
+      if (typeof familias !== 'undefined' && familias.length > 0) {
+          familias.sort((a,b) => a.numeroFamilia - b.numeroFamilia).forEach(f => {
+              const opt = document.createElement('option');
+              opt.value = f.id;
+              opt.textContent = `F. ${f.numeroFamilia} - ${f.responsavel}`;
+              select.appendChild(opt);
+          });
+      }
+  }
+
+  function calcularDiasUteis() {
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = hoje.getMonth();
+      const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+      let uteis = 0;
+
+      for (let i = 1; i <= ultimoDia; i++) {
+          const dia = new Date(ano, mes, i).getDay();
+          if (dia !== 0 && dia !== 6) uteis++; // Exclui Sábado e Domingo
+      }
+      return uteis;
+  }
+
+  function atualizarAgenda() {
+      const uteis = calcularDiasUteis();
+      const inputRec = document.getElementById('inputRecepcao');
+      const recepcao = inputRec ? (parseInt(inputRec.value) || 0) : 0;
+      const campo = Math.max(0, uteis - recepcao);
+      
+      let metaVisitas = 80; // Valor por defeito
+      if (typeof familias !== 'undefined') {
+          const config = JSON.parse(localStorage.getItem("metasConfig2")) || { metaVisitasPct: 80 };
+          const totalFamilias = familias.length;
+          metaVisitas = Math.ceil(totalFamilias * (config.metaVisitasPct / 100)) || 80;
+      }
+      
+      const diaria = campo > 0 ? (metaVisitas / campo).toFixed(1) : metaVisitas;
+
+      if(document.getElementById('cardDiasUteis')) document.getElementById('cardDiasUteis').textContent = uteis;
+      if(document.getElementById('cardDiasCampo')) document.getElementById('cardDiasCampo').textContent = campo;
+      if(document.getElementById('cardMetaDiaria')) document.getElementById('cardMetaDiaria').textContent = diaria;
+      
+      salvarAgenda();
+  }
+
+  function adicionarAoRoteiro() {
+      const famId = document.getElementById('selectFamiliaRota').value;
+      const data = document.getElementById('dataRota').value;
+      if (!famId || !data) {
+          alert("Por favor, selecione a família e a data!");
+          return;
+      }
+
+      const fam = familias.find(f => f.id == famId);
+      if (!fam) return;
+
+      const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
+      
+      roteiro.push({
+          id: Date.now(),
+          familiaId: famId,
+          responsavel: fam.responsavel,
+          rua: fam.logradouro,
+          data: data,
+          status: '⏳ Planejada'
+      });
+
+      localStorage.setItem("roteiroDigital", JSON.stringify(roteiro));
+      renderizarRoteiro();
+  }
+
+  function renderizarRoteiro() {
+      const lista = document.getElementById('listaRoteiroDiario');
+      if (!lista) return;
+      
+      const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
+      lista.innerHTML = "";
+
+      roteiro.sort((a,b) => new Date(a.data) - new Date(b.data)).forEach(item => {
+          const statusClass = item.status.includes('⏳') ? 'status-aguardando' : 'status-concluida';
+          lista.innerHTML += `
+            <li style="display:flex; flex-direction:column; align-items:flex-start; padding:12px 0; border-bottom:1px solid #edf2f7;">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                    <strong style="color:#2c5282;">${item.responsavel}</strong>
+                    <span class="status-badge ${statusClass}">${item.status}</span>
+                </div>
+                <div style="font-size:12px; color:#718096; width:100%; display:flex; justify-content:space-between; margin-top:6px;">
+                    <span>📍 ${item.rua} · 📅 ${item.data.split('-').reverse().join('/')}</span>
+                    <button onclick="removerDoRoteiro(${item.id})" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-weight:bold;">Excluir</button>
+                </div>
+            </li>`;
+      });
+  }
+
+  function removerDoRoteiro(id) {
+      let roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
+      roteiro = roteiro.filter(i => i.id !== id);
+      localStorage.setItem("roteiroDigital", JSON.stringify(roteiro));
+      renderizarRoteiro();
+  }
+
+  function salvarAgenda() {
+      const inputRec = document.getElementById('inputRecepcao');
+      const obsAg = document.getElementById('obsAgenda');
+      
+      if (!inputRec || !obsAg) return;
+
+      const dados = {
+          recepcao: inputRec.value,
+          obs: obsAg.value
+      };
+      localStorage.setItem("dadosAgenda", JSON.stringify(dados));
+  }
+
+</script>
+</body>
+</html>

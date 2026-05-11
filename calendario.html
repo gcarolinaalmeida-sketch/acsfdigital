@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Calendário de Visitas - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .cal-header h2 { font-size:18px; font-weight:700; color:#1a365d; }
+    .cal-nav { background:#2b6cb0; color:white; border:none; border-radius:6px; width:36px; height:36px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .cal-dia-label { text-align:center; font-size:11px; font-weight:700; color:#718096; padding:6px 0; text-transform:uppercase; }
+    .cal-dia {
+      aspect-ratio:1;
+      border-radius:8px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      position:relative;
+      background:#f8fafc;
+      border:1px solid transparent;
+      transition:0.15s;
+      min-height:44px;
+    }
+    .cal-dia:hover { border-color:#bee3f8; }
+    .cal-dia.outro-mes { opacity:0.25; cursor:default; }
+    .cal-dia.hoje { border:2px solid #2b6cb0; color:#2b6cb0; font-weight:700; }
+    .cal-dia.com-visita { background:#c6f6d5; color:#22543d; }
+    .cal-dia.com-roteiro { background:#ebf8ff; color:#2b6cb0; }
+    .cal-dia.com-visita.com-roteiro { background:#c6f6d5; }
+    .cal-dia.sem-visita-atrasado { background:#fff5f5; color:#c53030; }
+    .cal-dot { width:5px; height:5px; border-radius:50%; background:#38a169; margin-top:2px; }
+    .cal-dot.roteiro { background:#2b6cb0; }
+    .legenda { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:12px; color:#4a5568; }
+    .legenda-item { display:flex; align-items:center; gap:5px; }
+    .legenda-cor { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+    .detalhe-dia { background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:16px; margin-top:16px; display:none; }
+    .detalhe-dia.visivel { display:block; }
+    .resumo-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:10px; margin-bottom:16px; }
+    .resumo-card { background:#f8fafc; border-radius:8px; padding:12px; text-align:center; }
+    .resumo-card .num { font-size:24px; font-weight:700; color:#1a365d; }
+    .resumo-card .leg { font-size:11px; color:#718096; }
+  </style>
+</head>
+<body style="padding-bottom:80px;">
+
+<button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+    <button onclick="window.location.href='index.html'">🏠 Painel inicial</button>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')"><span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')"><span>📅 Visitas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')"><span>📊 Relatórios e Metas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn active" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
+      <div class="nav-submenu aberto" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button class="active" onclick="window.location.href='calendario.html'">📆 Calendário</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
+      </div>
+    </div>
+    <div class="nav-divisor"></div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+      </div>
+    </div>
+  </nav>
+  <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div>
+      <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
+      <span id="sidebarMicroarea">Microárea 03</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <h1>📆 Calendário de Visitas</h1>
+  </header>
+
+  <!-- RESUMO DO MÊS -->
+  <div class="resumo-cards" id="resumoMes"></div>
+
+  <!-- CALENDÁRIO -->
+  <div class="box" style="margin-bottom:16px;">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="mudarMes(-1)">‹</button>
+      <h2 id="tituloMes">—</h2>
+      <button class="cal-nav" onclick="mudarMes(1)">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid">
+      <div class="cal-dia-label">Dom</div>
+      <div class="cal-dia-label">Seg</div>
+      <div class="cal-dia-label">Ter</div>
+      <div class="cal-dia-label">Qua</div>
+      <div class="cal-dia-label">Qui</div>
+      <div class="cal-dia-label">Sex</div>
+      <div class="cal-dia-label">Sáb</div>
+    </div>
+    <div class="legenda">
+      <div class="legenda-item"><div class="legenda-cor" style="background:#c6f6d5;"></div> Com visita realizada</div>
+      <div class="legenda-item"><div class="legenda-cor" style="background:#ebf8ff;border:1px solid #bee3f8;"></div> Roteiro planejado</div>
+      <div class="legenda-item"><div class="legenda-cor" style="border:2px solid #2b6cb0;"></div> Hoje</div>
+    </div>
+  </div>
+
+  <!-- DETALHE DO DIA CLICADO -->
+  <div class="detalhe-dia box" id="detalheDia"></div>
+
+  <nav class="bottom-nav no-print">
+    <a href="index.html" class="nav-item">🏠<span>Início</span></a>
+    <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
+    <a href="calendario.html" class="nav-item active">📆<span>Calendário</span></a>
+    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+  </nav>
+</main>
+
+<script src="script.js"></script>
+<script>
+  let mesAtual = new Date().getMonth();
+  let anoAtual = new Date().getFullYear();
+
+  function renderizarCalendario() {
+    const hoje = new Date();
+    const nomeMes = new Date(anoAtual, mesAtual, 1).toLocaleString('pt-BR', {month:'long', year:'numeric'});
+    document.getElementById("tituloMes").textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+
+    const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
+
+    // Dias com visitas
+    const diasComVisita = {};
+    visitas.filter(v => {
+      const d = new Date(v.data);
+      return d.getMonth() === mesAtual && d.getFullYear() === anoAtual && v.desfecho === "Visita Realizada";
+    }).forEach(v => {
+      const dia = new Date(v.data).getDate();
+      diasComVisita[dia] = (diasComVisita[dia] || 0) + 1;
+    });
+
+    // Dias com roteiro
+    const diasComRoteiro = {};
+    roteiro.filter(r => {
+      if (!r.data) return false;
+      const d = new Date(r.data);
+      return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+    }).forEach(r => {
+      const dia = new Date(r.data).getDate();
+      diasComRoteiro[dia] = true;
+    });
+
+    const primeiroDia = new Date(anoAtual, mesAtual, 1).getDay();
+    const ultimoDia   = new Date(anoAtual, mesAtual + 1, 0).getDate();
+    const ultMesAnt   = new Date(anoAtual, mesAtual, 0).getDate();
+
+    const grid = document.getElementById("calGrid");
+    // Remove dias antigos
+    const labels = grid.querySelectorAll('.cal-dia-label');
+    grid.innerHTML = "";
+    labels.forEach(l => grid.appendChild(l));
+
+    // Dias mês anterior
+    for (let i = primeiroDia - 1; i >= 0; i--) {
+      const div = document.createElement("div");
+      div.className = "cal-dia outro-mes";
+      div.textContent = ultMesAnt - i;
+      grid.appendChild(div);
+    }
+
+    // Dias do mês
+    for (let d = 1; d <= ultimoDia; d++) {
+      const div = document.createElement("div");
+      div.className = "cal-dia";
+      div.innerHTML = `<span>${d}</span>`;
+      const isHoje = d === hoje.getDate() && mesAtual === hoje.getMonth() && anoAtual === hoje.getFullYear();
+      if (isHoje)           div.classList.add("hoje");
+      if (diasComVisita[d]) div.classList.add("com-visita");
+      if (diasComRoteiro[d] && !diasComVisita[d]) div.classList.add("com-roteiro");
+      if (diasComVisita[d]) div.innerHTML += `<div class="cal-dot"></div>`;
+      else if (diasComRoteiro[d]) div.innerHTML += `<div class="cal-dot roteiro"></div>`;
+      div.onclick = () => abrirDetalhe(d, diasComVisita[d] || 0, diasComRoteiro[d] || false);
+      grid.appendChild(div);
+    }
+
+    // Dias próximo mês
+    const totalCelulas = primeiroDia + ultimoDia;
+    const resto = totalCelulas % 7 === 0 ? 0 : 7 - (totalCelulas % 7);
+    for (let d = 1; d <= resto; d++) {
+      const div = document.createElement("div");
+      div.className = "cal-dia outro-mes";
+      div.textContent = d;
+      grid.appendChild(div);
+    }
+
+    // Resumo
+    const totalVisitasMes = Object.values(diasComVisita).reduce((a,b) => a+b, 0);
+    const diasUteis = contarDiasUteis(anoAtual, mesAtual);
+    const diasTrabalhados = Object.keys(diasComVisita).length;
+    document.getElementById("resumoMes").innerHTML = `
+      <div class="resumo-card"><div class="num" style="color:#38a169;">${totalVisitasMes}</div><div class="leg">Visitas no mês</div></div>
+      <div class="resumo-card"><div class="num" style="color:#3182ce;">${diasTrabalhados}</div><div class="leg">Dias trabalhados</div></div>
+      <div class="resumo-card"><div class="num" style="color:#1a365d;">${diasUteis}</div><div class="leg">Dias úteis</div></div>
+      <div class="resumo-card"><div class="num" style="color:#ed8936;">${Object.keys(diasComRoteiro).length}</div><div class="leg">Dias planejados</div></div>`;
+  }
+
+  function contarDiasUteis(ano, mes) {
+    const ultimo = new Date(ano, mes + 1, 0).getDate();
+    let uteis = 0;
+    for (let d = 1; d <= ultimo; d++) {
+      const dow = new Date(ano, mes, d).getDay();
+      if (dow !== 0 && dow !== 6) uteis++;
+    }
+    return uteis;
+  }
+
+  function abrirDetalhe(dia, qtdVisitas, temRoteiro) {
+    const dataStr = `${anoAtual}-${String(mesAtual+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+    const visitasDia = visitas.filter(v => v.data === dataStr).sort((a,b) => a.desfecho.localeCompare(b.desfecho));
+    const roteiroDia = (JSON.parse(localStorage.getItem("roteiroDigital"))||[]).filter(r => r.data === dataStr);
+    const det = document.getElementById("detalheDia");
+    const dataFormatada = new Date(dataStr + 'T12:00:00').toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
+
+    let html = `<h3 style="margin-bottom:12px;">📅 ${dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1)}</h3>`;
+
+    if (visitasDia.length > 0) {
+      html += `<div style="margin-bottom:12px;"><strong style="font-size:13px;color:#22543d;">✅ Visitas realizadas (${visitasDia.length})</strong>`;
+      visitasDia.forEach(v => {
+        html += `<div style="padding:8px 0;border-bottom:1px solid #edf2f7;font-size:13px;display:flex;justify-content:space-between;">
+          <span>${v.cidadao}</span>
+          <span style="color:${v.desfecho==='Visita Realizada'?'#22543d':'#c53030'};font-size:12px;">${v.desfecho}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    if (roteiroDia.length > 0) {
+      html += `<div><strong style="font-size:13px;color:#2b6cb0;">🗓️ Roteiro planejado (${roteiroDia.length})</strong>`;
+      roteiroDia.forEach(r => {
+        html += `<div style="padding:8px 0;border-bottom:1px solid #edf2f7;font-size:13px;display:flex;justify-content:space-between;">
+          <span>${r.responsavel}</span>
+          <span style="font-size:12px;color:#718096;">${r.rua||''}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    if (visitasDia.length === 0 && roteiroDia.length === 0) {
+      html += `<p style="color:#a0aec0;text-align:center;padding:16px;">Nenhuma visita ou roteiro para este dia.</p>`;
+    }
+
+    html += `<button onclick="window.location.href='visitas.html'" style="margin-top:12px;background:#2b6cb0;color:white;border:none;padding:10px 16px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;width:100%;">➕ Registrar visita neste dia</button>`;
+
+    det.innerHTML = html;
+    det.classList.add("visivel");
+    det.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+
+  function mudarMes(delta) {
+    mesAtual += delta;
+    if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
+    if (mesAtual < 0)  { mesAtual = 11; anoAtual--; }
+    document.getElementById("detalheDia").classList.remove("visivel");
+    renderizarCalendario();
+  }
+
+  window.addEventListener('load', renderizarCalendario);
+</script>
+</body>
+</html>

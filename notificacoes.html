@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Notificações - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .notif-card { background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:14px 16px; margin-bottom:10px; border-left:4px solid #e2e8f0; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .notif-card.urgente  { border-left-color:#e53e3e; }
+    .notif-card.alerta   { border-left-color:#ed8936; }
+    .notif-card.info     { border-left-color:#3182ce; }
+    .notif-card.ok       { border-left-color:#38a169; opacity:0.6; }
+    .notif-icone { font-size:22px; flex-shrink:0; margin-top:2px; }
+    .notif-texto strong { font-size:14px; color:#2c5282; display:block; margin-bottom:3px; }
+    .notif-texto p { font-size:13px; color:#718096; line-height:1.5; margin:0; }
+    .notif-data { font-size:11px; color:#a0aec0; margin-top:4px; }
+    .notif-acoes { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+    .btn-notif { font-size:12px; font-weight:bold; padding:5px 10px; border-radius:4px; border:none; cursor:pointer; white-space:nowrap; }
+    .btn-ver    { background:#ebf8ff; color:#2b6cb0; }
+    .btn-ok     { background:#c6f6d5; color:#22543d; }
+    .filtro-notif { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+    .filtro-btn { padding:7px 14px; border:1.5px solid #e2e8f0; border-radius:20px; background:white; font-size:13px; cursor:pointer; transition:0.15s; }
+    .filtro-btn.ativo { background:#2b6cb0; color:white; border-color:#2b6cb0; }
+    .badge-contador { display:inline-flex; align-items:center; justify-content:center; background:#e53e3e; color:white; font-size:11px; font-weight:bold; border-radius:99px; min-width:20px; height:20px; padding:0 5px; margin-left:6px; }
+  </style>
+</head>
+<body style="padding-bottom:80px;">
+
+<button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+    <button onclick="window.location.href='index.html'">🏠 Painel inicial</button>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')"><span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+        <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')"><span>📅 Visitas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')"><span>📊 Relatórios e Metas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa</button>
+      </div>
+    </div>
+    <div class="nav-divisor"></div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+      </div>
+    </div>
+  </nav>
+  <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <h1>🔔 Central de Notificações</h1>
+      <p>Alertas automáticos baseados nos seus dados cadastrados.</p>
+    </div>
+    <button onclick="marcarTodasLidas()" style="background:#a0aec0;color:white;border:none;padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer;white-space:nowrap;">✓ Marcar todas como lidas</button>
+  </header>
+
+  <div class="filtro-notif">
+    <button class="filtro-btn ativo" onclick="setFiltro('todas',this)">Todas <span id="cntTodas" class="badge-contador">0</span></button>
+    <button class="filtro-btn" onclick="setFiltro('urgente',this)">🔴 Urgentes <span id="cntUrgente" class="badge-contador">0</span></button>
+    <button class="filtro-btn" onclick="setFiltro('alerta',this)">🟡 Alertas <span id="cntAlerta" class="badge-contador">0</span></button>
+    <button class="filtro-btn" onclick="setFiltro('info',this)">🔵 Informações <span id="cntInfo" class="badge-contador">0</span></button>
+  </div>
+
+  <div id="listaNotificacoes"></div>
+</main>
+
+<nav class="bottom-nav no-print">
+  <a href="index.html" class="nav-item">🏠<span>Início</span></a>
+  <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
+  <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
+  <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+</nav>
+
+<script src="script.js"></script>
+<script>
+  let filtroAtivo = 'todas';
+  let todasNotifs = [];
+
+  function gerarNotificacoes() {
+    const notifs = [];
+    const hoje = new Date();
+    const lidas = JSON.parse(localStorage.getItem("notifLidas")) || [];
+
+    // Gestantes sem visita este mês
+    const visitasMes = visitas.filter(v => {
+      const d = new Date(v.data);
+      return d.getMonth()===hoje.getMonth() && d.getFullYear()===hoje.getFullYear() && v.desfecho==="Visita Realizada";
+    });
+    const famVisitadasMes = new Set(visitasMes.map(v => String(v.familiaId)));
+
+    membros.filter(m => m.gestante==="Sim").forEach(m => {
+      const id = `gest_${m.id}`;
+      if (!famVisitadasMes.has(String(m.familia_id))) {
+        notifs.push({ id, tipo:'urgente', icone:'🤰', titulo:`Gestante sem visita este mês`, texto:`${m.nome} — gestante que ainda não recebeu visita em ${hoje.toLocaleString('pt-BR',{month:'long'})}.`, link:`familia_detalhe`, familiaId: m.familia_id, lida: lidas.includes(id) });
+      }
+    });
+
+    // Acamados/domiciliados há mais de 15 dias
+    membros.filter(m => m.doencas_lista?.includes("Acamado") || m.doencas_lista?.includes("Domiciliado")).forEach(m => {
+      const vFam = visitas.filter(v => v.familiaId==m.familia_id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+      const dias = vFam.length ? Math.floor((hoje-new Date(vFam[0].data))/(1000*60*60*24)) : 999;
+      const id = `acamado_${m.id}`;
+      if (dias > 15) {
+        const tipo = dias > 30 ? 'urgente' : 'alerta';
+        notifs.push({ id, tipo, icone:'🛏️', titulo:`${m.doencas_lista.includes("Acamado")?"Acamado":"Domiciliado"} sem visita há ${dias>300?"muito tempo":dias+"d"}`, texto:`${m.nome} precisa de acompanhamento frequente.`, link:'familia_detalhe', familiaId: m.familia_id, lida: lidas.includes(id) });
+      }
+    });
+
+    // Crianças próximas de 2 anos
+    membros.forEach(m => {
+      if (!m.nascimento) return;
+      const nasc = new Date(m.nascimento);
+      const anos2 = new Date(nasc); anos2.setFullYear(anos2.getFullYear()+2);
+      const diasPara2 = Math.floor((anos2-hoje)/(1000*60*60*24));
+      if (diasPara2 >= 0 && diasPara2 <= 30) {
+        const id = `crianca2_${m.id}`;
+        notifs.push({ id, tipo:'info', icone:'👶', titulo:`Criança prestes a completar 2 anos`, texto:`${m.nome} completa 2 anos em ${diasPara2===0?"hoje":diasPara2+"d"} e sairá do grupo prioritário de crianças.`, link:'cidadaos_lista', familiaId: m.familia_id, lida: lidas.includes(id) });
+      }
+    });
+
+    // Famílias há mais de 30 dias sem visita
+    const famAtrasadas = familias.filter(f => {
+      const vFam = visitas.filter(v=>v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+      const dias = vFam.length ? Math.floor((hoje-new Date(vFam[0].data))/(1000*60*60*24)) : 9999;
+      return dias > 30;
+    });
+    if (famAtrasadas.length > 0) {
+      const id = `atrasadas_geral`;
+      notifs.push({ id, tipo:'alerta', icone:'🏠', titulo:`${famAtrasadas.length} famílias há mais de 30 dias sem visita`, texto:`Priorize visitar estas famílias para manter a meta mensal.`, link:'familias_lista', lida: lidas.includes(id) });
+    }
+
+    // Famílias nunca visitadas
+    const nuncaVisitadas = familias.filter(f => !visitas.some(v=>v.familiaId==f.id));
+    if (nuncaVisitadas.length > 0) {
+      const id = `nunca_visitadas`;
+      notifs.push({ id, tipo:'urgente', icone:'🚨', titulo:`${nuncaVisitadas.length} famílias NUNCA foram visitadas`, texto:`Estas famílias não têm nenhuma visita registrada.`, link:'familias_lista', lida: lidas.includes(id) });
+    }
+
+    // Backup atrasado
+    const ultimoBackup = localStorage.getItem("ultimoBackup");
+    if (!ultimoBackup || Math.floor((hoje-new Date(ultimoBackup))/(1000*60*60*24)) >= 7) {
+      const id = `backup`;
+      notifs.push({ id, tipo:'alerta', icone:'💾', titulo:`Backup dos dados atrasado`, texto:ultimoBackup?`Último backup há ${Math.floor((hoje-new Date(ultimoBackup))/(1000*60*60*24))} dias. Recomendamos backup semanal.`:`Você nunca fez backup. Faça agora para não perder dados.`, link:'configuracoes', lida: lidas.includes(id) });
+    }
+
+    // Meta do mês
+    const cfg = JSON.parse(localStorage.getItem("metasConfig2")) || {metaVisitasPct:80};
+    const famVisitadas = famVisitadasMes.size;
+    const metaFam = Math.ceil(familias.length * (cfg.metaVisitasPct/100));
+    const pct = metaFam===0?0:Math.round((famVisitadas/metaFam)*100);
+    const diasMes = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
+    const diasPassados = hoje.getDate();
+    const progressoEsperado = Math.round((diasPassados/diasMes)*100);
+    if (pct < progressoEsperado - 15) {
+      const id = `meta_atrasada`;
+      notifs.push({ id, tipo:'alerta', icone:'🎯', titulo:`Meta do mês em atraso`, texto:`Você está em ${pct}% da meta mas já passou ${progressoEsperado}% do mês. Intensifique as visitas.`, link:'metas', lida: lidas.includes(id) });
+    } else if (pct >= 100) {
+      const id = `meta_atingida`;
+      notifs.push({ id, tipo:'info', icone:'🏆', titulo:`Meta do mês atingida!`, texto:`Parabéns! Você atingiu ${pct}% da meta de visitas deste mês.`, link:'metas', lida: lidas.includes(id) });
+    }
+
+    return notifs.sort((a,b) => {
+      const ordem = {urgente:0, alerta:1, info:2};
+      if (a.lida !== b.lida) return a.lida ? 1 : -1;
+      return (ordem[a.tipo]||3) - (ordem[b.tipo]||3);
+    });
+  }
+
+  function setFiltro(filtro, btn) {
+    filtroAtivo = filtro;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    renderizarLista();
+  }
+
+  function renderizarLista() {
+    const container = document.getElementById("listaNotificacoes");
+    let lista = filtroAtivo === 'todas' ? todasNotifs : todasNotifs.filter(n => n.tipo === filtroAtivo);
+
+    document.getElementById("cntTodas").textContent    = todasNotifs.filter(n=>!n.lida).length;
+    document.getElementById("cntUrgente").textContent  = todasNotifs.filter(n=>n.tipo==='urgente'&&!n.lida).length;
+    document.getElementById("cntAlerta").textContent   = todasNotifs.filter(n=>n.tipo==='alerta'&&!n.lida).length;
+    document.getElementById("cntInfo").textContent     = todasNotifs.filter(n=>n.tipo==='info'&&!n.lida).length;
+
+    if (lista.length === 0) {
+      container.innerHTML = `<div class="box" style="text-align:center;padding:40px;color:#718096;">
+        <div style="font-size:40px;margin-bottom:12px;">✅</div>
+        <strong>Tudo em dia!</strong><br>Nenhuma notificação para este filtro.
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = lista.map(n => {
+      const links = { familia_detalhe: ()=>{ localStorage.setItem("familiaAtual",n.familiaId); return "familia_detalhe.html"; }, familias_lista:"familias_lista.html", cidadaos_lista:"cidadaos_lista.html", configuracoes:"configuracoes.html", metas:"metas.html" };
+      const href = typeof links[n.link]==="function" ? links[n.link]() : (links[n.link]||"index.html");
+      return `
+      <div class="notif-card ${n.lida?'ok':n.tipo}">
+        <div class="notif-icone">${n.icone}</div>
+        <div class="notif-texto" style="flex:1;">
+          <strong>${n.titulo}</strong>
+          <p>${n.texto}</p>
+          ${n.lida?'<div class="notif-data">✓ Marcada como lida</div>':''}
+        </div>
+        <div class="notif-acoes">
+          <button class="btn-notif btn-ver" onclick="window.location.href='${href}'">Ver →</button>
+          ${!n.lida?`<button class="btn-notif btn-ok" onclick="marcarLida('${n.id}')">✓ Lida</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function marcarLida(id) {
+    const lidas = JSON.parse(localStorage.getItem("notifLidas")) || [];
+    if (!lidas.includes(id)) lidas.push(id);
+    localStorage.setItem("notifLidas", JSON.stringify(lidas));
+    todasNotifs = gerarNotificacoes();
+    renderizarLista();
+  }
+
+  function marcarTodasLidas() {
+    const ids = todasNotifs.map(n => n.id);
+    localStorage.setItem("notifLidas", JSON.stringify(ids));
+    todasNotifs = gerarNotificacoes();
+    renderizarLista();
+  }
+
+  window.addEventListener('load', () => {
+    todasNotifs = gerarNotificacoes();
+    renderizarLista();
+  });
+</script>
+</body>
+</html>

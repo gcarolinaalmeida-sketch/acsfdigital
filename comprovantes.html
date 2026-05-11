@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Comprovantes de Visita - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+
+    /* ── Controles (somem na impressão) ── */
+    .controles {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: white;
+      border-radius: 10px;
+      padding: 16px 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .controles label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #4a5568;
+      white-space: nowrap;
+    }
+    .controles input[type="month"],
+    .controles select {
+      flex: 1;
+      min-width: 140px;
+      max-width: 220px;
+    }
+    .controles .acoes { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+
+    .contador-aviso {
+      font-size: 13px;
+      color: #718096;
+      padding: 0 4px;
+    }
+
+    /* ── Grade de comprovantes ── */
+    #areaComprovantes {
+      display: flex;
+      flex-direction: column;
+      gap: 0; /* sem gap — cortamos pela linha */
+    }
+
+    /* ── Comprovante individual ── */
+    .comprovante {
+      border: 1.5px solid #2c5282;
+      border-radius: 0;
+      padding: 18px 22px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      background: white;
+      /* Linha pontilhada de corte entre comprovantes */
+      border-bottom: 2px dashed #a0aec0;
+      margin-bottom: 0;
+    }
+    .comprovante:last-child {
+      border-bottom: 1.5px solid #2c5282;
+    }
+
+    /* Cabeçalho do comprovante */
+    .comp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #1a365d;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+    .comp-titulo {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1a365d;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .comp-subtitulo {
+      font-size: 11px;
+      color: #718096;
+      margin-top: 2px;
+    }
+    .comp-numero {
+      font-size: 11px;
+      color: #a0aec0;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* Corpo: duas colunas */
+    .comp-corpo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .comp-campo { display: flex; flex-direction: column; gap: 2px; }
+    .comp-campo-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #718096;
+    }
+    .comp-campo-valor {
+      font-size: 13px;
+      color: #1a202c;
+      font-weight: 500;
+    }
+    .comp-campo.span-full { grid-column: 1 / -1; }
+
+    /* Desfecho badge */
+    .comp-desfecho {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .comp-desfecho.realizada { background: #c6f6d5; color: #22543d; }
+    .comp-desfecho.recusada  { background: #fed7d7; color: #742a2a; }
+    .comp-desfecho.ausente   { background: #feebc8; color: #744210; }
+
+    /* Foto */
+    .comp-foto {
+      max-width: 120px;
+      max-height: 90px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      object-fit: cover;
+    }
+
+    /* Assinaturas */
+    .comp-assinaturas {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .comp-assinatura { text-align: center; }
+    .comp-assinatura-img {
+      max-width: 100%;
+      max-height: 60px;
+      display: block;
+      margin: 0 auto 4px;
+    }
+    .comp-assinatura-linha {
+      border-top: 1px solid #4a5568;
+      padding-top: 5px;
+      margin-top: 4px;
+    }
+    .comp-assinatura-linha strong {
+      display: block;
+      font-size: 11px;
+      color: #1a202c;
+    }
+    .comp-assinatura-linha span {
+      font-size: 10px;
+      color: #718096;
+    }
+    /* Espaço para assinatura manual do morador */
+    .comp-assinatura-vazia {
+      height: 48px;
+      border-bottom: 1px solid #4a5568;
+      margin-bottom: 4px;
+    }
+
+    /* Linha de corte visual (tela) */
+    .linha-corte {
+      text-align: center;
+      font-size: 10px;
+      color: #cbd5e0;
+      letter-spacing: 0.2em;
+      margin: 0;
+      padding: 3px 0;
+      background: #f4f7f6;
+      user-select: none;
+    }
+
+    /* Estado vazio */
+    .estado-vazio {
+      text-align: center;
+      padding: 50px 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+    .estado-vazio .emoji { font-size: 48px; margin-bottom: 12px; }
+    .estado-vazio p { color: #718096; font-size: 15px; }
+
+    /* ── IMPRESSÃO ── */
+    @media print {
+      .no-print,
+      .controles,
+      .sidebar,
+      .btn-hamburger,
+      #sidebarOverlay,
+      .bottom-nav,
+      .linha-corte { display: none !important; }
+
+      @page {
+        size: A4 portrait;
+        margin: 8mm 10mm;
+      }
+
+      body {
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .main {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+
+      .comprovante {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        border-radius: 0;
+      }
+
+      /* Garante cores de fundo */
+      .comp-desfecho,
+      .comp-desfecho.realizada,
+      .comp-desfecho.recusada,
+      .comp-desfecho.ausente {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="main" style="margin-left:0; width:100%;">
+
+  <!-- Controles -->
+  <div class="controles no-print">
+    <label>📅 Mês:</label>
+    <input type="month" id="filtroMes" onchange="gerarComprovantes()">
+
+    <label>👤 Família:</label>
+    <select id="filtroFamilia" onchange="gerarComprovantes()">
+      <option value="">Todas as famílias</option>
+    </select>
+
+    <label>📋 Desfecho:</label>
+    <select id="filtroDesfecho" onchange="gerarComprovantes()">
+      <option value="">Todos</option>
+      <option value="Visita Realizada">✅ Realizadas</option>
+      <option value="Visita Recusada">❌ Recusadas</option>
+      <option value="Ausente">⚠️ Ausentes</option>
+    </select>
+
+    <span class="contador-aviso" id="contadorComp"></span>
+
+    <div class="acoes">
+      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+      <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir Comprovantes</button>
+    </div>
+  </div>
+
+  <div id="areaComprovantes"></div>
+
+</div>
+
+<script src="script.js"></script>
+<script>
+  // ── Inicialização ──
+  window.addEventListener('load', () => {
+    // Mês atual como padrão
+    const hoje = new Date();
+    document.getElementById('filtroMes').value =
+      `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
+
+    // Popula select de famílias
+    const sel = document.getElementById('filtroFamilia');
+    [...familias]
+      .sort((a,b) => a.numeroFamilia - b.numeroFamilia)
+      .forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f.id;
+        opt.textContent = `Família ${f.numeroFamilia} — ${f.responsavel}`;
+        sel.appendChild(opt);
+      });
+
+    gerarComprovantes();
+  });
+
+  // ── Gera os comprovantes ──
+  function gerarComprovantes() {
+    const area       = document.getElementById('areaComprovantes');
+    const mesVal     = document.getElementById('filtroMes').value;
+    const famFiltro  = document.getElementById('filtroFamilia').value;
+    const desfFiltro = document.getElementById('filtroDesfecho').value;
+    const perfil     = JSON.parse(localStorage.getItem('acsPerfil')) ||
+                       { nome: 'ACS Digital', ubs: 'UBS', microarea: '—' };
+
+    // Filtra por mês
+    let lista = visitas;
+    if (mesVal) {
+      const [ano, mes] = mesVal.split('-').map(Number);
+      lista = lista.filter(v => {
+        const d = new Date(v.data);
+        return d.getFullYear() === ano && d.getMonth() === mes - 1;
+      });
+    }
+
+    // Filtra por família
+    if (famFiltro) lista = lista.filter(v => String(v.familiaId) === famFiltro);
+
+    // Filtra por desfecho
+    if (desfFiltro) lista = lista.filter(v => v.desfecho === desfFiltro);
+
+    // Ordena por data
+    lista = [...lista].sort((a, b) => new Date(a.data) - new Date(b.data));
+
+    // Contador
+    const contador = document.getElementById('contadorComp');
+    if (contador) contador.textContent = `${lista.length} comprovante(s)`;
+
+    if (lista.length === 0) {
+      area.innerHTML = `
+        <div class="estado-vazio">
+          <div class="emoji">📋</div>
+          <p>Nenhuma visita encontrada para os filtros selecionados.</p>
+        </div>`;
+      return;
+    }
+
+    area.innerHTML = lista.map((v, idx) => {
+      const familia = familias.find(f => String(f.id) === String(v.familiaId));
+      const endereco = familia
+        ? `${familia.logradouro || '—'}, ${familia.numero || 'S/N'}${familia.bairro ? ' — ' + familia.bairro : ''}`
+        : '—';
+      const numFam   = familia ? `Família Nº ${familia.numeroFamilia}` : '—';
+      const dataFmt  = v.data ? v.data.split('-').reverse().join('/') : '—';
+      const geradoEm = new Date().toLocaleDateString('pt-BR');
+
+      // Desfecho
+      const defClasse = v.desfecho === 'Visita Realizada' ? 'realizada'
+                      : v.desfecho === 'Visita Recusada'  ? 'recusada'
+                      : 'ausente';
+
+      // Pendências
+      const pendencias = [];
+      if (v.pendenciaReceita)    pendencias.push('💊 Renovação de Receita');
+      if (v.pendenciaMarcacao)   pendencias.push('📅 Marcação de Consulta');
+      if (v.pendenciaPreventivo) pendencias.push('🩺 Preventivo');
+      if (v.pendenciaEcg)        pendencias.push('❤️ Eletrocardiograma');
+      if (v.detalhePendencia)    pendencias.push(`📝 ${v.detalhePendencia}`);
+
+      return `
+      <div class="linha-corte no-print">✂ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ corte ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ✂</div>
+      <div class="comprovante">
+
+        <!-- Cabeçalho -->
+        <div class="comp-header">
+          <div>
+            <div class="comp-titulo">💚 Comprovante de Visita Domiciliar</div>
+            <div class="comp-subtitulo">${perfil.ubs} · Microárea ${perfil.microarea}</div>
+          </div>
+          <div class="comp-numero">
+            Nº ${String(idx + 1).padStart(3, '0')}<br>
+            <span style="font-size:10px;">Emitido em ${geradoEm}</span>
+          </div>
+        </div>
+
+        <!-- Corpo com dados da visita -->
+        <div class="comp-corpo">
+
+          <div class="comp-campo">
+            <span class="comp-campo-label">Agente de Saúde</span>
+            <span class="comp-campo-valor">${perfil.nome}</span>
+          </div>
+
+          <div class="comp-campo">
+            <span class="comp-campo-label">Data da Visita</span>
+            <span class="comp-campo-valor">${dataFmt} · ${v.turno || '—'}</span>
+          </div>
+
+          <div class="comp-campo">
+            <span class="comp-campo-label">Família / Responsável</span>
+            <span class="comp-campo-valor">${numFam}${familia ? ' — ' + familia.responsavel : ''}</span>
+          </div>
+
+          <div class="comp-campo">
+            <span class="comp-campo-label">Desfecho</span>
+            <span class="comp-campo-valor">
+              <span class="comp-desfecho ${defClasse}">${v.desfecho}</span>
+            </span>
+          </div>
+
+          <div class="comp-campo span-full">
+            <span class="comp-campo-label">Endereço</span>
+            <span class="comp-campo-valor">${endereco}</span>
+          </div>
+
+          ${v.membrosAtendidos && v.membrosAtendidos.length > 0 ? `
+          <div class="comp-campo span-full">
+            <span class="comp-campo-label">Cidadãos Atendidos</span>
+            <span class="comp-campo-valor">${v.membrosAtendidos.join(', ')}</span>
+          </div>` : ''}
+
+          <div class="comp-campo span-full">
+            <span class="comp-campo-label">Motivo(s) da Visita</span>
+            <span class="comp-campo-valor">${v.motivos || '—'}</span>
+          </div>
+
+          ${v.info ? `
+          <div class="comp-campo span-full">
+            <span class="comp-campo-label">Observações / Evolução</span>
+            <span class="comp-campo-valor" style="color:#4a5568;">${v.info}</span>
+          </div>` : ''}
+
+          ${pendencias.length > 0 ? `
+          <div class="comp-campo span-full">
+            <span class="comp-campo-label">Pendências Registradas</span>
+            <span class="comp-campo-valor" style="color:#744210;">${pendencias.join(' · ')}</span>
+          </div>` : ''}
+
+          ${v.foto ? `
+          <div class="comp-campo span-full">
+            <span class="comp-campo-label">Foto do Local</span>
+            <img src="${v.foto}" class="comp-foto" alt="Foto da visita">
+          </div>` : ''}
+
+        </div>
+
+        <!-- Assinaturas -->
+        <div class="comp-assinaturas">
+
+          <div class="comp-assinatura">
+            ${v.assinatura && !isAssinaturaVazia(v.assinatura)
+              ? `<img src="${v.assinatura}" class="comp-assinatura-img" alt="Assinatura do morador">`
+              : `<div class="comp-assinatura-vazia"></div>`
+            }
+            <div class="comp-assinatura-linha">
+              <strong>Morador / Responsável pelo Domicílio</strong>
+              <span>${familia ? familia.responsavel : '—'}</span>
+            </div>
+          </div>
+
+          <div class="comp-assinatura">
+            <div class="comp-assinatura-vazia"></div>
+            <div class="comp-assinatura-linha">
+              <strong>${perfil.nome}</strong>
+              <span>Agente Comunitário de Saúde — Microárea ${perfil.microarea}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Detecta canvas em branco (só pixels transparentes) ──
+  function isAssinaturaVazia(dataUrl) {
+    if (!dataUrl || dataUrl === 'data:,') return true;
+    // Cria canvas temporário para verificar
+    try {
+      const img    = new Image();
+      img.src      = dataUrl;
+      const canvas = document.createElement('canvas');
+      canvas.width = 100; canvas.height = 30;
+      const ctx    = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, 100, 30);
+      const pixels = ctx.getImageData(0, 0, 100, 30).data;
+      // Se todos os pixels forem transparentes (alfa = 0), está vazio
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] > 10) return false; // encontrou pixel não-transparente
+      }
+      return true;
+    } catch (e) {
+      return true;
+    }
+  }
+</script>
+</body>
+</html>

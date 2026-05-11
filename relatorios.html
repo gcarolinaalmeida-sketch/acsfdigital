@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<!-- Força o modo tela cheia no iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACS Digital">
+<!-- Ícone para a tela de início do iPad -->
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+  <meta charset="UTF-8">
+  <title>Relatório Mensal - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Configuração para esconder botões na impressão */
+    @media print {
+        .no-print { display: none !important; }
+        body { background: white; padding: 0; }
+        .main { margin: 0; width: 100%; }
+        .box { box-shadow: none; border: 1px solid #e2e8f0; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<!-- HAMBÚRGUER MOBILE -->
+<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<div class="main" style="margin-left:0; width:100%;">
+  <div class="page-actions no-print">
+      <h1>📊 Relatório Consolidado</h1>
+      <div class="page-actions-btns">
+          <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+          <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir / PDF</button>
+          <button onclick="exportarCSVeSUS()" class="btn btn-success">📊 Exportar CSV</button>
+          <button onclick="compartilharWhatsApp()" class="btn btn-success" style="background:#25d366;">📲 WhatsApp</button>
+      </div>
+  </div>
+
+  <!-- Seletor de mês -->
+  <div class="box no-print" style="margin-bottom:16px;padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <label style="font-weight:bold;color:#4a5568;font-size:14px;">📅 Mês de referência:</label>
+    <input type="month" id="mesReferencia" onchange="gerarRelatorio()" style="padding:8px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
+  </div>
+
+  <div id="conteudoRelatorio"></div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  const hoje = new Date();
+  document.getElementById("mesReferencia").value = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
+
+  function compartilharWhatsApp() {
+    const perfil = JSON.parse(localStorage.getItem("acsPerfil")) || {nome:"ACS",ubs:"UBS",microarea:"—"};
+    const mesEl = document.getElementById("mesReferencia").value;
+    const [ano, mes] = mesEl.split("-");
+    const nomeMes = new Date(ano, mes-1, 1).toLocaleString('pt-BR', {month:'long', year:'numeric'});
+    const realizadas = visitas.filter(v => { const d=new Date(v.data); return d.getMonth()==mes-1 && d.getFullYear()==ano && v.desfecho==="Visita Realizada"; }).length;
+    const texto = `📋 *Relatório ACS Digital*\n👤 ${perfil.nome} | Microárea ${perfil.microarea}\n🏥 ${perfil.ubs}\n📅 ${nomeMes}\n\n✅ Visitas realizadas: ${realizadas}\n👨‍👩‍👧 Total de famílias: ${familias.length}\n👤 Total de cidadãos: ${membros.length}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+  }
+</script>
+</body>
+</html>

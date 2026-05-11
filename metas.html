@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ACS Digital">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Metas - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .meta-card {
+      background: white;
+      border-radius: var(--raio, 10px);
+      box-shadow: var(--sombra-card, 0 2px 8px rgba(0,0,0,0.06));
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+    .meta-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .meta-card h3 {
+      font-size: 15px;
+      color: #1a365d;
+      margin-bottom: 4px;
+    }
+    .meta-card .descricao {
+      font-size: 13px;
+      color: #718096;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border-left: 3px solid #e2e8f0;
+    }
+    .meta-numeros {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .meta-numero-item {
+      text-align: center;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 10px 16px;
+      min-width: 75px;
+    }
+    .meta-numero-item .num {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1a365d;
+      display: block;
+    }
+    .meta-numero-item .label-num {
+      font-size: 11px;
+      color: #718096;
+      display: block;
+      margin-top: 2px;
+    }
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #4a5568;
+    }
+    .progress-row strong { font-size: 17px; color: #1a365d; }
+    .barra-fundo {
+      background: #edf2f7;
+      border-radius: 999px;
+      height: 13px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .barra-progresso {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+    .badge-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .badge-ok     { background: #c6f6d5; color: #22543d; }
+    .badge-alerta { background: #feebc8; color: #744210; }
+    .badge-ruim   { background: #fed7d7; color: #742a2a; }
+    .badge-vazio  { background: #edf2f7; color: #4a5568; }
+    .config-panel {
+      background: #f0f4ff;
+      border: 1px solid #c3dafe;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 14px;
+      display: none;
+    }
+    .config-panel.aberto { display: block; }
+    .config-panel label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2c5282;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .config-panel input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #a3bffa;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .btn-config {
+      background: none;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: #4a5568;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-height: unset;
+    }
+    .btn-config:hover { background: #edf2f7; }
+    .btn-salvar-meta {
+      background: #2b6cb0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      min-height: unset;
+    }
+    .btn-salvar-meta:hover { background: #2c5282; }
+    .secao-titulo {
+      font-size: 17px;
+      font-weight: bold;
+      color: #1a365d;
+      margin: 28px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .grid-metas {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .grid-metas { grid-template-columns: 1fr; } }
+    @media print {
+      .no-print { display: none !important; }
+      .sidebar  { display: none !important; }
+      .btn-hamburger { display: none !important; }
+      .main     { margin: 0 !important; width: 100% !important; padding: 15px !important; }
+      body      { background: white; }
+      .meta-card { box-shadow: none; border: 1px solid #e2e8f0; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+
+    <!-- PAINEL -->
+    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
+
+    <div class="nav-divisor"></div>
+
+    <!-- FAMÍLIAS E CIDADÃOS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')">
+        <span>👨‍👩‍👧 Famílias e Cidadãos</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+      </div>
+    </div>
+
+    <!-- VISITAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')">
+        <span>📅 Visitas</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS E METAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')">
+        <span>📊 Relatórios e Metas</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
+      </div>
+    </div>
+
+    <!-- PLANEJAMENTO -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')">
+        <span>🗓️ Planejamento</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
+      </div>
+    </div>
+
+    <div class="nav-divisor"></div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')">
+        <span>⚙️ Configurações</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+      </div>
+    </div>
+
+  </nav>
+    <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div>
+      <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
+      <span id="sidebarMicroarea">Microárea 03</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <header class="topbar">
+    <div>
+      <h1>🎯 Metas de Acompanhamento</h1>
+      <p style="color:#718096; font-size:14px;">Acompanhe o cumprimento das metas da sua microárea.</p>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;" class="no-print">
+      <span id="mesReferencia" style="background:white; padding:10px 15px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); font-weight:500; font-size:14px;"></span>
+      <button onclick="window.print()" class="btn btn-success no-print">🖨️ Imprimir</button>
+    </div>
+  </header>
+
+  <!-- ===== VISITAS GERAIS ===== -->
+  <div class="secao-titulo">📅 Visitas Domiciliares Gerais</div>
+
+  <div class="meta-card" style="border-left:5px solid #3182ce;">
+    <div class="meta-card-header">
+      <h3>📅 Meta – Visitas Domiciliares Mensais</h3>
+      <button class="btn-config no-print" onclick="toggleConfig('configVisitas')">⚙️ Configurar</button>
+    </div>
+    <p class="descricao">
+      Realizar visitas domiciliares mensais às famílias da microárea, conforme planejamento,
+      garantindo cobertura adequada do território e priorizando situações de risco e vulnerabilidade.
+    </p>
+    <div class="meta-numeros">
+      <div class="meta-numero-item">
+        <span class="num" id="numVisitasMes">0</span>
+        <span class="label-num">Visitas no mês</span>
+      </div>
+      <div class="meta-numero-item">
+        <span class="num" id="numFamiliasVisitadas">0</span>
+        <span class="label-num">Famílias visitadas</span>
+      </div>
+      <div class="meta-numero-item">
+        <span class="num" id="numMetaVisitas">0</span>
+        <span class="label-num">Meta (famílias)</span>
+      </div>
+      <div class="meta-numero-item">
+        <span class="num" id="numFaltamVisitas">0</span>
+        <span class="label-num">Faltam</span>
+      </div>
+    </div>
+    <div class="progress-row">
+      <span id="fracaoVisitas">—</span>
+      <strong id="porcentagemVisitas">0%</strong>
+    </div>
+    <div class="barra-fundo">
+      <div class="barra-progresso" id="barraVisitas" style="width:0%; background:#3182ce;"></div>
+    </div>
+    <span class="badge-status" id="statusVisitas">Calculando...</span>
+    <div class="config-panel" id="configVisitas">
+      <label>Meta de cobertura mensal (%)</label>
+      <input type="number" id="inputMetaVisitas" min="1" max="100" value="80">
+      <button class="btn-salvar-meta" onclick="salvarMetaVisitas()">💾 Salvar meta</button>
+    </div>
+  </div>
+
+  <!-- ===== CADASTRO ===== -->
+  <div class="secao-titulo">🏠 Cadastro e Atualização</div>
+
+  <div class="meta-card" style="border-left:5px solid #38a169;">
+    <div class="meta-card-header">
+      <h3>🏠 Meta – Cadastro e Atualização de Famílias</h3>
+      <button class="btn-config no-print" onclick="toggleConfig('configCadastro')">⚙️ Configurar</button>
+    </div>
+    <p class="descricao">
+      Manter 100% das famílias cadastradas e atualizadas, realizando revisões periódicas
+      e inclusão de novos moradores no sistema.
+    </p>
+    <div class="meta-numeros">
+      <div class="meta-numero-item">
+        <span class="num" id="numFamiliasCad">0</span>
+        <span class="label-num">Cadastradas</span>
+      </div>
+      <div class="meta-numero-item">
+        <span class="num" id="numMetaCadastro">—</span>
+        <span class="label-num">Meta total</span>
+      </div>
+      <div class="meta-numero-item">
+        <span class="num" id="numFaltamCadastro">—</span>
+        <span class="label-num">Faltam</span>
+      </div>
+    </div>
+    <div class="progress-row">
+      <span id="fracaoCadastro">—</span>
+      <strong id="porcentagemCadastro">—</strong>
+    </div>
+    <div class="barra-fundo">
+      <div class="barra-progresso" id="barraCadastro" style="width:0%; background:#38a169;"></div>
+    </div>
+    <span class="badge-status" id="statusCadastro">Calculando...</span>
+    <div class="config-panel" id="configCadastro">
+      <label>Total estimado de famílias na microárea</label>
+      <input type="number" id="inputMetaCadastro" min="1" value="" placeholder="Ex: 150">
+      <button class="btn-salvar-meta" onclick="salvarMetaCadastro()">💾 Salvar</button>
+    </div>
+  </div>
+
+  <!-- ===== GRUPOS PRIORITÁRIOS ===== -->
+  <div class="secao-titulo">❤️ Grupos Prioritários</div>
+  <div class="grid-metas" id="gridGrupos"></div>
+
+  <div style="height:40px;"></div>
+</main>
+
+<script src="script.js"></script>
+<script>
+// -----------------------------------------------
+// CONFIGURAÇÕES
+// -----------------------------------------------
+let metasConfig = JSON.parse(localStorage.getItem("metasConfig2")) || {
+  metaVisitasPct: 80,
+  metaCadastroTotal: 0,
+  grupos: {
+    hipertensos: {
+      visitasAno: 2, label: "Hipertensos", emoji: "❤️", cor: "#e53e3e",
+      descricao: "Garantir o acompanhamento dos usuários hipertensos da microárea, realizando no mínimo 2 visitas domiciliares ao ano, com orientações sobre uso correto de medicamentos, alimentação saudável e controle da pressão arterial, além de incentivar o comparecimento às consultas e atividades da unidade de saúde."
+    },
+    diabeticos: {
+      visitasAno: 2, label: "Diabéticos", emoji: "🩸", cor: "#dd6b20",
+      descricao: "Garantir o acompanhamento dos usuários diabéticos da microárea, realizando no mínimo 2 visitas domiciliares ao ano, com orientações sobre controle glicêmico, uso correto de medicamentos, alimentação adequada e prevenção de complicações, incentivando o acompanhamento regular na unidade de saúde."
+    },
+    gestantes: {
+      visitasAno: 12, label: "Gestantes", emoji: "🤰", cor: "#d53f8c",
+      descricao: "Realizar o acompanhamento das gestantes da microárea por meio de visitas domiciliares mensais, orientando sobre pré-natal, alimentação, sinais de risco, vacinação e importância do acompanhamento na unidade de saúde, garantindo vínculo e cuidado contínuo."
+    },
+    idosos: {
+      visitasAno: 2, label: "Idosos (60+)", emoji: "👴", cor: "#805ad5",
+      descricao: "Acompanhar os idosos da microárea, realizando no mínimo 2 visitas domiciliares ao ano, com atenção às condições de saúde, uso de medicamentos, prevenção de quedas e identificação de situações de vulnerabilidade."
+    }
+  }
+};
+
+function salvarConfig() {
+  localStorage.setItem("metasConfig2", JSON.stringify(metasConfig));
+}
+
+// -----------------------------------------------
+// CÁLCULOS
+// -----------------------------------------------
+function calcularDados() {
+  const hoje = new Date();
+  const mes  = hoje.getMonth();
+  const ano  = hoje.getFullYear();
+
+  const visitasMes = visitas.filter(v => {
+    if (!v.data || v.desfecho !== "Visita Realizada") return false;
+    const d = new Date(v.data);
+    return d.getMonth() === mes && d.getFullYear() === ano;
+  });
+
+  const visitasAno = visitas.filter(v => {
+    if (!v.data || v.desfecho !== "Visita Realizada") return false;
+    return new Date(v.data).getFullYear() === ano;
+  });
+
+  const membrosVisitadosNomes = new Set();
+  const familiasVisitadasIds  = new Set();
+  visitasMes.forEach(v => {
+    (v.membrosAtendidos || []).forEach(n => membrosVisitadosNomes.add(n));
+    familiasVisitadasIds.add(String(v.familiaId));
+  });
+
+  const membrosVisitadosAnoNomes = new Set();
+  const familiasVisitadasAnoIds  = new Set();
+  visitasAno.forEach(v => {
+    (v.membrosAtendidos || []).forEach(n => membrosVisitadosAnoNomes.add(n));
+    familiasVisitadasAnoIds.add(String(v.familiaId));
+  });
+
+  const grupos = { hipertensos:[], diabeticos:[], gestantes:[], idosos:[] };
+  membros.forEach(m => {
+    let idade = 0;
+    if (m.nascimento) {
+      const nasc = new Date(m.nascimento);
+      idade = hoje.getFullYear() - nasc.getFullYear();
+      const mesN = hoje.getMonth() - nasc.getMonth();
+      if (mesN < 0 || (mesN === 0 && hoje.getDate() < nasc.getDate())) idade--;
+    }
+    if (m.doencas_lista && m.doencas_lista.includes("Hipertensão")) grupos.hipertensos.push(m);
+    if (m.doencas_lista && m.doencas_lista.includes("Diabetes"))    grupos.diabeticos.push(m);
+    if (m.gestante === "Sim") grupos.gestantes.push(m);
+    if (idade >= 60)          grupos.idosos.push(m);
+  });
+
+  const foiVisitadoNoMes = m =>
+    membrosVisitadosNomes.has(m.nome) || familiasVisitadasIds.has(String(m.familia_id));
+  const foiVisitadoNoAno = m =>
+    membrosVisitadosAnoNomes.has(m.nome) || familiasVisitadasAnoIds.has(String(m.familia_id));
+
+  return { hoje, visitasMes: visitasMes.length, familiasVisitadasIds, grupos, foiVisitadoNoMes, foiVisitadoNoAno };
+}
+
+// -----------------------------------------------
+// RENDER: VISITAS GERAIS
+// -----------------------------------------------
+function renderVisitas(d) {
+  const meta        = metasConfig.metaVisitasPct;
+  const total       = familias.length;
+  const necessarias = Math.ceil(total * (meta / 100));
+  const feitas      = d.familiasVisitadasIds.size;
+  const faltam      = Math.max(0, necessarias - feitas);
+  const pct         = necessarias === 0 ? 0 : Math.min(100, Math.round((feitas / necessarias) * 100));
+
+  document.getElementById("numVisitasMes").innerText       = d.visitasMes;
+  document.getElementById("numFamiliasVisitadas").innerText = feitas;
+  document.getElementById("numMetaVisitas").innerText      = necessarias;
+  document.getElementById("numFaltamVisitas").innerText    = faltam;
+  document.getElementById("fracaoVisitas").innerText       = `${feitas} de ${necessarias} famílias visitadas este mês`;
+  document.getElementById("porcentagemVisitas").innerText  = pct + "%";
+  document.getElementById("inputMetaVisitas").value        = meta;
+
+  const barra  = document.getElementById("barraVisitas");
+  const status = document.getElementById("statusVisitas");
+  barra.style.width = pct + "%";
+
+  if (total === 0) {
+    barra.style.background = "#a0aec0";
+    status.className = "badge-status badge-vazio";
+    status.innerText = "⚠️ Nenhuma família cadastrada";
+  } else if (pct >= 100) {
+    barra.style.background = "#38a169";
+    status.className = "badge-status badge-ok";
+    status.innerText = "🏆 Meta atingida!";
+  } else if (pct >= 60) {
+    barra.style.background = "#d69e2e";
+    status.className = "badge-status badge-alerta";
+    status.innerText = `⏳ Faltam ${faltam} família(s)`;
+  } else {
+    barra.style.background = "#e53e3e";
+    status.className = "badge-status badge-ruim";
+    status.innerText = `🚨 Faltam ${faltam} família(s)`;
+  }
+}
+
+// -----------------------------------------------
+// RENDER: CADASTRO
+// -----------------------------------------------
+function renderCadastro() {
+  const total = familias.length;
+  const meta  = metasConfig.metaCadastroTotal || 0;
+
+  document.getElementById("numFamiliasCad").innerText    = total;
+  document.getElementById("inputMetaCadastro").value     = meta || "";
+
+  const barra  = document.getElementById("barraCadastro");
+  const status = document.getElementById("statusCadastro");
+
+  if (!meta) {
+    document.getElementById("numMetaCadastro").innerText   = "—";
+    document.getElementById("numFaltamCadastro").innerText = "—";
+    document.getElementById("fracaoCadastro").innerText    = `${total} famílias cadastradas`;
+    document.getElementById("porcentagemCadastro").innerText = "—";
+    barra.style.width = "0%";
+    status.className = "badge-status badge-vazio";
+    status.innerText = "⚙️ Configure o total estimado de famílias";
+    return;
+  }
+
+  const pct    = Math.min(100, Math.round((total / meta) * 100));
+  const faltam = Math.max(0, meta - total);
+  document.getElementById("numMetaCadastro").innerText     = meta;
+  document.getElementById("numFaltamCadastro").innerText   = faltam;
+  document.getElementById("fracaoCadastro").innerText      = `${total} de ${meta} famílias cadastradas`;
+  document.getElementById("porcentagemCadastro").innerText = pct + "%";
+  barra.style.width = pct + "%";
+
+  if (pct >= 100) {
+    barra.style.background = "#38a169";
+    status.className = "badge-status badge-ok";
+    status.innerText = "🏆 100% das famílias cadastradas!";
+  } else if (pct >= 70) {
+    barra.style.background = "#d69e2e";
+    status.className = "badge-status badge-alerta";
+    status.innerText = `⏳ Faltam ${faltam} família(s) para cadastrar`;
+  } else {
+    barra.style.background = "#e53e3e";
+    status.className = "badge-status badge-ruim";
+    status.innerText = `🚨 Faltam ${faltam} família(s) para cadastrar`;
+  }
+}
+
+// -----------------------------------------------
+// RENDER: GRUPOS PRIORITÁRIOS
+// -----------------------------------------------
+function renderGrupos(d) {
+  const container = document.getElementById("gridGrupos");
+  container.innerHTML = "";
+
+  Object.entries(metasConfig.grupos).forEach(([chave, cfg]) => {
+    const lista      = d.grupos[chave] || [];
+    const total      = lista.length;
+    const isGestante = chave === "gestantes";
+
+    // Gestantes: meta mensal (visitadas no mês atual)
+    // Demais: meta anual (visitadas ao menos 1x no ano)
+    const visitados = isGestante
+      ? lista.filter(d.foiVisitadoNoMes).length
+      : lista.filter(d.foiVisitadoNoAno).length;
+
+    const faltam = Math.max(0, total - visitados);
+    const pct    = total === 0 ? 0 : Math.min(100, Math.round((visitados / total) * 100));
+
+    const periodoLabel = isGestante ? "no mês" : "no ano";
+    const regraLabel   = isGestante
+      ? "Visita mensal obrigatória"
+      : `Mínimo ${cfg.visitasAno} visita(s) por ano`;
+
+    let barCor, badgeClass, badgeText;
+    if (total === 0) {
+      barCor = "#a0aec0"; badgeClass = "badge-vazio"; badgeText = "Nenhum cadastrado neste grupo";
+    } else if (pct >= 100) {
+      barCor = "#38a169"; badgeClass = "badge-ok";    badgeText = `🏆 Todos acompanhados ${periodoLabel}!`;
+    } else if (pct >= 60) {
+      barCor = "#d69e2e"; badgeClass = "badge-alerta"; badgeText = `⏳ Faltam ${faltam} pessoa(s) ${periodoLabel}`;
+    } else {
+      barCor = "#e53e3e"; badgeClass = "badge-ruim";  badgeText = `🚨 Faltam ${faltam} pessoa(s) ${periodoLabel}`;
+    }
+
+    container.innerHTML += `
+      <div class="meta-card" style="border-left:5px solid ${cfg.cor};">
+        <div class="meta-card-header">
+          <h3>${cfg.emoji} Meta – Acompanhamento de ${cfg.label}</h3>
+          <button class="btn-config no-print" onclick="toggleConfig('cfg_${chave}')">⚙️</button>
+        </div>
+        <p class="descricao">${cfg.descricao}</p>
+
+        <div class="meta-numeros">
+          <div class="meta-numero-item">
+            <span class="num" style="color:${cfg.cor};">${visitados}</span>
+            <span class="label-num">Visitados ${periodoLabel}</span>
+          </div>
+          <div class="meta-numero-item">
+            <span class="num">${total}</span>
+            <span class="label-num">Total no grupo</span>
+          </div>
+          <div class="meta-numero-item">
+            <span class="num">${faltam}</span>
+            <span class="label-num">Faltam</span>
+          </div>
+        </div>
+
+        <p style="font-size:12px; color:#718096; margin-bottom:8px;">${regraLabel} · ${total} cadastrado(s) neste grupo</p>
+        <div class="progress-row">
+          <span>${visitados} de ${total} acompanhados</span>
+          <strong>${pct}%</strong>
+        </div>
+        <div class="barra-fundo">
+          <div class="barra-progresso" style="width:${pct}%; background:${barCor};"></div>
+        </div>
+        <span class="badge-status ${badgeClass}">${badgeText}</span>
+
+        <div class="config-panel" id="cfg_${chave}">
+          <label>Visitas mínimas por ano para este grupo</label>
+          <input type="number" id="input_${chave}" min="1" max="52" value="${cfg.visitasAno}">
+          <button class="btn-salvar-meta" onclick="salvarMetaGrupo('${chave}')">💾 Salvar</button>
+        </div>
+      </div>`;
+  });
+}
+
+// -----------------------------------------------
+// AÇÕES
+// -----------------------------------------------
+function toggleConfig(id) {
+  document.getElementById(id).classList.toggle("aberto");
+}
+function salvarMetaVisitas() {
+  const val = parseInt(document.getElementById("inputMetaVisitas").value);
+  if (!val || val < 1 || val > 100) { alert("Digite um valor entre 1 e 100."); return; }
+  metasConfig.metaVisitasPct = val;
+  salvarConfig(); renderTudo();
+}
+function salvarMetaCadastro() {
+  const val = parseInt(document.getElementById("inputMetaCadastro").value);
+  if (isNaN(val) || val < 0) { alert("Digite um número válido."); return; }
+  metasConfig.metaCadastroTotal = val;
+  salvarConfig(); renderTudo();
+}
+function salvarMetaGrupo(chave) {
+  const val = parseInt(document.getElementById("input_" + chave).value);
+  if (isNaN(val) || val < 1) { alert("Digite um número válido."); return; }
+  metasConfig.grupos[chave].visitasAno = val;
+  salvarConfig(); renderTudo();
+}
+
+// -----------------------------------------------
+// INICIAR
+// -----------------------------------------------
+function renderTudo() {
+  const d = calcularDados();
+  renderVisitas(d);
+  renderCadastro();
+  renderGrupos(d);
+}
+
+const mesStr = new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+document.getElementById("mesReferencia").innerText =
+  "📅 " + mesStr.charAt(0).toUpperCase() + mesStr.slice(1);
+
+renderTudo();
+</script>
+</body>
+</html>

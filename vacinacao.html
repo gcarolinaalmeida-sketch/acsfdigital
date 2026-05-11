@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vacinação - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .vac-card { background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:16px; margin-bottom:12px; border-left:4px solid #e2e8f0; }
+    .vac-card.ok      { border-left-color:#38a169; }
+    .vac-card.atrasada{ border-left-color:#e53e3e; }
+    .vac-card.pendente{ border-left-color:#ed8936; }
+    .vacina-linha { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #edf2f7; font-size:13px; flex-wrap:wrap; gap:6px; }
+    .vacina-linha:last-child { border-bottom:none; }
+    .badge-vac { font-size:11px; font-weight:bold; padding:3px 8px; border-radius:4px; }
+    .badge-ok      { background:#c6f6d5; color:#22543d; }
+    .badge-atrasada{ background:#fed7d7; color:#742a2a; }
+    .badge-pendente{ background:#feebc8; color:#744210; }
+    .badge-na      { background:#edf2f7; color:#4a5568; }
+    .filtro-grupo { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+    .filtro-btn { padding:7px 14px; border:1.5px solid #e2e8f0; border-radius:20px; background:white; font-size:13px; cursor:pointer; transition:0.15s; }
+    .filtro-btn.ativo { background:#2b6cb0; color:white; border-color:#2b6cb0; }
+  </style>
+</head>
+<body style="padding-bottom:80px;">
+
+<button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+    <button onclick="window.location.href='index.html'">🏠 Painel inicial</button>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn active" id="btn_familias" onclick="toggleGrupo('familias')"><span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span></button>
+      <div class="nav-submenu aberto" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+        <button class="active">💉 Vacinação</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')"><span>📅 Visitas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')"><span>📊 Relatórios e Metas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa</button>
+      </div>
+    </div>
+    <div class="nav-divisor"></div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+      </div>
+    </div>
+  </nav>
+  <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <h1>💉 Controle de Vacinação</h1>
+  </header>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px;" id="resumoVac"></div>
+
+  <div class="box" style="margin-bottom:14px;">
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <input type="text" id="buscaVac" placeholder="🔍 Buscar cidadão..." oninput="renderizarVacinacao()" style="flex:1;min-width:180px;">
+    </div>
+    <div class="filtro-grupo" id="filtroVacGrupo">
+      <button class="filtro-btn ativo" onclick="setFiltroVac('todos',this)">Todos</button>
+      <button class="filtro-btn" onclick="setFiltroVac('crianca',this)">👶 Crianças</button>
+      <button class="filtro-btn" onclick="setFiltroVac('gestante',this)">🤰 Gestantes</button>
+      <button class="filtro-btn" onclick="setFiltroVac('idoso',this)">👴 Idosos</button>
+      <button class="filtro-btn" onclick="setFiltroVac('pendente',this)">⚠️ Com pendência</button>
+    </div>
+  </div>
+
+  <div id="listaVacinacao"></div>
+
+  <nav class="bottom-nav no-print">
+    <a href="index.html" class="nav-item">🏠<span>Início</span></a>
+    <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
+    <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
+    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+  </nav>
+</main>
+
+<script src="script.js"></script>
+<script>
+  // Esquema de vacinação por faixa etária (simplificado PNI Brasil)
+  const VACINAS_CRIANCA = [
+    { nome:"BCG", idade:"Ao nascer" },
+    { nome:"Hepatite B", idade:"Ao nascer" },
+    { nome:"Pentavalente (DTP+Hib+HepB)", idade:"2, 4 e 6 meses" },
+    { nome:"VIP (Pólio injetável)", idade:"2, 4 e 6 meses" },
+    { nome:"VRH (Rotavírus)", idade:"2 e 4 meses" },
+    { nome:"Pneumo 10", idade:"2, 4 e 12 meses" },
+    { nome:"Meningocócica C", idade:"3, 5 e 12 meses" },
+    { nome:"Febre Amarela", idade:"9 meses" },
+    { nome:"Tríplice Viral (SCR)", idade:"12 e 15 meses" },
+    { nome:"VOP (Pólio oral)", idade:"15 meses + 4 anos" },
+    { nome:"DTP (reforço)", idade:"15 meses + 4 anos" },
+    { nome:"Varicela", idade:"15 meses" },
+    { nome:"Hepatite A", idade:"15 meses" },
+  ];
+  const VACINAS_GESTANTE = [
+    { nome:"dTpa (Coqueluche)", idade:"A partir 20 semanas" },
+    { nome:"Hepatite B", idade:"Se não vacinada" },
+    { nome:"Influenza", idade:"Qualquer trimestre" },
+  ];
+  const VACINAS_IDOSO = [
+    { nome:"Influenza (anual)", idade:"60+ anos" },
+    { nome:"Pneumo 23", idade:"60+ anos" },
+    { nome:"dT (dupla adulto)", idade:"A cada 10 anos" },
+    { nome:"Febre Amarela", idade:"Até 59 anos (reforço)" },
+  ];
+
+  let filtroVacAtivo = 'todos';
+
+  function setFiltroVac(filtro, btn) {
+    filtroVacAtivo = filtro;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    renderizarVacinacao();
+  }
+
+  function getVacinacaoCidadao(m) {
+    const todas = JSON.parse(localStorage.getItem("vacinacao")) || {};
+    return todas[m.id] || {};
+  }
+
+  function salvarVacina(membroId, vacina, valor) {
+    const todas = JSON.parse(localStorage.getItem("vacinacao")) || {};
+    if (!todas[membroId]) todas[membroId] = {};
+    todas[membroId][vacina] = valor;
+    localStorage.setItem("vacinacao", JSON.stringify(todas));
+  }
+
+  function renderizarVacinacao() {
+    const hoje = new Date();
+    const busca = (document.getElementById("buscaVac")?.value || "").toLowerCase();
+    const container = document.getElementById("listaVacinacao");
+
+    let lista = membros.filter(m => {
+      if (busca && !(m.nome||"").toLowerCase().includes(busca)) return false;
+      const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
+      if (filtroVacAtivo === 'crianca') return idade < 15;
+      if (filtroVacAtivo === 'gestante') return m.gestante === "Sim";
+      if (filtroVacAtivo === 'idoso') return idade >= 60;
+      if (filtroVacAtivo === 'pendente') {
+        const vac = getVacinacaoCidadao(m);
+        const vacLista = getVacinasPorMembro(m);
+        return vacLista.some(v => !vac[v.nome]);
+      }
+      return true;
+    });
+
+    // Resumo
+    let totalOk = 0, totalPend = 0;
+    membros.forEach(m => {
+      const vac = getVacinacaoCidadao(m);
+      const vacLista = getVacinasPorMembro(m);
+      if (vacLista.length === 0) return;
+      const pendentes = vacLista.filter(v => !vac[v.nome]).length;
+      if (pendentes === 0) totalOk++; else totalPend++;
+    });
+    document.getElementById("resumoVac").innerHTML = `
+      <div style="background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:14px;text-align:center;border-left:4px solid #38a169;">
+        <div style="font-size:26px;font-weight:700;color:#22543d;">${totalOk}</div>
+        <div style="font-size:12px;color:#718096;">Em dia</div>
+      </div>
+      <div style="background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:14px;text-align:center;border-left:4px solid #e53e3e;">
+        <div style="font-size:26px;font-weight:700;color:#c53030;">${totalPend}</div>
+        <div style="font-size:12px;color:#718096;">Com pendências</div>
+      </div>
+      <div style="background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:14px;text-align:center;border-left:4px solid #3182ce;">
+        <div style="font-size:26px;font-weight:700;color:#2c5282;">${membros.length}</div>
+        <div style="font-size:12px;color:#718096;">Total cidadãos</div>
+      </div>`;
+
+    if (lista.length === 0) {
+      container.innerHTML = `<div class="box" style="text-align:center;padding:30px;color:#718096;">Nenhum cidadão encontrado.</div>`;
+      return;
+    }
+
+    container.innerHTML = lista.map(m => {
+      const vac = getVacinacaoCidadao(m);
+      const vacLista = getVacinasPorMembro(m);
+      const fam = familias.find(f => f.id == m.familia_id);
+      const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : null;
+      const idadeStr = idade !== null ? `${idade} anos` : "—";
+      const pendentes = vacLista.filter(v => !vac[v.nome]).length;
+      const cor = vacLista.length === 0 ? "" : pendentes === 0 ? "ok" : "atrasada";
+
+      const vacinasHtml = vacLista.map(v => {
+        const feita = !!vac[v.nome];
+        const dataVac = vac[v.nome] || "";
+        return `
+        <div class="vacina-linha">
+          <div>
+            <strong>${v.nome}</strong>
+            <span style="color:#718096;font-size:12px;margin-left:6px;">(${v.idade})</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${feita
+              ? `<span class="badge-vac badge-ok">✅ ${dataVac}</span>
+                 <button onclick="salvarVacina(${m.id},'${v.nome}','');renderizarVacinacao()" style="background:none;border:none;color:#e53e3e;cursor:pointer;font-size:12px;">✖</button>`
+              : `<input type="date" onchange="salvarVacina(${m.id},'${v.nome}',this.value);renderizarVacinacao()" style="padding:4px 8px;border:1px solid #cbd5e0;border-radius:4px;font-size:12px;width:130px;" placeholder="Data aplicação">
+                 <span class="badge-vac badge-pendente">Pendente</span>`
+            }
+          </div>
+        </div>`;
+      }).join('');
+
+      return `
+      <div class="vac-card ${cor}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+          <div>
+            <strong style="font-size:15px;color:#2c5282;">👤 ${m.nome}</strong>
+            <span style="font-size:12px;color:#718096;margin-left:8px;">${idadeStr} · ${m.sexo||''}</span>
+            ${m.gestante==='Sim'?'<span style="font-size:12px;color:#d53f8c;margin-left:6px;">🤰 Gestante</span>':''}
+            <div style="font-size:12px;color:#718096;">🏠 ${fam?`Família ${fam.numeroFamilia}`:''}</div>
+          </div>
+          <span style="font-size:12px;font-weight:bold;color:${pendentes===0?'#22543d':'#c53030'};background:${pendentes===0?'#c6f6d5':'#fed7d7'};padding:4px 10px;border-radius:4px;">
+            ${vacLista.length===0?'—':pendentes===0?'✅ Em dia':`⚠️ ${pendentes} pendente(s)`}
+          </span>
+        </div>
+        ${vacinasHtml || '<p style="color:#a0aec0;font-size:13px;">Nenhuma vacina aplicável para este perfil.</p>'}
+      </div>`;
+    }).join('');
+  }
+
+  function getVacinasPorMembro(m) {
+    const hoje = new Date();
+    const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
+    if (m.gestante === "Sim") return VACINAS_GESTANTE;
+    if (idade < 15) return VACINAS_CRIANCA;
+    if (idade >= 60) return VACINAS_IDOSO;
+    return [];
+  }
+
+  window.addEventListener('load', renderizarVacinacao);
+</script>
+</body>
+</html>

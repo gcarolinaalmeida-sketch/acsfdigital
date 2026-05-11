@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACS Digital">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+  <meta charset="UTF-8">
+  <title>Registrar Visita</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Botão de Microfone ── */
+    .btn-mic {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #2b6cb0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-mic:hover  { background: #2c5282; }
+    .btn-mic:active { transform: scale(0.96); }
+    .btn-mic.gravando {
+      background: #e53e3e;
+      animation: pulse-mic 1.2s infinite;
+    }
+    @keyframes pulse-mic {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(229,62,62,0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(229,62,62,0); }
+    }
+    .mic-status {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 4px;
+    }
+    .mic-status.gravando { color: #e53e3e; font-weight: 600; }
+
+    /* ── Checklist Endemias ── */
+    .bloco-endemias {
+      background: #fffbeb;
+      border: 1px solid #f6e05e;
+      border-left: 4px solid #d69e2e;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .bloco-endemias h4 {
+      color: #744210;
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .endemias-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .endemia-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border-radius: 6px;
+      padding: 8px 10px;
+      border: 1px solid #ecc94b;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #744210;
+      transition: background 0.15s;
+    }
+    .endemia-item input[type="checkbox"] { accent-color: #d69e2e; }
+    .endemia-item:has(input:checked) { background: #fefcbf; border-color: #d69e2e; }
+
+    /* ── Previne Brasil ── */
+    .bloco-previne {
+      background: #f0fff4;
+      border: 1px solid #9ae6b4;
+      border-left: 4px solid #38a169;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .bloco-previne h4 {
+      color: #22543d;
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .previne-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .previne-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border-radius: 6px;
+      padding: 8px 10px;
+      border: 1px solid #9ae6b4;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #22543d;
+      transition: background 0.15s;
+    }
+    .previne-item input[type="checkbox"] { accent-color: #38a169; }
+    .previne-item:has(input:checked) { background: #c6f6d5; border-color: #38a169; }
+
+    .previne-secao-titulo {
+      font-size: 12px;
+      font-weight: 700;
+      color: #276749;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 10px 0 6px;
+      grid-column: 1 / -1;
+    }
+
+    /* Indicador de Previne (só aparece quando família tem grupo prioritário) */
+    #indicadorPrevine { display: none; }
+    #indicadorPrevine.visivel { display: block; }
+
+    @media (max-width: 480px) {
+      .endemias-grid, .previne-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<div class="container">
+  <div class="page-actions">
+    <h1 class="page-title" style="margin:0;">REGISTRAR VISITA DOMICILIAR</h1>
+    <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+  </div>
+
+  <div class="card">
+    <form id="formVisita" class="form-grid">
+
+      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;">
+        1. Dados da Visita
+      </h3>
+
+      <div class="form-group span-full">
+        <label>Família Visitada / Domicílio</label>
+        <input type="text" id="buscaFamiliaVisita" placeholder="🔍 Digite o nome ou nº da família para filtrar..." oninput="filtrarSelectFamilia()" style="margin-bottom:6px;">
+        <select id="familiaVisita" onchange="carregarMembrosFamiliaParaVisita()" required>
+          <option value="">Selecione a família visitada...</option>
+        </select>
+      </div>
+
+      <div class="form-group span-full" id="membrosFamiliaContainer" style="background:#ebf8ff;padding:15px;border-radius:6px;border:1px solid #bee3f8;display:none;"></div>
+
+      <div class="form-group">
+        <label>Data da Visita</label>
+        <input type="date" id="dataVisita" required onchange="validarDataVisita(this)">
+        <p id="avisoDataFutura" style="display:none;margin-top:6px;font-size:12px;color:#c53030;background:#fff5f5;border:1px solid #fc8181;border-radius:4px;padding:6px 10px;">
+          ⚠️ A data selecionada é futura. Visitas só podem ser registradas para hoje ou dias anteriores.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label>Turno</label>
+        <select id="turnoVisita" required>
+          <option value="Manhã">Manhã</option>
+          <option value="Tarde">Tarde</option>
+          <option value="Noite">Noite</option>
+        </select>
+      </div>
+
+      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:10px;">
+        2. Motivo da Visita
+      </h3>
+
+      <div class="form-group span-full">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#f8fafc;padding:15px;border-radius:6px;border:1px solid #cbd5e0;">
+          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Cadastramento/Atualização"> Cadastramento/Atualização</label>
+          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Visita Periódica"> Visita Periódica (VD)</label>
+          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Acompanhamento"> Acompanhamento de Saúde</label>
+          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Controle Vetorial"> Controle Ambiental/Vetorial</label>
+          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Busca Ativa"> Busca Ativa</label>
+          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Orientação/Prevenção"> Orientação/Prevenção</label>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════
+           CHECKLIST DE ENDEMIAS (NOVO)
+      ════════════════════════════════════════════ -->
+      <div class="form-group span-full">
+        <div class="bloco-endemias">
+          <h4>🦟 Vigilância de Endemias (Dengue/Zika/Chikungunya)</h4>
+          <div class="endemias-grid">
+            <label class="endemia-item">
+              <input type="checkbox" id="endemiaFoco" value="Foco verificado">
+              🔍 Verificado foco de criadouro
+            </label>
+            <label class="endemia-item">
+              <input type="checkbox" id="endemiaFocoEncontrado" value="Foco encontrado">
+              ⚠️ Foco encontrado no domicílio
+            </label>
+            <label class="endemia-item">
+              <input type="checkbox" id="endemiaTratado" value="Foco tratado">
+              ✅ Foco eliminado/tratado
+            </label>
+            <label class="endemia-item">
+              <input type="checkbox" id="endemiaOrientado" value="Morador orientado">
+              🗣️ Morador orientado sobre prevenção
+            </label>
+            <label class="endemia-item">
+              <input type="checkbox" id="endemiaEncaminhado" value="Encaminhado ao ACE">
+              📋 Encaminhado ao ACE
+            </label>
+            <label class="endemia-item">
+              <input type="checkbox" id="endemiaSintomas" value="Sintomas relatados">
+              🤒 Sintomas relatados pelo morador
+            </label>
+          </div>
+          <input type="text" id="obsEndemias" placeholder="Observações sobre endemias (opcional)..." style="margin-top:10px;font-size:13px;">
+        </div>
+      </div>
+
+      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:10px;">
+        Pendências / Solicitações do Cidadão
+      </h3>
+
+      <div class="form-group span-full">
+        <div style="display:flex;gap:15px;flex-wrap:wrap;background:#fffaf0;padding:15px;border-radius:6px;border:1px solid #ecc94b;">
+          <label class="radio-label"><input type="checkbox" id="pendenciaReceita" value="Renovação de Receita"> 💊 Receita</label>
+          <label class="radio-label"><input type="checkbox" id="pendenciaMarcacao" value="Marcação de Consulta"> 📅 Consulta</label>
+          <label class="radio-label"><input type="checkbox" id="pendenciaPreventivo" value="Preventivo"> 🩺 Preventivo</label>
+          <label class="radio-label"><input type="checkbox" id="pendenciaEcg" value="Eletrocardiograma"> ❤️ ECG</label>
+        </div>
+        <input type="text" id="detalhePendencia" placeholder="Detalhes (Ex: Receita de Losartana, Preventivo da Dalva)..." style="margin-top:10px;">
+      </div>
+
+      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:10px;">
+        3. Informações e Desfecho
+      </h3>
+
+      <div class="form-group">
+        <label>Desfecho da Visita</label>
+        <select id="desfechoVisita" required>
+          <option value="Visita Realizada">Visita Realizada</option>
+          <option value="Visita Recusada">Visita Recusada</option>
+          <option value="Ausente">Ausente</option>
+        </select>
+      </div>
+
+      <!-- Campo vazio para manter grid 2 colunas -->
+      <div class="form-group"></div>
+
+      <!-- ════════════════════════════════════════════
+           INFORMAÇÕES COM DIGITAÇÃO POR VOZ (NOVO)
+      ════════════════════════════════════════════ -->
+      <div class="form-group span-full">
+        <label>Informações / Evolução da Visita</label>
+        <div style="position:relative;">
+          <textarea id="infoVisita" rows="4" placeholder="Descreva aqui o que foi observado, aferição de PA, glicemia..." required></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap;">
+          <button type="button" class="btn-mic" id="btnMic" onclick="alternarVoz()">
+            🎤 Ditar por voz
+          </button>
+          <span class="mic-status" id="micStatus">Clique no microfone para ditar</span>
+        </div>
+        <p id="micIndisponivel" style="display:none;font-size:12px;color:#c53030;margin-top:4px;">
+          ⚠️ Reconhecimento de voz não disponível neste navegador. Use Chrome ou Safari.
+        </p>
+      </div>
+
+      <!-- ════════════════════════════════════════════
+           PREVINE BRASIL (NOVO — aparece por contexto)
+      ════════════════════════════════════════════ -->
+      <div class="form-group span-full" id="indicadorPrevine">
+        <div class="bloco-previne">
+          <h4>🩺 Indicadores Previne Brasil</h4>
+          <p style="font-size:12px;color:#276749;margin-bottom:10px;">Registre os indicadores exigidos pelo Previne Brasil para os grupos prioritários desta família.</p>
+
+          <!-- Gestantes -->
+          <div id="previneGestante" style="display:none;">
+            <div class="previne-secao-titulo">🤰 Gestantes</div>
+            <div class="previne-grid">
+              <label class="previne-item"><input type="checkbox" id="prevSifilis"> 🔬 Teste de Sífilis realizado</label>
+              <label class="previne-item"><input type="checkbox" id="prevHiv"> 🔬 Teste HIV realizado</label>
+              <label class="previne-item"><input type="checkbox" id="prevDentista"> 🦷 Consulta odontológica realizada</label>
+              <label class="previne-item"><input type="checkbox" id="prevPreNatal"> 📋 Pré-natal em dia (≥6 consultas)</label>
+            </div>
+          </div>
+
+          <!-- Hipertensos -->
+          <div id="previneHipertenso" style="display:none;">
+            <div class="previne-secao-titulo">❤️ Hipertensos</div>
+            <div class="previne-grid">
+              <label class="previne-item"><input type="checkbox" id="prevPaAferida"> 📊 PA aferida na visita</label>
+              <label class="previne-item"><input type="checkbox" id="prevPaControlada"> ✅ PA controlada (< 140/90)</label>
+            </div>
+            <input type="text" id="prevPaValor" placeholder="Valor da PA (ex: 130/80 mmHg)..." style="margin-top:8px;font-size:13px;">
+          </div>
+
+          <!-- Diabéticos -->
+          <div id="previneDiabetico" style="display:none;">
+            <div class="previne-secao-titulo">🩸 Diabéticos</div>
+            <div class="previne-grid">
+              <label class="previne-item"><input type="checkbox" id="prevHbA1c"> 🧪 Hemoglobina Glicada (HbA1c) solicitada</label>
+              <label class="previne-item"><input type="checkbox" id="prevGlicemia"> 📊 Glicemia verificada na visita</label>
+              <label class="previne-item"><input type="checkbox" id="prevPaDiab"> ❤️ PA aferida (também obrigatória)</label>
+              <label class="previne-item"><input type="checkbox" id="prevDentistaDiab"> 🦷 Consulta odontológica realizada</label>
+            </div>
+            <input type="text" id="prevGlicemiaValor" placeholder="Valor da glicemia (ex: 120 mg/dL)..." style="margin-top:8px;font-size:13px;">
+          </div>
+
+          <!-- Crianças -->
+          <div id="previneCrianca" style="display:none;">
+            <div class="previne-secao-titulo">👶 Crianças (< 2 anos)</div>
+            <div class="previne-grid">
+              <label class="previne-item"><input type="checkbox" id="prevPuericultura"> 👶 Consulta de puericultura realizada</label>
+              <label class="previne-item"><input type="checkbox" id="prevVacinaCrianca"> 💉 Vacinas em dia verificadas</label>
+              <label class="previne-item"><input type="checkbox" id="prevPesoCrianca"> ⚖️ Peso/altura aferidos</label>
+              <label class="previne-item"><input type="checkbox" id="prevAleitamento"> 🤱 Aleitamento materno verificado</label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Foto e Assinatura -->
+      <div class="form-group">
+        <label>📷 Foto do Local / Situação (Opcional)</label>
+        <div class="photo-wrapper">
+          <input type="file" id="fotoVisita" accept="image/*" capture="environment" onchange="preVisualizarFoto(this)">
+          <img id="fotoPreview" alt="Pré-visualização da foto">
+          <p id="fotoStatus" style="font-size:12px;color:#718096;margin-top:6px;display:none;">📎 Foto carregada e pronta para salvar.</p>
+          <button type="button" id="btnRemoverFoto" onclick="removerFoto()" style="display:none;margin-top:8px;background:#fed7d7;color:#c53030;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">🗑️ Remover foto</button>
+        </div>
+      </div>
+
+      <div class="form-group span-full">
+        <label>Assinatura do responsável / cidadão</label>
+        <div class="signature-wrapper" style="border:1px solid #cbd5e0;border-radius:8px;padding:10px;background:#fff;">
+          <canvas id="signaturePad" class="signature-pad" style="width:100%;height:150px;cursor:crosshair;touch-action:none;"></canvas>
+        </div>
+        <button type="button" class="btn-limpar" onclick="limparAssinatura()" style="margin-top:8px;">🗑️ Limpar Assinatura</button>
+      </div>
+
+      <div class="form-group span-full" style="display:flex;gap:10px;margin-top:20px;">
+        <button type="button" onclick="window.location.href='visitas_lista.html'" class="btn btn-secondary" style="flex:1;">Cancelar</button>
+        <button type="submit" class="btn btn-green btn-salvar" style="flex:2;margin-top:0;">Salvar Visita Completa</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// ══════════════════════════════════════════════
+//  DIGITAÇÃO POR VOZ (Speech-to-Text)
+// ══════════════════════════════════════════════
+let reconhecimento = null;
+let vozAtiva = false;
+
+function iniciarVoz() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        document.getElementById('micIndisponivel').style.display = 'block';
+        document.getElementById('btnMic').style.display = 'none';
+        return;
+    }
+    reconhecimento = new SpeechRecognition();
+    reconhecimento.lang = 'pt-BR';
+    reconhecimento.continuous = true;
+    reconhecimento.interimResults = true;
+
+    let textoFinal = '';
+    reconhecimento.onresult = (event) => {
+        let textoInterim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcricao = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                textoFinal += transcricao + ' ';
+            } else {
+                textoInterim = transcricao;
+            }
+        }
+        const area = document.getElementById('infoVisita');
+        const base = area.dataset.textoBase || '';
+        area.value = base + textoFinal + textoInterim;
+    };
+
+    reconhecimento.onend = () => {
+        if (vozAtiva) reconhecimento.start(); // reinicia se ainda ativo
+    };
+
+    reconhecimento.onerror = (e) => {
+        if (e.error === 'not-allowed') {
+            document.getElementById('micStatus').textContent = '❌ Permissão de microfone negada.';
+            document.getElementById('micStatus').classList.add('gravando');
+            pararVoz();
+        }
+    };
+}
+
+function alternarVoz() {
+    if (!reconhecimento) iniciarVoz();
+    if (!reconhecimento) return;
+
+    const btn = document.getElementById('btnMic');
+    const status = document.getElementById('micStatus');
+    const area = document.getElementById('infoVisita');
+
+    if (vozAtiva) {
+        pararVoz();
+    } else {
+        area.dataset.textoBase = area.value ? area.value.trim() + ' ' : '';
+        vozAtiva = true;
+        btn.classList.add('gravando');
+        btn.textContent = '⏹ Parar gravação';
+        status.textContent = '🔴 Gravando... fale agora';
+        status.classList.add('gravando');
+        reconhecimento.start();
+    }
+}
+
+function pararVoz() {
+    vozAtiva = false;
+    if (reconhecimento) reconhecimento.stop();
+    const btn = document.getElementById('btnMic');
+    const status = document.getElementById('micStatus');
+    btn.classList.remove('gravando');
+    btn.textContent = '🎤 Ditar por voz';
+    status.textContent = 'Clique no microfone para ditar';
+    status.classList.remove('gravando');
+    // Salva o texto final como base
+    const area = document.getElementById('infoVisita');
+    area.dataset.textoBase = area.value;
+}
+
+// Para a voz ao sair da página
+window.addEventListener('beforeunload', pararVoz);
+
+// ══════════════════════════════════════════════
+//  INDICADOR PREVINE BRASIL (por contexto)
+// ══════════════════════════════════════════════
+function verificarIndicadoresPrevine(familiaId) {
+    const container = document.getElementById('indicadorPrevine');
+    if (!familiaId) { container.classList.remove('visivel'); return; }
+
+    const memFam = membros.filter(m => m.familia_id == familiaId);
+    const hoje = new Date();
+
+    let temGestante   = memFam.some(m => m.gestante === 'Sim');
+    let temHipertenso = memFam.some(m => m.doencas_lista?.includes('Hipertensão'));
+    let temDiabetico  = memFam.some(m => m.doencas_lista?.includes('Diabetes'));
+    let temCrianca    = memFam.some(m => {
+        if (!m.nascimento) return false;
+        return Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) < 2;
+    });
+
+    document.getElementById('previneGestante').style.display   = temGestante   ? 'block' : 'none';
+    document.getElementById('previneHipertenso').style.display = temHipertenso ? 'block' : 'none';
+    document.getElementById('previneDiabetico').style.display  = temDiabetico  ? 'block' : 'none';
+    document.getElementById('previneCrianca').style.display    = temCrianca    ? 'block' : 'none';
+
+    if (temGestante || temHipertenso || temDiabetico || temCrianca) {
+        container.classList.add('visivel');
+    } else {
+        container.classList.remove('visivel');
+    }
+}
+
+// Sobrescreve o carregarMembrosFamiliaParaVisita para também verificar Previne
+const _carregarMembrosOriginal = window.carregarMembrosFamiliaParaVisita;
+window.carregarMembrosFamiliaParaVisitaOriginal = _carregarMembrosOriginal;
+document.addEventListener('DOMContentLoaded', () => {
+    const selectFamilia = document.getElementById('familiaVisita');
+    if (selectFamilia) {
+        selectFamilia.addEventListener('change', () => {
+            verificarIndicadoresPrevine(selectFamilia.value);
+        });
+    }
+});
+
+// ══════════════════════════════════════════════
+//  SALVAR COM DADOS EXTRAS (endemias + previne)
+// ══════════════════════════════════════════════
+// Intercepta o submit para incluir os dados novos
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('formVisita');
+    if (!form) return;
+
+    // Armazena o listener original via submit
+    form.addEventListener('submit', function salvarExtras(e) {
+        // Os dados extras serão lidos pelo script.js principal
+        // Salvamos numa chave temporária que o script.js vai buscar
+        const extras = {
+            // Endemias
+            endemiaFoco:         document.getElementById('endemiaFoco')?.checked || false,
+            endemiaFocoEncontrado: document.getElementById('endemiaFocoEncontrado')?.checked || false,
+            endemiaTratado:      document.getElementById('endemiaTratado')?.checked || false,
+            endemiaOrientado:    document.getElementById('endemiaOrientado')?.checked || false,
+            endemiaEncaminhado:  document.getElementById('endemiaEncaminhado')?.checked || false,
+            endemiaSintomas:     document.getElementById('endemiaSintomas')?.checked || false,
+            obsEndemias:         document.getElementById('obsEndemias')?.value || '',
+            // Previne Brasil
+            prevSifilis:         document.getElementById('prevSifilis')?.checked || false,
+            prevHiv:             document.getElementById('prevHiv')?.checked || false,
+            prevDentista:        document.getElementById('prevDentista')?.checked || false,
+            prevPreNatal:        document.getElementById('prevPreNatal')?.checked || false,
+            prevPaAferida:       document.getElementById('prevPaAferida')?.checked || false,
+            prevPaControlada:    document.getElementById('prevPaControlada')?.checked || false,
+            prevPaValor:         document.getElementById('prevPaValor')?.value || '',
+            prevHbA1c:           document.getElementById('prevHbA1c')?.checked || false,
+            prevGlicemia:        document.getElementById('prevGlicemia')?.checked || false,
+            prevGlicemiaValor:   document.getElementById('prevGlicemiaValor')?.value || '',
+            prevPaDiab:          document.getElementById('prevPaDiab')?.checked || false,
+            prevDentistaDiab:    document.getElementById('prevDentistaDiab')?.checked || false,
+            prevPuericultura:    document.getElementById('prevPuericultura')?.checked || false,
+            prevVacinaCrianca:   document.getElementById('prevVacinaCrianca')?.checked || false,
+            prevPesoCrianca:     document.getElementById('prevPesoCrianca')?.checked || false,
+            prevAleitamento:     document.getElementById('prevAleitamento')?.checked || false,
+        };
+        sessionStorage.setItem('visitaExtras', JSON.stringify(extras));
+        // Não chama preventDefault — deixa o script.js principal tratar o submit
+    }, true); // true = capture phase, executa antes do script.js
+});
+
+// Preencher dados extras ao editar visita
+document.addEventListener('DOMContentLoaded', () => {
+    const editId = localStorage.getItem('editandoVisita');
+    if (!editId) return;
+    const v = visitas.find(vis => vis.id == editId);
+    if (!v) return;
+    // Aguarda um tick para o form ser preenchido pelo script.js
+    setTimeout(() => {
+        const checkSet = (id, val) => { const el = document.getElementById(id); if(el) el.checked = !!val; };
+        const valSet   = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ''; };
+        checkSet('endemiaFoco', v.endemiaFoco); checkSet('endemiaFocoEncontrado', v.endemiaFocoEncontrado);
+        checkSet('endemiaTratado', v.endemiaTratado); checkSet('endemiaOrientado', v.endemiaOrientado);
+        checkSet('endemiaEncaminhado', v.endemiaEncaminhado); checkSet('endemiaSintomas', v.endemiaSintomas);
+        valSet('obsEndemias', v.obsEndemias);
+        checkSet('prevSifilis', v.prevSifilis); checkSet('prevHiv', v.prevHiv);
+        checkSet('prevDentista', v.prevDentista); checkSet('prevPreNatal', v.prevPreNatal);
+        checkSet('prevPaAferida', v.prevPaAferida); checkSet('prevPaControlada', v.prevPaControlada);
+        valSet('prevPaValor', v.prevPaValor);
+        checkSet('prevHbA1c', v.prevHbA1c); checkSet('prevGlicemia', v.prevGlicemia);
+        valSet('prevGlicemiaValor', v.prevGlicemiaValor);
+        checkSet('prevPaDiab', v.prevPaDiab); checkSet('prevDentistaDiab', v.prevDentistaDiab);
+        checkSet('prevPuericultura', v.prevPuericultura); checkSet('prevVacinaCrianca', v.prevVacinaCrianca);
+        checkSet('prevPesoCrianca', v.prevPesoCrianca); checkSet('prevAleitamento', v.prevAleitamento);
+        if (v.familiaId) verificarIndicadoresPrevine(v.familiaId);
+    }, 300);
+});
+</script>
+</body>
+</html>

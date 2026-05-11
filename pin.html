@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ACS Digital — Acesso</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a365d;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .logo { font-size: 28px; font-weight: 700; color: white; margin-bottom: 8px; }
+    .sub  { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 40px; }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+    }
+    .avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #e2e8f0;
+      margin: 0 auto 12px;
+      display: block;
+    }
+    .avatar-fallback {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: #2b6cb0;
+      color: white;
+      font-size: 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .nome { font-size: 17px; font-weight: 600; color: #1a365d; }
+    .micro { font-size: 13px; color: #718096; margin-bottom: 24px; }
+    .titulo-pin { font-size: 14px; color: #4a5568; margin-bottom: 16px; }
+    .pontos {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .ponto {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      transition: background 0.15s;
+    }
+    .ponto.ativo { background: #2b6cb0; }
+    .ponto.erro  { background: #e53e3e; }
+    .teclado {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .tecla {
+      background: #f7fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 10px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a365d;
+      cursor: pointer;
+      transition: background 0.1s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tecla:active { background: #ebf8ff; transform: scale(0.95); }
+    .tecla.apagar { font-size: 16px; color: #e53e3e; background: #fff5f5; }
+    .tecla.vazio  { background: none; border-color: transparent; cursor: default; }
+    .erro-msg { font-size: 13px; color: #e53e3e; margin-top: 16px; min-height: 20px; }
+    .sem-pin { margin-top: 20px; font-size: 13px; color: #718096; }
+    .sem-pin a { color: #2b6cb0; cursor: pointer; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="logo">💚 ACS Digital</div>
+  <div class="sub">Agente Comunitário de Saúde</div>
+
+  <div class="card">
+    <div id="avatarContainer"></div>
+    <div class="nome" id="nomeUsuario">Carregando...</div>
+    <div class="micro" id="microUsuario"></div>
+
+    <div class="titulo-pin" id="tituloPIN">Digite seu PIN de acesso</div>
+
+    <div class="pontos" id="pontos">
+      <div class="ponto" id="p0"></div>
+      <div class="ponto" id="p1"></div>
+      <div class="ponto" id="p2"></div>
+      <div class="ponto" id="p3"></div>
+    </div>
+
+    <div class="teclado">
+      <button class="tecla" onclick="digitar(1)">1</button>
+      <button class="tecla" onclick="digitar(2)">2</button>
+      <button class="tecla" onclick="digitar(3)">3</button>
+      <button class="tecla" onclick="digitar(4)">4</button>
+      <button class="tecla" onclick="digitar(5)">5</button>
+      <button class="tecla" onclick="digitar(6)">6</button>
+      <button class="tecla" onclick="digitar(7)">7</button>
+      <button class="tecla" onclick="digitar(8)">8</button>
+      <button class="tecla" onclick="digitar(9)">9</button>
+      <button class="tecla vazio"></button>
+      <button class="tecla" onclick="digitar(0)">0</button>
+      <button class="tecla apagar" onclick="apagar()">⌫</button>
+    </div>
+
+    <div class="erro-msg" id="erroMsg"></div>
+
+    <div class="sem-pin" id="semPinDiv">
+      <a onclick="entrarSemPin()">Entrar sem PIN</a>
+    </div>
+  </div>
+
+<script>
+  let digitado = "";
+  let modoDefinir = false;
+  let pinTemp = "";
+
+  function carregarPerfil() {
+    const perfil = JSON.parse(localStorage.getItem("acsPerfil")) || {};
+    const nome   = perfil.nome || "Gabriela Almeida";
+    const micro  = perfil.microarea ? "Microárea " + perfil.microarea : "Microárea 03";
+    document.getElementById("nomeUsuario").textContent = nome;
+    document.getElementById("microUsuario").textContent = micro;
+
+    const av = document.getElementById("avatarContainer");
+    if (perfil.foto) {
+      av.innerHTML = `<img src="${perfil.foto}" class="avatar" alt="Foto">`;
+    } else {
+      const iniciais = nome.split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
+      av.innerHTML = `<div class="avatar-fallback">${iniciais}</div>`;
+    }
+
+    const pinSalvo = localStorage.getItem("pinAcesso");
+    if (!pinSalvo) {
+      document.getElementById("tituloPIN").textContent = "Crie seu PIN de 4 dígitos";
+      document.getElementById("semPinDiv").style.display = "block";
+      modoDefinir = true;
+    } else {
+      document.getElementById("semPinDiv").style.display = "block";
+    }
+  }
+
+  function digitar(num) {
+    if (digitado.length >= 4) return;
+    digitado += String(num);
+    atualizarPontos();
+    if (digitado.length === 4) {
+      setTimeout(verificar, 200);
+    }
+  }
+
+  function apagar() {
+    digitado = digitado.slice(0, -1);
+    atualizarPontos();
+    document.getElementById("erroMsg").textContent = "";
+  }
+
+  function atualizarPontos(classe) {
+    for (let i = 0; i < 4; i++) {
+      const p = document.getElementById("p" + i);
+      p.className = "ponto";
+      if (classe) p.classList.add(classe);
+      else if (i < digitado.length) p.classList.add("ativo");
+    }
+  }
+
+  function verificar() {
+    if (modoDefinir) {
+      if (!pinTemp) {
+        pinTemp = digitado;
+        digitado = "";
+        atualizarPontos();
+        document.getElementById("tituloPIN").textContent = "Confirme o PIN";
+        document.getElementById("erroMsg").textContent = "";
+      } else {
+        if (digitado === pinTemp) {
+          localStorage.setItem("pinAcesso", digitado);
+          localStorage.setItem("pinSessao", Date.now());
+          window.location.href = "index.html";
+        } else {
+          atualizarPontos("erro");
+          document.getElementById("erroMsg").textContent = "PINs diferentes. Tente novamente.";
+          pinTemp = "";
+          digitado = "";
+          setTimeout(() => { atualizarPontos(); document.getElementById("tituloPIN").textContent = "Crie seu PIN de 4 dígitos"; }, 800);
+        }
+      }
+    } else {
+      const pinSalvo = localStorage.getItem("pinAcesso");
+      if (digitado === pinSalvo) {
+        localStorage.setItem("pinSessao", Date.now());
+        window.location.href = "index.html";
+      } else {
+        atualizarPontos("erro");
+        document.getElementById("erroMsg").textContent = "PIN incorreto. Tente novamente.";
+        digitado = "";
+        setTimeout(() => atualizarPontos(), 600);
+      }
+    }
+  }
+
+  function entrarSemPin() {
+    localStorage.setItem("pinSessao", Date.now());
+    window.location.href = "index.html";
+  }
+
+  carregarPerfil();
+</script>
+</body>
+</html>

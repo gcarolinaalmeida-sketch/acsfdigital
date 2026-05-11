@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pendências - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- HAMBÚRGUER MOBILE -->
+<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+
+    <!-- PAINEL -->
+    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
+
+    <div class="nav-divisor"></div>
+
+    <!-- FAMÍLIAS E CIDADÃOS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')">
+        <span>👨‍👩‍👧 Famílias e Cidadãos</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+      </div>
+    </div>
+
+    <!-- VISITAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')">
+        <span>📅 Visitas</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS E METAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')">
+        <span>📊 Relatórios e Metas</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
+      </div>
+    </div>
+
+    <!-- PLANEJAMENTO -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')">
+        <span>🗓️ Planejamento</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
+      </div>
+    </div>
+
+    <div class="nav-divisor"></div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')">
+        <span>⚙️ Configurações</span>
+        <span class="seta">›</span>
+      </button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+      </div>
+    </div>
+
+  </nav>
+    <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div>
+      <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
+      <span id="sidebarMicroarea">Microárea 03</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <h1>⚠️ Pendências dos Cidadãos</h1>
+    <div style="font-size:14px;color:#718096;" id="resumoPendencias">—</div>
+  </header>
+
+  <div class="box no-print" style="margin-bottom:16px;padding:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center;">
+      <input type="text" id="filtroPendenciaBusca" placeholder="🔍 Buscar por cidadão ou detalhe..." oninput="renderizarPendencias()" style="padding:9px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
+      <select id="filtroPendenciaStatus" onchange="renderizarPendencias()" style="padding:9px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
+        <option value="">📋 Todos os status</option>
+        <option value="aberta">🟡 Abertas</option>
+        <option value="resolvida">✅ Resolvidas</option>
+      </select>
+      <button onclick="limparFiltrosPend()" class="btn btn-secondary" style="white-space:nowrap;">✖ Limpar</button>
+    </div>
+  </div>
+
+  <div id="listaPendencias"></div>
+
+  <nav class="bottom-nav no-print">
+    <a href="index.html" class="nav-item">🏠<span>Início</span></a>
+    <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
+    <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
+    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+  </nav>
+</main>
+
+<script src="script.js"></script>
+<script>
+  function limparFiltrosPend() {
+    document.getElementById("filtroPendenciaBusca").value = "";
+    document.getElementById("filtroPendenciaStatus").value = "";
+    renderizarPendencias();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Percurso - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .percurso-header { margin-top:10px; margin-bottom:20px; }
+    .percurso-header h1 { color:#1a365d; font-size:24px; margin-bottom:4px; }
+    .percurso-header p  { color:#718096; font-size:14px; margin-bottom:12px; }
+
+    .progresso-dia { background:white; border-radius:10px; padding:16px 18px; box-shadow:0 4px 15px rgba(0,0,0,0.06); margin-bottom:20px; display:flex; align-items:center; gap:16px; }
+    .progresso-dia .prog-texto { flex:1; }
+    .progresso-dia .prog-titulo { font-size:13px; font-weight:700; color:#2c5282; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px; }
+    .progresso-dia .prog-barra-fundo { background:#edf2f7; border-radius:999px; height:10px; overflow:hidden; }
+    .progresso-dia .prog-barra { height:100%; border-radius:999px; background:#3182ce; transition:width 0.6s ease, background 0.4s ease; }
+    .progresso-dia .prog-num { font-size:28px; font-weight:800; color:#1a365d; letter-spacing:-0.03em; white-space:nowrap; }
+
+    /* ── Controles de visualização ── */
+    .controles-percurso {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn-modo {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1.5px solid #e2e8f0;
+      background: white;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4a5568;
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-modo.ativo { background: #2b6cb0; color: white; border-color: #2b6cb0; }
+    .btn-modo:hover:not(.ativo) { background: #edf2f7; }
+
+    /* ── Cabeçalho de rua (modo agrupado) ── */
+    .rua-grupo { margin-bottom: 20px; }
+    .rua-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #2b6cb0;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px 8px 0 0;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .rua-header .rua-badge {
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 12px;
+    }
+    .rua-cards { border: 1px solid #bee3f8; border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; }
+    .rua-cards .visita-card { border-radius: 0; margin-bottom: 0; border-left-width: 4px; box-shadow: none; border-bottom: 1px solid #edf2f7; }
+    .rua-cards .visita-card:last-child { border-bottom: none; }
+
+    /* ── Resumo por rua ── */
+    .rua-resumo {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-left: auto;
+    }
+
+    .visita-card { background:white; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.06); margin-bottom:12px; border-left:5px solid #3182ce; overflow:hidden; transition:box-shadow 0.2s; }
+    .visita-card:hover { box-shadow:0 8px 24px rgba(0,0,0,0.10); }
+    .visita-card.realizada { border-left-color:#38a169; }
+    .visita-card.ausente   { border-left-color:#ed8936; }
+    .visita-card.recusada  { border-left-color:#e53e3e; }
+    .visita-card-body { padding:14px 16px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .visita-info { flex:1; min-width:0; }
+    .visita-nome { font-size:16px; font-weight:700; color:#2c5282; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .visita-endereco { font-size:13px; color:#4a5568; margin-bottom:6px; }
+    .visita-status-badge { display:inline-block; font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; text-transform:uppercase; letter-spacing:0.03em; }
+    .badge-planejada { background:#ebf8ff; color:#2b6cb0; }
+    .badge-realizada { background:#c6f6d5; color:#22543d; }
+    .badge-ausente   { background:#feebc8; color:#744210; }
+    .badge-recusada  { background:#fed7d7; color:#742a2a; }
+    .visita-acoes { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
+    .btn-iniciar { background:#48bb78; color:white; border:none; padding:0 16px; height:44px; border-radius:6px; font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:background 0.2s, transform 0.15s; white-space:nowrap; }
+    .btn-iniciar:hover  { background:#2f855a; }
+    .btn-iniciar:active { transform:scale(0.97); }
+    .btn-maps { display:flex; align-items:center; justify-content:center; gap:6px; background:#fff; color:#2b6cb0; border:1.5px solid #bee3f8; border-radius:6px; height:36px; padding:0 12px; font-size:12px; font-weight:600; text-decoration:none; cursor:pointer; transition:background 0.2s, border-color 0.2s; white-space:nowrap; }
+    .btn-maps:hover { background:#ebf8ff; border-color:#90cdf4; }
+    .btn-rota-completa { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#1a73e8; color:white; border:none; border-radius:8px; height:48px; font-size:14px; font-weight:700; text-decoration:none; cursor:pointer; margin-bottom:16px; transition:background 0.2s, transform 0.15s; box-shadow:0 2px 8px rgba(26,115,232,0.25); }
+    .btn-rota-completa:hover  { background:#1557b0; }
+    .btn-rota-completa:active { transform:scale(0.98); }
+    .estado-vazio { text-align:center; padding:40px 20px; background:white; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.06); }
+    .estado-vazio .emoji { font-size:48px; margin-bottom:12px; }
+    .estado-vazio p { color:#718096; margin-bottom:18px; font-size:15px; }
+  </style>
+</head>
+<body style="padding-bottom:90px;">
+
+  <main class="main" style="margin-left:0;width:100%;">
+
+    <header class="percurso-header">
+      <h1>🚶 Percurso do Dia</h1>
+      <p>Selecione o dia para ver a rota planejada:</p>
+      <input type="date" id="dataPercurso" onchange="carregarPercurso()"
+             style="width:100%;padding:10px;border-radius:6px;border:1.5px solid #cbd5e0;font-size:16px;background:white;height:44px;">
+    </header>
+
+    <!-- Controles de modo de visualização -->
+    <div class="controles-percurso" id="controlesPercurso" style="display:none;">
+      <button class="btn-modo ativo" id="btnModoLista" onclick="setModo('lista')">📋 Lista</button>
+      <button class="btn-modo" id="btnModoRua" onclick="setModo('rua')">🏘️ Agrupar por Rua</button>
+      <span style="font-size:13px;color:#718096;margin-left:4px;" id="lblModo">Visitas organizadas em ordem de adição</span>
+    </div>
+
+    <!-- Barra de progresso -->
+    <div id="progressoDia" style="display:none;" class="progresso-dia">
+      <div class="prog-texto">
+        <div class="prog-titulo">Progresso do dia</div>
+        <div class="prog-barra-fundo">
+          <div class="prog-barra" id="progBarra" style="width:0%;"></div>
+        </div>
+      </div>
+      <div class="prog-num" id="progNum">0/0</div>
+    </div>
+
+    <!-- Botão rota completa Maps -->
+    <div id="containerRotaCompleta"></div>
+
+    <!-- Lista de visitas -->
+    <div id="listaPercurso"></div>
+
+  </main>
+
+  <nav class="bottom-nav no-print">
+    <a href="index.html" class="nav-item">🏠<span>Início</span></a>
+    <a href="percurso.html" class="nav-item active">🚶<span>Percurso</span></a>
+    <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
+    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+  </nav>
+
+  <script src="script.js"></script>
+  <script>
+    let modoVisualizacao = 'lista'; // 'lista' ou 'rua'
+    let visitasHojeCached = [];
+
+    function setModo(modo) {
+      modoVisualizacao = modo;
+      document.getElementById('btnModoLista').classList.toggle('ativo', modo === 'lista');
+      document.getElementById('btnModoRua').classList.toggle('ativo', modo === 'rua');
+      const lbl = document.getElementById('lblModo');
+      if (lbl) lbl.textContent = modo === 'rua'
+          ? '📍 Agrupado por rua — ideal para otimizar o caminho'
+          : 'Visitas em ordem de planejamento';
+      renderizarVisitas(visitasHojeCached);
+    }
+
+    function urlMaps(endereco) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+    }
+
+    function urlRotaCompleta(enderecos) {
+      if (enderecos.length === 0) return '#';
+      if (enderecos.length === 1) return urlMaps(enderecos[0]);
+      const origem    = encodeURIComponent(enderecos[0]);
+      const destino   = encodeURIComponent(enderecos[enderecos.length - 1]);
+      const waypoints = enderecos.slice(1, -1).map(e => encodeURIComponent(e)).join('|');
+      let url = `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}&travelmode=walking`;
+      if (waypoints) url += `&waypoints=${waypoints}`;
+      return url;
+    }
+
+    function badgeStatus(status) {
+      if (!status || status.includes('⏳') || status.includes('Planejada'))
+        return `<span class="visita-status-badge badge-planejada">⏳ Planejada</span>`;
+      if (status.includes('✅') || status.includes('Realizada'))
+        return `<span class="visita-status-badge badge-realizada">✅ Realizada</span>`;
+      if (status.includes('Ausente'))
+        return `<span class="visita-status-badge badge-ausente">⚠️ Ausente</span>`;
+      return `<span class="visita-status-badge badge-recusada">❌ Recusada</span>`;
+    }
+
+    function classeCard(status) {
+      if (!status || status.includes('⏳') || status.includes('Planejada')) return '';
+      if (status.includes('✅') || status.includes('Realizada')) return 'realizada';
+      if (status.includes('Ausente')) return 'ausente';
+      return 'recusada';
+    }
+
+    function cardHtml(item, idx) {
+      const enderecoCompleto = item.rua || '';
+      const linkMaps = urlMaps(enderecoCompleto);
+      const jaFeita  = item.status && (item.status.includes('✅') || item.status.includes('Realizada'));
+      return `
+        <div class="visita-card ${classeCard(item.status)}" id="card-${item.id}">
+          <div class="visita-card-body">
+            <div class="visita-info">
+              <div class="visita-nome">${idx + 1}. ${item.responsavel}</div>
+              <div class="visita-endereco">📍 ${enderecoCompleto || 'Endereço não informado'}</div>
+              ${badgeStatus(item.status)}
+            </div>
+            <div class="visita-acoes">
+              ${jaFeita
+                ? `<button disabled style="background:#c6f6d5;color:#22543d;border:none;height:44px;padding:0 14px;border-radius:6px;font-weight:700;font-size:13px;cursor:default;">✅ Feita</button>`
+                : `<button onclick="iniciarVisitaRoteiro(${item.familiaId}, ${item.id})" class="btn-iniciar">▶ Iniciar</button>`
+              }
+              <a href="${linkMaps}" target="_blank" rel="noopener" class="btn-maps">🗺️ Maps</a>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // ── Renderiza no modo lista ──
+    function renderizarModoLista(visitas) {
+      return visitas.map((item, idx) => cardHtml(item, idx)).join('');
+    }
+
+    // ── Renderiza no modo agrupado por rua ──
+    function renderizarModoRua(visitas) {
+      // Agrupa por logradouro (normaliza texto)
+      const grupos = {};
+      visitas.forEach((item, idx) => {
+        const rua = (item.rua || 'Endereço não informado').trim();
+        // Extrai só o nome da rua (sem número)
+        const nomeRua = rua.replace(/,?\s*\d+.*$/, '').trim() || rua;
+        if (!grupos[nomeRua]) grupos[nomeRua] = [];
+        grupos[nomeRua].push({ item, idx });
+      });
+
+      const ruasOrdenadas = Object.keys(grupos).sort();
+
+      return ruasOrdenadas.map(rua => {
+        const itens = grupos[rua];
+        const feitas = itens.filter(({item}) => item.status && (item.status.includes('✅') || item.status.includes('Realizada'))).length;
+        const enderecos = itens.map(({item}) => item.rua).filter(Boolean);
+
+        let botaoRota = '';
+        if (enderecos.length >= 2) {
+          botaoRota = `<a href="${urlRotaCompleta(enderecos)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#ebf8ff;text-decoration:none;background:rgba(255,255,255,0.15);padding:3px 8px;border-radius:4px;">🗺️ Rota da rua</a>`;
+        }
+
+        return `
+          <div class="rua-grupo">
+            <div class="rua-header">
+              <span>📍 ${rua}</span>
+              <span class="rua-badge">${itens.length} visita${itens.length > 1 ? 's' : ''}</span>
+              ${feitas > 0 ? `<span class="rua-badge" style="background:rgba(72,187,120,0.3);">✅ ${feitas} feita${feitas > 1 ? 's' : ''}</span>` : ''}
+              ${botaoRota}
+            </div>
+            <div class="rua-cards">
+              ${itens.map(({item, idx}) => cardHtml(item, idx)).join('')}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderizarVisitas(visitasHoje) {
+      const lista = document.getElementById('listaPercurso');
+      if (!lista) return;
+      if (modoVisualizacao === 'rua') {
+        lista.innerHTML = renderizarModoRua(visitasHoje);
+      } else {
+        lista.innerHTML = renderizarModoLista(visitasHoje);
+      }
+    }
+
+    function carregarPercurso() {
+      const lista   = document.getElementById('listaPercurso');
+      const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
+      const progDiv = document.getElementById('progressoDia');
+      const rotaDiv = document.getElementById('containerRotaCompleta');
+      const ctrlDiv = document.getElementById('controlesPercurso');
+
+      let dataFiltro = document.getElementById('dataPercurso').value;
+      if (!dataFiltro) {
+        const hojeLocal = new Date();
+        hojeLocal.setMinutes(hojeLocal.getMinutes() - hojeLocal.getTimezoneOffset());
+        dataFiltro = hojeLocal.toISOString().split('T')[0];
+        document.getElementById('dataPercurso').value = dataFiltro;
+      }
+
+      const visitasHoje = roteiro.filter(item => item.data === dataFiltro);
+      visitasHojeCached = visitasHoje;
+
+      if (visitasHoje.length === 0) {
+        progDiv.style.display = 'none';
+        rotaDiv.innerHTML = '';
+        if (ctrlDiv) ctrlDiv.style.display = 'none';
+        lista.innerHTML = `
+          <div class="estado-vazio">
+            <div class="emoji">🗺️</div>
+            <p>Nenhuma visita planejada para este dia.</p>
+            <button onclick="window.location.href='agenda.html'" class="btn-iniciar" style="margin:0 auto;">
+              📅 Ir para a Agenda
+            </button>
+          </div>`;
+        return;
+      }
+
+      // Mostra controles de modo
+      if (ctrlDiv) ctrlDiv.style.display = 'flex';
+
+      // Barra de progresso
+      const realizadas = visitasHoje.filter(i => i.status && (i.status.includes('✅') || i.status.includes('Realizada'))).length;
+      const total      = visitasHoje.length;
+      const pct        = Math.round((realizadas / total) * 100);
+      const corBarra   = pct >= 80 ? '#38a169' : pct >= 40 ? '#d69e2e' : '#3182ce';
+
+      progDiv.style.display = 'flex';
+      document.getElementById('progBarra').style.width      = pct + '%';
+      document.getElementById('progBarra').style.background = corBarra;
+      document.getElementById('progNum').textContent        = `${realizadas}/${total}`;
+
+      // Botão rota completa (modo lista)
+      const enderecos = visitasHoje.map(i => i.rua).filter(Boolean);
+      if (enderecos.length >= 2 && modoVisualizacao === 'lista') {
+        rotaDiv.innerHTML = `
+          <a href="${urlRotaCompleta(enderecos)}" target="_blank" rel="noopener" class="btn-rota-completa">
+            🗺️ Abrir rota completa do dia no Maps
+          </a>`;
+      } else {
+        rotaDiv.innerHTML = '';
+      }
+
+      renderizarVisitas(visitasHoje);
+    }
+
+    function iniciarVisitaRoteiro(familiaId, itemId) {
+      if (itemId) sessionStorage.setItem("idTarefaPercursoAtiva", itemId);
+      window.location.href = `visitas.html?familiaId=${familiaId}`;
+    }
+
+    window.addEventListener('load', carregarPercurso);
+  </script>
+</body>
+</html>
