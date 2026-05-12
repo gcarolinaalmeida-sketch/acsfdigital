@@ -24,7 +24,7 @@ function cadastrarFamilia() {
 }
 function abrirFamilia(id) {
     localStorage.setItem("familiaAtual", id);
-    window.location.href = "familias_detalhe.html";
+    window.location.href = "familia_detalhe.html";
 }
 function editarFamilia(id) {
     localStorage.setItem("editandoFamilia", id);
@@ -142,7 +142,7 @@ function calcularMetasEPrioridades() {
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 ${textoStatus}
-                ${total > 0 ? `<button onclick="localStorage.setItem('filtroGrupo','${g.label.toLowerCase().split(' ')[0]}');window.location.href='familias_lista.html'" style="background:none;border:none;color:#3182ce;font-size:12px;cursor:pointer;padding:0;">Ver lista →</button>` : ''}
+                ${total > 0 ? `<button onclick="localStorage.setItem('filtroGrupo','${g.label.toLowerCase().split(' ')[0]}');window.location.href='cidadaos_lista.html'" style="background:none;border:none;color:#3182ce;font-size:12px;cursor:pointer;padding:0;">Ver lista →</button>` : ''}
             </div>
         </li>`;
     }).join('');
@@ -724,6 +724,7 @@ function renderizarMembrosSalvos() {
                 ${m.doencas_lista?`<div style="font-size:12px;color:#e53e3e;margin-top:2px;">⚠️ ${m.doencas_lista}</div>`:''}
             </div>
             <div style="display:flex;gap:6px;">
+                <button onclick="window.location.href='saude_cidadao.html?cidadao=${m.id}&familia=${m.familia_id}'" style="background:#f0fff4;color:#276749;border:1px solid #9ae6b4;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">🩺 Saúde</button>
                 <button onclick="editarMembro(${m.id})" style="background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">✏️</button>
                 <button onclick="excluirMembro(${m.id})" style="background:#fff5f5;color:#c53030;border:1px solid #fed7d7;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">🗑️</button>
             </div>
@@ -816,11 +817,14 @@ function renderizarMembrosDetalhe() {
         let idade="—";
         if (m.nascimento) { const a=Math.floor((new Date()-new Date(m.nascimento))/(1000*60*60*24*365.25)); idade=`${a} anos`; }
         return `
-        <div style="padding:10px;border-bottom:1px solid #edf2f7;background:#f8fafc;border-radius:6px;margin-bottom:6px;">
-            <strong>👤 ${m.nome}</strong>
-            <span style="font-size:12px;color:#718096;margin-left:8px;">${m.parentesco||''} · ${m.sexo||''} · ${idade}</span>
-            ${m.doencas_lista?`<div style="font-size:12px;color:#e53e3e;margin-top:2px;">⚠️ ${m.doencas_lista}</div>`:''}
-            ${m.gestante==="Sim"?`<span style="font-size:12px;color:#d53f8c;margin-left:4px;">🤰 Gestante</span>`:''}
+        <div style="padding:10px;border-bottom:1px solid #edf2f7;background:#f8fafc;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div style="flex:1;">
+                <strong>👤 ${m.nome}</strong>
+                <span style="font-size:12px;color:#718096;margin-left:8px;">${m.parentesco||''} · ${m.sexo||''} · ${idade}</span>
+                ${m.doencas_lista?`<div style="font-size:12px;color:#e53e3e;margin-top:2px;">⚠️ ${m.doencas_lista}</div>`:''}
+                ${m.gestante==="Sim"?`<span style="font-size:12px;color:#d53f8c;margin-left:4px;">🤰 Gestante</span>`:''}
+            </div>
+            <button onclick="window.location.href='saude_cidadao.html?cidadao=${m.id}&familia=${m.familia_id}'" style="background:#f0fff4;color:#276749;border:1px solid #9ae6b4;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0;">🩺 Saúde</button>
         </div>`;
     }).join("");
 }
@@ -1514,8 +1518,8 @@ function iniciarMenuSidebar() {
     const gruposPorPagina = {
         'familias.html':       'familias',
         'familias_lista.html': 'familias',
-        'familias_detalhe.html':'familias',
-        'familias_lista.html': 'familias',
+        'familia_detalhe.html':'familias',
+        'cidadaos_lista.html': 'familias',
         'saude_cidadao.html':  'familias',
         'visitas.html':        'visitas',
         'visitas_lista.html':  'visitas',
