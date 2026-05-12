@@ -24,7 +24,7 @@ function cadastrarFamilia() {
 }
 function abrirFamilia(id) {
     localStorage.setItem("familiaAtual", id);
-    window.location.href = "familia_detalhe.html";
+    window.location.href = "familias_detalhe.html";
 }
 function editarFamilia(id) {
     localStorage.setItem("editandoFamilia", id);
@@ -142,7 +142,7 @@ function calcularMetasEPrioridades() {
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 ${textoStatus}
-                ${total > 0 ? `<button onclick="localStorage.setItem('filtroGrupo','${g.label.toLowerCase().split(' ')[0]}');window.location.href='cidadaos_lista.html'" style="background:none;border:none;color:#3182ce;font-size:12px;cursor:pointer;padding:0;">Ver lista →</button>` : ''}
+                ${total > 0 ? `<button onclick="localStorage.setItem('filtroGrupo','${g.label.toLowerCase().split(' ')[0]}');window.location.href='familias_lista.html'" style="background:none;border:none;color:#3182ce;font-size:12px;cursor:pointer;padding:0;">Ver lista →</button>` : ''}
             </div>
         </li>`;
     }).join('');
@@ -1514,8 +1514,8 @@ function iniciarMenuSidebar() {
     const gruposPorPagina = {
         'familias.html':       'familias',
         'familias_lista.html': 'familias',
-        'familia_detalhe.html':'familias',
-        'cidadaos_lista.html': 'familias',
+        'familias_detalhe.html':'familias',
+        'familias_lista.html': 'familias',
         'saude_cidadao.html':  'familias',
         'visitas.html':        'visitas',
         'visitas_lista.html':  'visitas',
