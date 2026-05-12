@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACS Digital">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Saúde do Cidadão</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ── CABEÇALHO DO CIDADÃO ── */
+  .cidadao-header {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .cidadao-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+    border: 3px solid rgba(255,255,255,0.4);
+  }
+  .cidadao-info { flex: 1; }
+  .cidadao-info h2 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+  .cidadao-info .sub { font-size: 13px; opacity: 0.85; display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
+  .cidadao-info .sub span { display: flex; align-items: center; gap: 4px; }
+  .badge-status {
+    padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700;
+    display: inline-block; margin-top: 8px;
+  }
+  .badge-ativo   { background: #c6f6d5; color: #276749; }
+  .badge-inativo { background: #fed7d7; color: #9b2c2c; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex; gap: 4px; margin-bottom: 20px;
+    overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    padding: 8px 14px; border-radius: 8px; border: none;
+    background: #edf2f7; color: #4a5568; font-size: 13px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  }
+  .tab-btn.ativo { background: #2b6cb0; color: white; }
+
+  /* ── CARDS DE SINAIS VITAIS ── */
+  .sinais-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;
+    margin-bottom: 20px;
+  }
+  .sinal-card {
+    background: white; border-radius: 10px; padding: 14px;
+    border: 1px solid #e2e8f0; text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .sinal-card .icone { font-size: 22px; margin-bottom: 6px; }
+  .sinal-card .valor { font-size: 20px; font-weight: 800; color: #1a365d; }
+  .sinal-card .label { font-size: 11px; color: #718096; margin-top: 2px; }
+  .sinal-card .data  { font-size: 10px; color: #a0aec0; margin-top: 4px; }
+  .sinal-card.alerta { border-color: #fc8181; background: #fff5f5; }
+  .sinal-card.alerta .valor { color: #c53030; }
+  .sinal-card.ok { border-color: #9ae6b4; background: #f0fff4; }
+  .sinal-card.ok .valor { color: #276749; }
+
+  /* ── ALERTAS DE RECEITA ── */
+  .alerta-receita {
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    display: flex; align-items: flex-start; gap: 12px;
+    border-left: 5px solid;
+  }
+  .alerta-receita.urgente { background: #fff5f5; border-color: #e53e3e; }
+  .alerta-receita.atencao { background: #fffbeb; border-color: #ed8936; }
+  .alerta-receita.ok      { background: #f0fff4; border-color: #38a169; }
+  .alerta-receita .icone-alerta { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .alerta-receita .corpo { flex: 1; }
+  .alerta-receita .titulo { font-weight: 700; font-size: 14px; }
+  .alerta-receita.urgente .titulo { color: #c53030; }
+  .alerta-receita.atencao .titulo { color: #744210; }
+  .alerta-receita.ok      .titulo { color: #276749; }
+  .alerta-receita .detalhe { font-size: 13px; color: #718096; margin-top: 3px; }
+  .alerta-receita .prazo { font-size: 12px; font-weight: 600; margin-top: 5px; }
+  .alerta-receita.urgente .prazo { color: #e53e3e; }
+  .alerta-receita.atencao .prazo { color: #ed8936; }
+
+  /* ── LISTA DE MEDICAMENTOS ── */
+  .med-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid #edf2f7;
+  }
+  .med-item:last-child { border-bottom: none; }
+  .med-icone {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: #ebf8ff; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .med-info { flex: 1; }
+  .med-nome { font-weight: 700; font-size: 14px; color: #1a365d; }
+  .med-dose { font-size: 13px; color: #4a5568; margin-top: 2px; }
+  .med-obs  { font-size: 12px; color: #718096; margin-top: 3px; }
+  .tag-receita {
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+    white-space: nowrap; align-self: flex-start; margin-top: 2px;
+  }
+  .tag-controlada  { background: #fed7d7; color: #9b2c2c; }
+  .tag-continuo    { background: #e9d8fd; color: #553c9a; }
+  .tag-comum       { background: #e2e8f0; color: #4a5568; }
+
+  /* ── EXAMES / CONSULTAS ── */
+  .exame-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid #edf2f7;
+  }
+  .exame-item:last-child { border-bottom: none; }
+  .exame-data {
+    background: #2b6cb0; color: white; border-radius: 8px;
+    padding: 6px 10px; text-align: center; min-width: 52px; flex-shrink: 0;
+  }
+  .exame-data .dia  { font-size: 18px; font-weight: 800; line-height: 1; }
+  .exame-data .mes  { font-size: 10px; text-transform: uppercase; opacity: 0.8; }
+  .exame-desc { flex: 1; }
+  .exame-nome { font-weight: 600; font-size: 14px; color: #1a365d; }
+  .exame-local { font-size: 12px; color: #718096; margin-top: 2px; }
+  .exame-resultado { font-size: 12px; color: #38a169; font-weight: 600; margin-top: 2px; }
+
+  /* ── CONDIÇÕES CLÍNICAS ── */
+  .condicoes-grid {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+  }
+  .tag-condicao {
+    padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 600;
+    border: 1px solid;
+  }
+  .tag-cronica   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .tag-risco     { background: #fffbeb; border-color: #f6ad55; color: #744210; }
+  .tag-social    { background: #e9d8fd; border-color: #b794f4; color: #553c9a; }
+  .tag-normal    { background: #f0fff4; border-color: #9ae6b4; color: #276749; }
+
+  /* ── PUERICULTURA ── */
+  .puericultura-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid #edf2f7;
+  }
+  .puericultura-item:last-child { border-bottom: none; }
+  .pueri-status {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .pueri-ok      { background: #c6f6d5; }
+  .pueri-pendente{ background: #fed7d7; }
+  .pueri-info    { flex: 1; }
+  .pueri-nome    { font-weight: 600; font-size: 13px; color: #1a365d; }
+  .pueri-data    { font-size: 12px; color: #718096; }
+
+  /* ── SEÇÃO ── */
+  .secao { display: none; }
+  .secao.ativa { display: block; }
+
+  /* ── BOTÃO ADICIONAR ── */
+  .btn-add {
+    width: 100%; padding: 10px; border-radius: 8px;
+    border: 2px dashed #cbd5e0; background: transparent;
+    color: #718096; font-size: 13px; cursor: pointer;
+    margin-top: 10px; transition: all 0.2s;
+  }
+  .btn-add:hover { border-color: #2b6cb0; color: #2b6cb0; background: #ebf8ff; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 9999;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-overlay.aberto { display: flex; }
+  .modal {
+    background: white; border-radius: 14px; padding: 24px;
+    width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { margin: 0 0 18px; color: #1a365d; font-size: 17px; }
+  .modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .modal .form-row.full { grid-template-columns: 1fr; }
+  .modal label { font-size: 12px; font-weight: 600; color: #4a5568; display: block; margin-bottom: 4px; }
+  .modal input, .modal select, .modal textarea {
+    width: 100%; padding: 9px 12px; border: 1px solid #cbd5e0;
+    border-radius: 6px; font-size: 13px; box-sizing: border-box;
+  }
+  .modal textarea { resize: vertical; min-height: 60px; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 18px; }
+  .modal-btns button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-confirmar { background: #2b6cb0; color: white; }
+  .btn-cancelar  { background: #edf2f7; color: #4a5568; }
+
+  /* ── HISTÓRICO DE VISITAS MINI ── */
+  .visita-mini {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid #edf2f7; font-size: 13px;
+  }
+  .visita-mini:last-child { border-bottom: none; }
+  .visita-mini .dot { width: 8px; height: 8px; border-radius: 50%; background: #38a169; flex-shrink: 0; }
+  .visita-mini .vdata { color: #718096; min-width: 80px; }
+  .visita-mini .vtipo { color: #1a365d; font-weight: 600; flex: 1; }
+  .visita-mini .vobs  { color: #718096; font-size: 12px; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 30px 20px; color: #a0aec0;
+  }
+  .empty-state .emoji { font-size: 36px; margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ MODAIS ═══ -->
+
+<!-- Modal: Registrar Sinal Vital -->
+<div class="modal-overlay" id="modalSinal">
+  <div class="modal">
+    <h3>📊 Registrar Sinal Vital</h3>
+    <div class="form-row">
+      <div>
+        <label>Tipo</label>
+        <select id="sinalTipo">
+          <option value="pressao">Pressão Arterial</option>
+          <option value="glicemia">Glicemia</option>
+          <option value="peso">Peso (kg)</option>
+          <option value="altura">Altura (cm)</option>
+          <option value="saturacao">Saturação O₂ (%)</option>
+          <option value="temperatura">Temperatura (°C)</option>
+        </select>
+      </div>
+      <div>
+        <label>Valor</label>
+        <input type="text" id="sinalValor" placeholder="Ex: 120/80">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>Data</label>
+        <input type="date" id="sinalData">
+      </div>
+      <div>
+        <label>Observação</label>
+        <input type="text" id="sinalObs" placeholder="Opcional">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancelar" onclick="fecharModal('modalSinal')">Cancelar</button>
+      <button class="btn-confirmar" onclick="salvarSinal()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Adicionar Medicamento -->
+<div class="modal-overlay" id="modalMed">
+  <div class="modal">
+    <h3>💊 Adicionar Medicamento</h3>
+    <div class="form-row full">
+      <div>
+        <label>Nome do Medicamento</label>
+        <input type="text" id="medNome" placeholder="Ex: Losartana 50mg">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>Dose / Frequência</label>
+        <input type="text" id="medDose" placeholder="Ex: 1 comp. 2x/dia">
+      </div>
+      <div>
+        <label>Tipo</label>
+        <select id="medTipo">
+          <option value="comum">Comum</option>
+          <option value="continuo">Uso Contínuo</option>
+          <option value="controlada">Receita Controlada</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row" id="rowReceita" style="display:none;">
+      <div>
+        <label>Data da última receita</label>
+        <input type="date" id="medDataReceita">
+      </div>
+      <div>
+        <label>Validade (dias)</label>
+        <select id="medValidade">
+          <option value="30">30 dias</option>
+          <option value="60">60 dias</option>
+          <option value="180">6 meses (180 dias)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row full">
+      <div>
+        <label>Observações</label>
+        <textarea id="medObs" placeholder="Ex: Tomar em jejum, verificar pressão antes..."></textarea>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancelar" onclick="fecharModal('modalMed')">Cancelar</button>
+      <button class="btn-confirmar" onclick="salvarMedicamento()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Adicionar Exame/Consulta -->
+<div class="modal-overlay" id="modalExame">
+  <div class="modal">
+    <h3>🔬 Registrar Exame / Consulta</h3>
+    <div class="form-row">
+      <div>
+        <label>Tipo</label>
+        <select id="exameCategoria">
+          <option value="exame">Exame Laboratorial</option>
+          <option value="imagem">Exame de Imagem</option>
+          <option value="consulta">Consulta na UBS</option>
+          <option value="especialidade">Consulta Especialidade</option>
+        </select>
+      </div>
+      <div>
+        <label>Data</label>
+        <input type="date" id="exameData">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div>
+        <label>Descrição</label>
+        <input type="text" id="exameNome" placeholder="Ex: Hemograma completo, ECG, Consulta cardiologista...">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>Local / Unidade</label>
+        <input type="text" id="exameLocal" placeholder="Ex: UBS Guarda-Mor">
+      </div>
+      <div>
+        <label>Resultado (resumo)</label>
+        <input type="text" id="exameResultado" placeholder="Ex: Normal, Alterado...">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div>
+        <label>Observações</label>
+        <textarea id="exameObs" placeholder="Detalhes relevantes..."></textarea>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancelar" onclick="fecharModal('modalExame')">Cancelar</button>
+      <button class="btn-confirmar" onclick="salvarExame()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Puericultura -->
+<div class="modal-overlay" id="modalPueri">
+  <div class="modal">
+    <h3>👶 Registrar Consulta de Puericultura</h3>
+    <div class="form-row">
+      <div>
+        <label>Consulta (nº ou tipo)</label>
+        <input type="text" id="pueriConsulta" placeholder="Ex: 1ª consulta, 6 meses...">
+      </div>
+      <div>
+        <label>Data</label>
+        <input type="date" id="pueriData">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div>
+        <label>Observações</label>
+        <textarea id="pueriObs" placeholder="Desenvolvimento, vacinas em dia, encaminhamentos..."></textarea>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancelar" onclick="fecharModal('modalPueri')">Cancelar</button>
+      <button class="btn-confirmar" onclick="salvarPuericultura()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONTEÚDO PRINCIPAL ═══ -->
+<div class="main" style="margin-left:0; width:100%;">
+  <div class="page-actions">
+    <h1>Saúde do Cidadão</h1>
+    <div class="page-actions-btns">
+      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
+    </div>
+  </div>
+
+  <!-- CABEÇALHO DO CIDADÃO -->
+  <div class="cidadao-header" id="cidadaoHeader">
+    <div class="cidadao-avatar" id="cidadaoAvatar">👤</div>
+    <div class="cidadao-info">
+      <h2 id="cidadaoNome">—</h2>
+      <div class="sub">
+        <span>📍 <span id="cidadaoMicroarea">—</span></span>
+        <span>🎂 <span id="cidadaoIdade">—</span></span>
+        <span>🪪 <span id="cidadaoCNS">—</span></span>
+      </div>
+      <div style="margin-top:8px;">
+        <span class="badge-status badge-ativo" id="cidadaoStatusBadge">● Cadastro Ativo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÚLTIMA VISITA -->
+  <div class="box" id="boxUltimaVisita" style="margin-bottom:16px; padding:14px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <span style="font-size:24px;">📅</span>
+    <div style="flex:1;">
+      <div style="font-size:13px; color:#718096; font-weight:600;">ÚLTIMA VISITA</div>
+      <div style="font-size:16px; font-weight:700; color:#1a365d;" id="ultimaVisitaData">Nenhuma visita registrada</div>
+      <div style="font-size:13px; color:#718096;" id="ultimaVisitaObs"></div>
+    </div>
+    <div id="ultimaVisitaDias" style="font-size:13px; font-weight:700; padding:6px 12px; border-radius:99px; background:#edf2f7; color:#4a5568;"></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn ativo" onclick="mostrarTab('sinais')">📊 Sinais Vitais</button>
+    <button class="tab-btn" onclick="mostrarTab('medicamentos')">💊 Medicamentos</button>
+    <button class="tab-btn" onclick="mostrarTab('exames')">🔬 Exames</button>
+    <button class="tab-btn" onclick="mostrarTab('condicoes')">🏥 Condições</button>
+    <button class="tab-btn" id="tabPueri" onclick="mostrarTab('puericultura')" style="display:none;">👶 Puericultura</button>
+  </div>
+
+  <!-- ══ TAB: SINAIS VITAIS ══ -->
+  <div class="secao ativa" id="tab-sinais">
+    <!-- Alertas de receita aparecem aqui quando há medicamentos com prazo vencendo -->
+    <div id="alertasReceita"></div>
+
+    <div class="box">
+      <h3 style="margin-bottom:14px;">📊 Últimos Sinais Vitais</h3>
+      <div class="sinais-grid" id="sinaisGrid">
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="emoji">📋</div>
+          <p>Nenhum sinal registrado ainda.</p>
+        </div>
+      </div>
+      <button class="btn-add" onclick="abrirModal('modalSinal')">+ Registrar sinal vital</button>
+    </div>
+
+    <div class="box" style="margin-top:16px;">
+      <h3 style="margin-bottom:12px;">📋 Histórico de Visitas</h3>
+      <div id="historicoVisitasMini">
+        <div class="empty-state">
+          <div class="emoji">🚶</div>
+          <p>Nenhuma visita encontrada para este cidadão.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: MEDICAMENTOS ══ -->
+  <div class="secao" id="tab-medicamentos">
+    <div class="box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+        <h3 style="margin:0;">💊 Medicamentos em Uso</h3>
+        <div style="display:flex; gap:8px;">
+          <span style="font-size:11px; background:#fed7d7; color:#9b2c2c; padding:3px 8px; border-radius:99px; font-weight:700;">Controlada</span>
+          <span style="font-size:11px; background:#e9d8fd; color:#553c9a; padding:3px 8px; border-radius:99px; font-weight:700;">Contínuo</span>
+        </div>
+      </div>
+      <div id="listaMedicamentos">
+        <div class="empty-state">
+          <div class="emoji">💊</div>
+          <p>Nenhum medicamento cadastrado.</p>
+        </div>
+      </div>
+      <button class="btn-add" onclick="abrirModal('modalMed')">+ Adicionar medicamento</button>
+    </div>
+  </div>
+
+  <!-- ══ TAB: EXAMES / CONSULTAS ══ -->
+  <div class="secao" id="tab-exames">
+    <div class="box">
+      <h3 style="margin-bottom:14px;">🔬 Exames e Consultas</h3>
+      <div id="listaExames">
+        <div class="empty-state">
+          <div class="emoji">🔬</div>
+          <p>Nenhum exame ou consulta registrado.</p>
+        </div>
+      </div>
+      <button class="btn-add" onclick="abrirModal('modalExame')">+ Registrar exame / consulta</button>
+    </div>
+  </div>
+
+  <!-- ══ TAB: CONDIÇÕES CLÍNICAS ══ -->
+  <div class="secao" id="tab-condicoes">
+    <div class="box">
+      <h3 style="margin-bottom:12px;">🏥 Condições Clínicas e Vulnerabilidade</h3>
+      <div id="listaCondicoes">
+        <div class="empty-state">
+          <div class="emoji">🏥</div>
+          <p>Nenhuma condição registrada.</p>
+        </div>
+      </div>
+      <div class="condicoes-grid" id="condicoesGrid" style="display:none;"></div>
+      <button class="btn-add" onclick="adicionarCondicao()">+ Adicionar condição</button>
+    </div>
+
+    <div class="box" style="margin-top:16px;">
+      <h3 style="margin-bottom:12px;">⚠️ Vulnerabilidade Social</h3>
+      <div id="vulnerabilidadeGrid" class="condicoes-grid">
+        <div class="empty-state" style="width:100%;">
+          <div class="emoji">⚠️</div>
+          <p>Nenhuma vulnerabilidade registrada.</p>
+        </div>
+      </div>
+      <button class="btn-add" onclick="adicionarVulnerabilidade()">+ Adicionar vulnerabilidade</button>
+    </div>
+  </div>
+
+  <!-- ══ TAB: PUERICULTURA ══ -->
+  <div class="secao" id="tab-puericultura">
+    <div class="box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="margin:0;">👶 Consultas de Puericultura</h3>
+        <span id="idadeCriancaBadge" style="font-size:12px; background:#ebf8ff; color:#2b6cb0; padding:4px 10px; border-radius:99px; font-weight:700;"></span>
+      </div>
+
+      <!-- Calendário de consultas recomendadas -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13px; font-weight:700; color:#4a5568; margin-bottom:8px;">Consultas recomendadas pelo MS:</div>
+        <div id="calendarioPuericultura"></div>
+      </div>
+
+      <h4 style="color:#1a365d; margin-bottom:10px;">📋 Consultas Registradas</h4>
+      <div id="listaPuericultura">
+        <div class="empty-state">
+          <div class="emoji">👶</div>
+          <p>Nenhuma consulta de puericultura registrada.</p>
+        </div>
+      </div>
+      <button class="btn-add" onclick="abrirModal('modalPueri')">+ Registrar consulta de puericultura</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script src="script.js"></script>
+<script>
+// ════════════════════════════════════════════
+//  INICIALIZAÇÃO
+// ════════════════════════════════════════════
+let cidadaoAtual = null;
+let familiaAtual = null;
+const KEY_SAUDE = 'saudeCidadao_';
+
+document.addEventListener('DOMContentLoaded', () => {
+  const params   = new URLSearchParams(window.location.search);
+  const cidadaoId = params.get('cidadao'); // índice do membro na família
+  const familiaId = parseInt(params.get('familia'));
+
+  if (cidadaoId === null || isNaN(familiaId)) {
+    document.getElementById('cidadaoNome').textContent = 'Cidadão não encontrado';
+    return;
+  }
+
+  const familias = JSON.parse(localStorage.getItem('familias') || '[]');
+  familiaAtual  = familias.find(f => f.id === familiaId || f.numero === familiaId);
+
+  if (!familiaAtual) {
+    document.getElementById('cidadaoNome').textContent = 'Família não encontrada';
+    return;
+  }
+
+  const membros = familiaAtual.membros || [];
+  cidadaoAtual  = membros[parseInt(cidadaoId)];
+
+  if (!cidadaoAtual) {
+    document.getElementById('cidadaoNome').textContent = 'Cidadão não encontrado';
+    return;
+  }
+
+  renderizarCabecalho();
+  renderizarUltimaVisita();
+  renderizarSinais();
+  renderizarMedicamentos();
+  renderizarExames();
+  renderizarCondicoes();
+  verificarPuericultura();
+  gerarAlertasReceita();
+});
+
+// ════════════════════════════════════════════
+//  CHAVE DE ARMAZENAMENTO
+// ════════════════════════════════════════════
+function getKey(tipo) {
+  const id = cidadaoAtual?.cns || cidadaoAtual?.cpf || (familiaAtual?.id + '_' + cidadaoAtual?.nome);
+  return KEY_SAUDE + id + '_' + tipo;
+}
+
+function getDados(tipo) {
+  return JSON.parse(localStorage.getItem(getKey(tipo)) || '[]');
+}
+
+function setDados(tipo, dados) {
+  localStorage.setItem(getKey(tipo), JSON.stringify(dados));
+}
+
+// ════════════════════════════════════════════
+//  CABEÇALHO
+// ════════════════════════════════════════════
+function renderizarCabecalho() {
+  const c = cidadaoAtual;
+  document.getElementById('cidadaoNome').textContent = c.nome || '—';
+
+  // Ícone por sexo
+  const avatar = document.getElementById('cidadaoAvatar');
+  avatar.textContent = (c.sexo === 'Feminino') ? '👩' : '👨';
+
+  // Microárea
+  const microarea = localStorage.getItem('configMicroarea') || '—';
+  document.getElementById('cidadaoMicroarea').textContent = 'Microárea ' + microarea;
+
+  // Idade
+  if (c.nascimento) {
+    const nasc  = new Date(c.nascimento);
+    const hoje  = new Date();
+    const anos  = Math.floor((hoje - nasc) / (365.25 * 24 * 60 * 60 * 1000));
+    const meses = Math.floor((hoje - nasc) / (30.44 * 24 * 60 * 60 * 1000));
+    document.getElementById('cidadaoIdade').textContent = anos < 2 ? meses + ' meses' : anos + ' anos';
+  }
+
+  // CNS
+  document.getElementById('cidadaoCNS').textContent = c.cns || 'Sem CNS';
+
+  // Status
+  const badge = document.getElementById('cidadaoStatusBadge');
+  if (c.situacao === 'Inativo' || c.ativo === false) {
+    badge.className = 'badge-status badge-inativo';
+    badge.textContent = '● Cadastro Inativo';
+  }
+}
+
+// ════════════════════════════════════════════
+//  ÚLTIMA VISITA
+// ════════════════════════════════════════════
+function renderizarUltimaVisita() {
+  const visitas = JSON.parse(localStorage.getItem('visitas') || '[]');
+  const nome    = cidadaoAtual.nome?.toLowerCase() || '';
+  const famId   = familiaAtual?.id || familiaAtual?.numero;
+
+  // Busca visitas da família deste cidadão
+  const visitasFam = visitas
+    .filter(v => v.familiaId === famId || v.familia === famId)
+    .sort((a, b) => new Date(b.data) - new Date(a.data));
+
+  if (visitasFam.length === 0) return;
+
+  const ultima = visitasFam[0];
+  const dataUltima = new Date(ultima.data);
+  const hoje   = new Date();
+  const dias   = Math.floor((hoje - dataUltima) / (24 * 60 * 60 * 1000));
+
+  document.getElementById('ultimaVisitaData').textContent =
+    dataUltima.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  document.getElementById('ultimaVisitaObs').textContent = ultima.tipo || ultima.obs || '';
+
+  const diasEl = document.getElementById('ultimaVisitaDias');
+  diasEl.textContent = dias === 0 ? 'Hoje' : `Há ${dias} dia(s)`;
+  if (dias > 30) { diasEl.style.background = '#fff5f5'; diasEl.style.color = '#c53030'; }
+  else if (dias > 15) { diasEl.style.background = '#fffbeb'; diasEl.style.color = '#744210'; }
+  else { diasEl.style.background = '#f0fff4'; diasEl.style.color = '#276749'; }
+
+  // Histórico mini
+  const container = document.getElementById('historicoVisitasMini');
+  container.innerHTML = '';
+  visitasFam.slice(0, 5).forEach(v => {
+    const d = new Date(v.data);
+    const el = document.createElement('div');
+    el.className = 'visita-mini';
+    el.innerHTML = `
+      <div class="dot"></div>
+      <div class="vdata">${d.toLocaleDateString('pt-BR')}</div>
+      <div class="vtipo">${v.tipo || 'Visita domiciliar'}</div>
+      <div class="vobs">${v.obs || ''}</div>`;
+    container.appendChild(el);
+  });
+}
+
+// ════════════════════════════════════════════
+//  SINAIS VITAIS
+// ════════════════════════════════════════════
+const CONFIG_SINAIS = {
+  pressao:     { icone: '❤️', label: 'Pressão Arterial', unidade: 'mmHg' },
+  glicemia:    { icone: '🩸', label: 'Glicemia',         unidade: 'mg/dL' },
+  peso:        { icone: '⚖️', label: 'Peso',             unidade: 'kg'    },
+  altura:      { icone: '📏', label: 'Altura',           unidade: 'cm'    },
+  imc:         { icone: '📊', label: 'IMC',              unidade: ''      },
+  saturacao:   { icone: '🫁', label: 'Saturação O₂',    unidade: '%'     },
+  temperatura: { icone: '🌡️', label: 'Temperatura',     unidade: '°C'    },
+};
+
+function renderizarSinais() {
+  const sinais  = getDados('sinais');
+  const grid    = document.getElementById('sinaisGrid');
+  grid.innerHTML = '';
+
+  if (sinais.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="emoji">📋</div><p>Nenhum sinal registrado ainda.</p></div>`;
+    return;
+  }
+
+  // Pega o mais recente de cada tipo
+  const ultimos = {};
+  sinais.forEach(s => {
+    if (!ultimos[s.tipo] || new Date(s.data) > new Date(ultimos[s.tipo].data)) {
+      ultimos[s.tipo] = s;
+    }
+  });
+
+  // Calcula IMC se tiver peso e altura
+  const peso   = parseFloat(ultimos['peso']?.valor);
+  const altura = parseFloat(ultimos['altura']?.valor);
+  if (peso && altura) {
+    const altM = altura / 100;
+    const imc  = (peso / (altM * altM)).toFixed(1);
+    ultimos['imc'] = { tipo: 'imc', valor: imc, data: ultimos['peso'].data };
+  }
+
+  Object.values(ultimos).forEach(s => {
+    const cfg  = CONFIG_SINAIS[s.tipo] || { icone: '📊', label: s.tipo, unidade: '' };
+    const card = document.createElement('div');
+    card.className = 'sinal-card';
+
+    // Determina classe de alerta
+    let classe = '';
+    if (s.tipo === 'pressao') {
+      const sistolica = parseInt(s.valor?.split('/')?.[0]);
+      if (sistolica >= 140) classe = 'alerta';
+      else if (sistolica < 120) classe = 'ok';
+    } else if (s.tipo === 'glicemia') {
+      const v = parseFloat(s.valor);
+      if (v > 126 || v < 70) classe = 'alerta';
+      else classe = 'ok';
+    } else if (s.tipo === 'imc') {
+      const v = parseFloat(s.valor);
+      if (v >= 25 || v < 18.5) classe = 'alerta';
+      else classe = 'ok';
+    } else if (s.tipo === 'saturacao') {
+      if (parseFloat(s.valor) < 95) classe = 'alerta';
+      else classe = 'ok';
+    }
+    if (classe) card.classList.add(classe);
+
+    const d = new Date(s.data).toLocaleDateString('pt-BR');
+    card.innerHTML = `
+      <div class="icone">${cfg.icone}</div>
+      <div class="valor">${s.valor} <span style="font-size:12px;font-weight:400;">${cfg.unidade}</span></div>
+      <div class="label">${cfg.label}</div>
+      <div class="data">${d}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function salvarSinal() {
+  const tipo  = document.getElementById('sinalTipo').value;
+  const valor = document.getElementById('sinalValor').value.trim();
+  const data  = document.getElementById('sinalData').value;
+  const obs   = document.getElementById('sinalObs').value.trim();
+
+  if (!valor || !data) { alert('Preencha o valor e a data.'); return; }
+
+  const sinais = getDados('sinais');
+  sinais.push({ tipo, valor, data, obs, registradoEm: new Date().toISOString() });
+  setDados('sinais', sinais);
+
+  fecharModal('modalSinal');
+  renderizarSinais();
+}
+
+// ════════════════════════════════════════════
+//  MEDICAMENTOS
+// ════════════════════════════════════════════
+function renderizarMedicamentos() {
+  const meds = getDados('medicamentos');
+  const lista = document.getElementById('listaMedicamentos');
+  lista.innerHTML = '';
+
+  if (meds.length === 0) {
+    lista.innerHTML = `<div class="empty-state"><div class="emoji">💊</div><p>Nenhum medicamento cadastrado.</p></div>`;
+    return;
+  }
+
+  meds.forEach((m, idx) => {
+    const item = document.createElement('div');
+    item.className = 'med-item';
+
+    const tagClass = m.tipo === 'controlada' ? 'tag-controlada' :
+                     m.tipo === 'continuo'   ? 'tag-continuo' : 'tag-comum';
+    const tagLabel = m.tipo === 'controlada' ? '⚠️ Controlada' :
+                     m.tipo === 'continuo'   ? '🔄 Uso Contínuo' : 'Comum';
+
+    item.innerHTML = `
+      <div class="med-icone">💊</div>
+      <div class="med-info">
+        <div class="med-nome">${m.nome}</div>
+        <div class="med-dose">${m.dose || ''}</div>
+        ${m.obs ? `<div class="med-obs">${m.obs}</div>` : ''}
+        ${m.dataReceita ? `<div class="med-obs">📅 Receita: ${new Date(m.dataReceita).toLocaleDateString('pt-BR')} · Válida ${m.validade} dias</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+        <span class="tag-receita ${tagClass}">${tagLabel}</span>
+        <button onclick="removerMed(${idx})" style="background:none;border:none;color:#e53e3e;font-size:12px;cursor:pointer;margin-top:4px;">✖ Remover</button>
+      </div>`;
+    lista.appendChild(item);
+  });
+}
+
+// Mostra/esconde campo de receita conforme tipo
+document.getElementById('medTipo')?.addEventListener('change', function() {
+  document.getElementById('rowReceita').style.display =
+    (this.value === 'controlada' || this.value === 'continuo') ? 'grid' : 'none';
+});
+
+function salvarMedicamento() {
+  const nome        = document.getElementById('medNome').value.trim();
+  const dose        = document.getElementById('medDose').value.trim();
+  const tipo        = document.getElementById('medTipo').value;
+  const dataReceita = document.getElementById('medDataReceita').value;
+  const validade    = document.getElementById('medValidade').value;
+  const obs         = document.getElementById('medObs').value.trim();
+
+  if (!nome) { alert('Informe o nome do medicamento.'); return; }
+
+  const meds = getDados('medicamentos');
+  meds.push({ nome, dose, tipo, dataReceita, validade: parseInt(validade), obs });
+  setDados('medicamentos', meds);
+
+  fecharModal('modalMed');
+  renderizarMedicamentos();
+  gerarAlertasReceita();
+}
+
+function removerMed(idx) {
+  if (!confirm('Remover este medicamento?')) return;
+  const meds = getDados('medicamentos');
+  meds.splice(idx, 1);
+  setDados('medicamentos', meds);
+  renderizarMedicamentos();
+  gerarAlertasReceita();
+}
+
+// ════════════════════════════════════════════
+//  ALERTAS DE RECEITA
+// ════════════════════════════════════════════
+function gerarAlertasReceita() {
+  const meds      = getDados('medicamentos');
+  const container = document.getElementById('alertasReceita');
+  container.innerHTML = '';
+
+  const hoje = new Date();
+
+  meds.forEach(m => {
+    if (!m.dataReceita || !m.validade) return;
+
+    const dataReceita  = new Date(m.dataReceita);
+    const dataVenc     = new Date(dataReceita);
+    dataVenc.setDate(dataVenc.getDate() + m.validade);
+    const diasRestantes = Math.floor((dataVenc - hoje) / (24 * 60 * 60 * 1000));
+
+    let classe = '', icone = '', titulo = '', prazo = '';
+
+    if (diasRestantes < 0) {
+      classe = 'urgente'; icone = '🚨';
+      titulo = `Receita VENCIDA: ${m.nome}`;
+      prazo  = `Venceu há ${Math.abs(diasRestantes)} dia(s) — renovação necessária!`;
+    } else if (diasRestantes <= 7) {
+      classe = 'urgente'; icone = '⚠️';
+      titulo = `Receita vence em breve: ${m.nome}`;
+      prazo  = `Vence em ${diasRestantes} dia(s) — providencie a renovação`;
+    } else if (diasRestantes <= 15) {
+      classe = 'atencao'; icone = '📋';
+      titulo = `Atenção: receita expira em ${diasRestantes} dias — ${m.nome}`;
+      prazo  = `Vence em ${new Date(dataVenc).toLocaleDateString('pt-BR')}`;
+    } else {
+      return; // sem alerta
+    }
+
+    const div = document.createElement('div');
+    div.className = `alerta-receita ${classe}`;
+    div.innerHTML = `
+      <div class="icone-alerta">${icone}</div>
+      <div class="corpo">
+        <div class="titulo">${titulo}</div>
+        <div class="detalhe">${m.dose || ''} · ${m.tipo === 'controlada' ? 'Receita Controlada' : 'Uso Contínuo'}</div>
+        <div class="prazo">${prazo}</div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+// ════════════════════════════════════════════
+//  EXAMES E CONSULTAS
+// ════════════════════════════════════════════
+const EXAME_ICONES = {
+  exame:        '🧪', imagem:       '🩻',
+  consulta:     '🏥', especialidade:'👨‍⚕️'
+};
+
+function renderizarExames() {
+  const exames = getDados('exames');
+  const lista  = document.getElementById('listaExames');
+  lista.innerHTML = '';
+
+  if (exames.length === 0) {
+    lista.innerHTML = `<div class="empty-state"><div class="emoji">🔬</div><p>Nenhum exame ou consulta registrado.</p></div>`;
+    return;
+  }
+
+  // Ordena por data desc
+  exames.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+  exames.forEach(e => {
+    const d   = new Date(e.data);
+    const dia = d.toLocaleDateString('pt-BR', { day: '2-digit' });
+    const mes = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+    const item = document.createElement('div');
+    item.className = 'exame-item';
+    item.innerHTML = `
+      <div class="exame-data"><div class="dia">${dia}</div><div class="mes">${mes}</div></div>
+      <div class="exame-desc">
+        <div class="exame-nome">${EXAME_ICONES[e.categoria] || '📋'} ${e.nome}</div>
+        ${e.local ? `<div class="exame-local">📍 ${e.local}</div>` : ''}
+        ${e.resultado ? `<div class="exame-resultado">✅ ${e.resultado}</div>` : ''}
+        ${e.obs ? `<div class="exame-local">${e.obs}</div>` : ''}
+      </div>`;
+    lista.appendChild(item);
+  });
+}
+
+function salvarExame() {
+  const categoria  = document.getElementById('exameCategoria').value;
+  const data       = document.getElementById('exameData').value;
+  const nome       = document.getElementById('exameNome').value.trim();
+  const local      = document.getElementById('exameLocal').value.trim();
+  const resultado  = document.getElementById('exameResultado').value.trim();
+  const obs        = document.getElementById('exameObs').value.trim();
+
+  if (!nome || !data) { alert('Informe o nome e a data.'); return; }
+
+  const exames = getDados('exames');
+  exames.push({ categoria, data, nome, local, resultado, obs });
+  setDados('exames', exames);
+
+  fecharModal('modalExame');
+  renderizarExames();
+}
+
+// ════════════════════════════════════════════
+//  CONDIÇÕES CLÍNICAS
+// ════════════════════════════════════════════
+const CONDICOES_PREDEFINIDAS = [
+  { label: '❤️ Hipertensão',     classe: 'tag-cronica' },
+  { label: '🩸 Diabetes',        classe: 'tag-cronica' },
+  { label: '🫁 Asma/DPOC',       classe: 'tag-cronica' },
+  { label: '🧠 Saúde Mental',    classe: 'tag-risco'   },
+  { label: '🤰 Gestante',        classe: 'tag-risco'   },
+  { label: '👴 Idoso (60+)',      classe: 'tag-risco'   },
+  { label: '♿ Deficiência',      classe: 'tag-social'  },
+  { label: '🏠 Acamado',         classe: 'tag-cronica' },
+  { label: '💊 Tuberculose',     classe: 'tag-cronica' },
+  { label: '🦟 Hanseníase',      classe: 'tag-cronica' },
+];
+
+const VULNERABILIDADES = [
+  '🍽️ Insegurança alimentar',
+  '🏚️ Moradia precária',
+  '👁️ Sem acesso a saneamento',
+  '📚 Baixa escolaridade',
+  '💼 Desemprego',
+  '👊 Violência doméstica',
+  '🧒 Criança em situação de risco',
+  '🧓 Idoso sozinho',
+];
+
+function renderizarCondicoes() {
+  const condicoes = getDados('condicoes');
+  const grid = document.getElementById('condicoesGrid');
+  const lista = document.getElementById('listaCondicoes');
+
+  if (condicoes.length === 0) {
+    lista.style.display = 'block';
+    grid.style.display  = 'none';
+    lista.innerHTML = `<div class="empty-state"><div class="emoji">🏥</div><p>Nenhuma condição registrada.</p></div>`;
+    return;
+  }
+
+  lista.style.display = 'none';
+  grid.style.display  = 'flex';
+  grid.innerHTML = '';
+  condicoes.forEach(c => {
+    const tag = document.createElement('span');
+    tag.className = `tag-condicao ${c.classe || 'tag-cronica'}`;
+    tag.textContent = c.label;
+    grid.appendChild(tag);
+  });
+
+  const vulns = getDados('vulnerabilidades');
+  const vGrid = document.getElementById('vulnerabilidadeGrid');
+  if (vulns.length > 0) {
+    vGrid.innerHTML = '';
+    vulns.forEach(v => {
+      const tag = document.createElement('span');
+      tag.className = 'tag-condicao tag-social';
+      tag.textContent = v;
+      vGrid.appendChild(tag);
+    });
+  }
+}
+
+function adicionarCondicao() {
+  const opcoes = CONDICOES_PREDEFINIDAS.map(c => c.label);
+  const escolha = prompt('Digite ou escolha uma condição:\n\n' + opcoes.map((o,i)=>`${i+1}. ${o}`).join('\n'));
+  if (!escolha) return;
+
+  const idx = parseInt(escolha) - 1;
+  const cond = (!isNaN(idx) && CONDICOES_PREDEFINIDAS[idx])
+    ? CONDICOES_PREDEFINIDAS[idx]
+    : { label: escolha.trim(), classe: 'tag-cronica' };
+
+  const condicoes = getDados('condicoes');
+  if (!condicoes.find(c => c.label === cond.label)) {
+    condicoes.push(cond);
+    setDados('condicoes', condicoes);
+  }
+  renderizarCondicoes();
+}
+
+function adicionarVulnerabilidade() {
+  const opcoes = VULNERABILIDADES;
+  const escolha = prompt('Digite ou escolha uma vulnerabilidade:\n\n' + opcoes.map((o,i)=>`${i+1}. ${o}`).join('\n'));
+  if (!escolha) return;
+
+  const idx = parseInt(escolha) - 1;
+  const vuln = (!isNaN(idx) && VULNERABILIDADES[idx]) ? VULNERABILIDADES[idx] : escolha.trim();
+
+  const vulns = getDados('vulnerabilidades');
+  if (!vulns.includes(vuln)) {
+    vulns.push(vuln);
+    setDados('vulnerabilidades', vulns);
+  }
+  renderizarCondicoes();
+}
+
+// ════════════════════════════════════════════
+//  PUERICULTURA
+// ════════════════════════════════════════════
+// Calendário recomendado pelo Ministério da Saúde
+const CALENDARIO_PUERICULTURA = [
+  { label: '1ª semana de vida',   meses: 0.25 },
+  { label: '1 mês',               meses: 1    },
+  { label: '2 meses',             meses: 2    },
+  { label: '4 meses',             meses: 4    },
+  { label: '6 meses',             meses: 6    },
+  { label: '9 meses',             meses: 9    },
+  { label: '12 meses',            meses: 12   },
+  { label: '18 meses',            meses: 18   },
+  { label: '24 meses',            meses: 24   },
+];
+
+function verificarPuericultura() {
+  if (!cidadaoAtual?.nascimento) return;
+
+  const nasc  = new Date(cidadaoAtual.nascimento);
+  const hoje  = new Date();
+  const meses = (hoje - nasc) / (30.44 * 24 * 60 * 60 * 1000);
+
+  // Só mostra aba para crianças até 5 anos (60 meses)
+  if (meses > 60) return;
+
+  document.getElementById('tabPueri').style.display = '';
+  document.getElementById('idadeCriancaBadge').textContent =
+    meses < 24 ? `${Math.floor(meses)} meses` : `${Math.floor(meses/12)} anos`;
+
+  // Renderiza calendário de consultas
+  const pueriFeitas = getDados('puericultura');
+  const container   = document.getElementById('calendarioPuericultura');
+  container.innerHTML = '';
+
+  CALENDARIO_PUERICULTURA.forEach(c => {
+    if (c.meses > meses + 1) return; // consulta ainda não chegou
+
+    const feita = pueriFeitas.some(p => p.consulta?.includes(c.label));
+    const item  = document.createElement('div');
+    item.className = 'puericultura-item';
+    item.innerHTML = `
+      <div class="pueri-status ${feita ? 'pueri-ok' : 'pueri-pendente'}">${feita ? '✅' : '⏳'}</div>
+      <div class="pueri-info">
+        <div class="pueri-nome">${c.label}</div>
+        <div class="pueri-data">${feita ? 'Realizada' : '⚠️ Pendente'}</div>
+      </div>`;
+    container.appendChild(item);
+  });
+
+  renderizarPuericultura();
+}
+
+function renderizarPuericultura() {
+  const lista    = getDados('puericultura');
+  const container = document.getElementById('listaPuericultura');
+  container.innerHTML = '';
+
+  if (lista.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="emoji">👶</div><p>Nenhuma consulta registrada.</p></div>`;
+    return;
+  }
+
+  lista.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'puericultura-item';
+    item.innerHTML = `
+      <div class="pueri-status pueri-ok">✅</div>
+      <div class="pueri-info">
+        <div class="pueri-nome">${p.consulta}</div>
+        <div class="pueri-data">${new Date(p.data).toLocaleDateString('pt-BR')}${p.obs ? ' · ' + p.obs : ''}</div>
+      </div>`;
+    container.appendChild(item);
+  });
+}
+
+function salvarPuericultura() {
+  const consulta = document.getElementById('pueriConsulta').value.trim();
+  const data     = document.getElementById('pueriData').value;
+  const obs      = document.getElementById('pueriObs').value.trim();
+
+  if (!consulta || !data) { alert('Informe a consulta e a data.'); return; }
+
+  const lista = getDados('puericultura');
+  lista.push({ consulta, data, obs });
+  setDados('puericultura', lista);
+
+  fecharModal('modalPueri');
+  verificarPuericultura();
+}
+
+// ════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════
+function mostrarTab(tab) {
+  document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('tab-' + tab).classList.add('ativa');
+  event.target.classList.add('ativo');
+}
+
+// ════════════════════════════════════════════
+//  MODAIS
+// ════════════════════════════════════════════
+function abrirModal(id) {
+  // Preenche data de hoje por padrão
+  const hoje = new Date().toISOString().split('T')[0];
+  const campos = ['sinalData','medDataReceita','exameData','pueriData'];
+  campos.forEach(c => { const el = document.getElementById(c); if (el) el.value = hoje; });
+
+  document.getElementById(id).classList.add('aberto');
+}
+
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('aberto');
+}
+
+// Fecha modal ao clicar fora
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('aberto');
+  });
+});
+</script>
+</body>
+</html>
