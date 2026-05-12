@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ACS Digital">
+  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <title>ACS Digital</title>
+  <link rel="stylesheet" href="style.css" />
+  
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#1a365d" />
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" />
+</head>
+<body>
+<!-- HAMBÚRGUER MOBILE -->
+<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
+    <button onclick="window.location.href='notificacoes.html'" id="btn_notif" style="position:relative;">🔔 Notificações <span id="badgeNotif" style="display:none;background:#e53e3e;color:white;font-size:10px;font-weight:bold;border-radius:99px;padding:1px 6px;margin-left:4px;">0</span></button>
+    <div class="nav-divisor"></div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')"><span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <!-- CORRIGIDO: cidadaos_lista.html não existe, redireciona para familias_lista.html -->
+        <button onclick="window.location.href='familias_lista.html'">👤 Cidadãos</button>
+        <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')"><span>📅 Visitas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')"><span>📊 Relatórios e Metas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <!-- CORRIGIDO: calendario.html não existe, redireciona para agenda.html -->
+        <button onclick="window.location.href='agenda.html'">📆 Calendário</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
+      </div>
+    </div>
+    <div class="nav-divisor"></div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+        <button onclick="window.location.href='pin.html'">🔒 Alterar PIN</button>
+      </div>
+    </div>
+  </nav>
+  <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
+  </div>
+</aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Olá, Gabriela! 👋</h1>
+        <p>Aqui está o resumo automático das suas atividades e metas.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <div class="date-card" id="dataHoje">Hoje</div>
+        <!-- BUSCA GLOBAL -->
+        <div style="position:relative;">
+          <input type="text" id="inputBuscaGlobal" placeholder="🔍 Buscar família ou cidadão..." oninput="buscaGlobal(this.value)" style="padding:8px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;width:260px;background:white;" onblur="setTimeout(()=>{document.getElementById('resultadoBuscaGlobal').style.display='none'},400)">
+          <div id="resultadoBuscaGlobal" onmousedown="event.preventDefault()" style="display:none;position:absolute;right:0;top:38px;width:320px;background:white;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:999;padding:8px;max-height:400px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ALERTAS AUTOMÁTICOS -->
+    <div id="alertasAutomaticos" style="display:none;"></div>
+
+    <section class="cards">
+      <!-- LEMBRETE DE BACKUP (aparece automaticamente se necessário) -->
+      <div id="alertaBackup" style="display:none; grid-column:1/-1; background:#fffbeb; border:1px solid #f6ad55; border-left:5px solid #ed8936; border-radius:8px; padding:14px 18px; display:none; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px;">💾</span>
+          <div>
+            <strong style="color:#744210; font-size:14px;" id="alertaBackupTitulo">Faça um backup dos seus dados!</strong>
+            <p style="color:#975a16; font-size:13px; margin-top:2px;" id="alertaBackupTexto">Você está há mais de 7 dias sem fazer backup.</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-shrink:0;">
+          <button onclick="window.location.href='configuracoes.html'" style="background:#ed8936; color:white; border:none; padding:8px 16px; border-radius:6px; font-size:13px; font-weight:bold; cursor:pointer;">📥 Fazer Backup</button>
+          <button onclick="dispensarAlertaBackup()" style="background:#e2e8f0; color:#4a5568; border:none; padding:8px 12px; border-radius:6px; font-size:13px; cursor:pointer;">Lembrar depois</button>
+        </div>
+      </div>
+      <div class="card">
+        <span class="icon green">👥</span>
+        <h2 id="totalFamilias">0</h2>
+        <p>Famílias cadastradas</p>
+      </div>
+      <div class="card">
+        <span class="icon blue">👤</span>
+        <h2 id="totalCidadaos">0</h2>
+        <p>Cidadãos cadastrados</p>
+      </div>
+      <div class="card">
+        <span class="icon purple">📋</span>
+        <h2 id="totalVisitas">0</h2>
+        <p>Visitas realizadas</p>
+      </div>
+      <div class="card" id="cardMeta">
+        <span class="icon orange">🚩</span>
+        <h2 id="progressoMeta">0%</h2>
+        <p>Progresso da meta</p>
+      </div>
+    </section>
+
+    <section class="grid" style="grid-template-columns:1fr;">
+      <div class="box" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <h3>🎯 Metas e Indicadores</h3>
+          <p style="color:#718096; font-size:14px; margin-bottom:16px;">Acompanhe o progresso das visitas, grupos prioritários e indicadores do Brasil 360.</p>
+
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+            <span style="font-size:28px; font-weight:bold; color:#1a365d;" id="metaPorcentagem">0%</span>
+            <div style="flex:1;">
+              <div style="font-size:13px; color:#718096; margin-bottom:4px;" id="metaFracao">0 de 0 visitas no mês</div>
+              <div class="meta-barra-wrap">
+                <div id="metaBarra" class="meta-barra-fill" style="width:0%;"></div>
+              </div>
+            </div>
+          </div>
+          <div id="metaAlerta" style="font-size:13px; color:#718096;">🎯 Cadastre cidadãos para calcular a meta!</div>
+          <div id="metaCountdown" style="display:none;"></div>
+        </div>
+
+        <button onclick="window.location.href='metas.html'" style="margin-top:20px; background:#2b6cb0; color:white; border:none; padding:10px 16px; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer; width:100%;">
+          Ver todas as metas →
+        </button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="box large">
+        <h3>Prioridades de Acompanhamento (Brasil 360)</h3>
+        <ul class="list" id="listaPrioridades"></ul>
+      </div>
+
+      <div class="box" style="border-top: 4px solid #e53e3e;">
+        <h3 style="color: #c53030;">🚨 Busca Ativa: Top 5</h3>
+        <p style="color: #718096; font-size: 13px; margin-bottom: 15px;">Famílias que não recebem visita há mais tempo.</p>
+        <ul id="listaBuscaAtiva" style="list-style: none; line-height: 1.8;"></ul>
+      </div>
+    </section>
+
+    <!-- GRÁFICO DE VISITAS POR SEMANA -->
+    <section class="grid" style="margin-top:0;">
+      <div class="box">
+        <h3>📈 Visitas por Semana (mês atual)</h3>
+        <canvas id="graficoVisitasSemana" width="400" height="140" style="width:100%;margin-top:10px;"></canvas>
+      </div>
+
+      <!-- PENDÊNCIAS ABERTAS -->
+      <div class="box" style="border-top:4px solid #ed8936;">
+        <h3 style="color:#744210;">⚠️ Pendências Abertas</h3>
+        <p style="font-size:13px;color:#718096;margin-bottom:10px;" id="resumoPendencias">—</p>
+        <div id="listaPendencias"></div>
+        <button onclick="window.location.href='visitas_lista.html'" style="margin-top:12px;background:#ed8936;color:white;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;width:100%;">Ver todas as visitas →</button>
+      </div>
+    </section>
+
+    <section class="quick" style="margin-top: 20px;">
+      <button onclick="window.location.href='familias.html'">👨‍👩‍👧 Cadastrar Família / Cidadão</button>
+      <button onclick="window.location.href='relatorios.html'">📊 Relatório mensal</button>
+    </section>
+  </main>
+<script src="script.js?v=3"></script>
+  <script>
+    const dataFormatada = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('dataHoje').innerText = '📅 ' + dataFormatada;
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((reg) => console.log('Modo offline ativado!', reg.scope))
+          .catch((err) => console.log('Erro ao ativar modo offline:', err));
+      });
+    }
+
+    (function verificarBackup() {
+      const alerta  = document.getElementById('alertaBackup');
+      const titulo  = document.getElementById('alertaBackupTitulo');
+      const texto   = document.getElementById('alertaBackupTexto');
+      if (!alerta) return;
+
+      const dispensado = localStorage.getItem('backupDispensado');
+      const hoje = new Date().toISOString().split('T')[0];
+      if (dispensado === hoje) return;
+
+      const ultimoBackup  = localStorage.getItem('ultimoBackup');
+      const temDados = localStorage.getItem('familias');
+
+      if (!temDados || JSON.parse(temDados).length === 0) return;
+
+      if (!ultimoBackup) {
+        titulo.textContent = '⚠️ Você nunca fez backup dos seus dados!';
+        texto.textContent  = 'Seus dados ficam salvos apenas neste dispositivo. Faça um backup agora para não perder nada.';
+        alerta.style.display = 'flex';
+      } else {
+        const diasSemBackup = Math.floor((new Date() - new Date(ultimoBackup)) / (1000 * 60 * 60 * 24));
+        if (diasSemBackup >= 7) {
+          titulo.textContent = `💾 Faça um backup dos seus dados!`;
+          texto.textContent  = `Último backup há ${diasSemBackup} dia(s). Recomendamos fazer backup semanalmente.`;
+          alerta.style.display = 'flex';
+        }
+      }
+    })();
+
+    function dispensarAlertaBackup() {
+      const hoje = new Date().toISOString().split('T')[0];
+      localStorage.setItem('backupDispensado', hoje);
+      document.getElementById('alertaBackup').style.display = 'none';
+    }
+  </script>
+
+  <nav class="bottom-nav no-print">
+    <a href="index.html" class="nav-item active">🏠<span>Início</span></a>
+    <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
+    <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
+    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+  </nav>
+</body>
+</html>
