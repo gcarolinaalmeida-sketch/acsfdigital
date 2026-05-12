@@ -559,30 +559,27 @@ let familiaAtual = null;
 const KEY_SAUDE = 'saudeCidadao_';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const params   = new URLSearchParams(window.location.search);
-  const cidadaoId = params.get('cidadao'); // índice do membro na família
-  const familiaId = parseInt(params.get('familia'));
+  const params    = new URLSearchParams(window.location.search);
+  const cidadaoId = params.get('cidadao'); // m.id do membro
+  const familiaId = params.get('familia');
 
-  if (cidadaoId === null || isNaN(familiaId)) {
+  if (!cidadaoId) {
     document.getElementById('cidadaoNome').textContent = 'Cidadão não encontrado';
     return;
   }
 
-  const familias = JSON.parse(localStorage.getItem('familias') || '[]');
-  familiaAtual  = familias.find(f => f.id === familiaId || f.numero === familiaId);
-
-  if (!familiaAtual) {
-    document.getElementById('cidadaoNome').textContent = 'Família não encontrada';
-    return;
-  }
-
-  const membros = familiaAtual.membros || [];
-  cidadaoAtual  = membros[parseInt(cidadaoId)];
+  // membros ficam em localStorage 'membros' (array global do script.js)
+  const todosMembros = JSON.parse(localStorage.getItem('membros') || '[]');
+  cidadaoAtual = todosMembros.find(m => String(m.id) === String(cidadaoId));
 
   if (!cidadaoAtual) {
     document.getElementById('cidadaoNome').textContent = 'Cidadão não encontrado';
     return;
   }
+
+  // família para histórico de visitas
+  const familias = JSON.parse(localStorage.getItem('familias') || '[]');
+  familiaAtual   = familias.find(f => String(f.id) === String(familiaId || cidadaoAtual.familia_id));
 
   renderizarCabecalho();
   renderizarUltimaVisita();
