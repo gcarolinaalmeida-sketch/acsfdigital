@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACS Digital">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Controle de Receitas</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ── ESTILOS DOS ALERTAS (Iguais aos do cidadão) ── */
+  .alerta-receita {
+    border-radius: 10px; padding: 16px; margin-bottom: 12px;
+    display: flex; align-items: flex-start; gap: 12px;
+    border-left: 5px solid; background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .alerta-receita.urgente { background: #fff5f5; border-color: #e53e3e; }
+  .alerta-receita.atencao { background: #fffbeb; border-color: #ed8936; }
+  .alerta-receita.ok      { background: #f0fff4; border-color: #38a169; }
+  .alerta-receita .icone-alerta { font-size: 26px; flex-shrink: 0; margin-top: 2px; }
+  .alerta-receita .corpo { flex: 1; }
+  .alerta-receita .nome-paciente { font-size: 13px; font-weight: 800; color: #2c5282; margin-bottom: 4px; text-transform: uppercase; }
+  .alerta-receita .titulo { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
+  .alerta-receita.urgente .titulo { color: #c53030; }
+  .alerta-receita.atencao .titulo { color: #744210; }
+  .alerta-receita .detalhe { font-size: 13px; color: #4a5568; margin-top: 3px; }
+  .alerta-receita .prazo { font-size: 13px; font-weight: 600; margin-top: 6px; }
+  .alerta-receita.urgente .prazo { color: #e53e3e; }
+  .alerta-receita.atencao .prazo { color: #ed8936; }
+  
+  .btn-ver-paciente {
+    background: transparent; border: 1px solid currentColor; color: inherit; 
+    border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 12px; 
+    font-weight: bold; margin-left: 10px; height: fit-content; align-self: center;
+  }
+  .btn-ver-paciente:hover { opacity: 0.8; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 40px 20px; color: #a0aec0; background: white; border-radius: 12px; }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+</style>
+</head>
+<body>
+
+<div class="main" style="margin-left:0; width:100%;">
+  <div class="page-actions">
+    <h1>Controle de Receitas</h1>
+    <div class="page-actions-btns">
+      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
+    </div>
+  </div>
+
+  <div class="box" style="margin-bottom: 20px; background: #ebf8ff; border: 1px solid #bee3f8; color: #2b6cb0;">
+    <p style="font-size: 14px; margin: 0;">ℹ️ Este painel varre todos os cidadãos da sua microárea e lista automaticamente as receitas de uso contínuo ou controladas que estão a vencer nos próximos 20 dias.</p>
+  </div>
+
+  <div id="listaAlertasGlobais">
+    <div style="text-align:center; padding:30px;"><span style="font-size:24px;">⏳</span><br>A carregar receitas...</div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  gerarAlertasGlobais();
+});
+
+function gerarAlertasGlobais() {
+  const todosMembros = JSON.parse(localStorage.getItem('membros') || '[]');
+  const container = document.getElementById('listaAlertasGlobais');
+  container.innerHTML = '';
+
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+
+  let alertasGerados = [];
+
+  // Percorre todos os cidadãos cadastrados
+  todosMembros.forEach(membro => {
+    // A mesma lógica de ID que usámos no saude_cidadao.html
+    const idUnico = membro.id || membro.cns || membro.cpf;
+    if (!idUnico) return;
+
+    // Busca os medicamentos daquele cidadão específico
+    const key = 'saudeCidadao_' + idUnico + '_medicamentos';
+    const meds = JSON.parse(localStorage.getItem(key) || '[]');
+
+    meds.forEach(m => {
+      if (!m.dataReceita || !m.validade) return;
+
+      const dataReceita  = new Date(m.dataReceita + 'T12:00:00');
+      const dataVenc     = new Date(dataReceita);
+      dataVenc.setDate(dataVenc.getDate() + m.validade);
+      dataVenc.setHours(0,0,0,0);
+
+      const diasRestantes = Math.floor((dataVenc - hoje) / (24 * 60 * 60 * 1000));
+
+      // Filtra apenas as que estão a vencer em 20 dias ou menos
+      if (diasRestantes <= 20) {
+        alertasGerados.push({
+          membro: membro,
+          medicamento: m,
+          vencimento: dataVenc,
+          diasRestantes: diasRestantes
+        });
+      }
+    });
+  });
+
+  // Se não houver nenhum alerta
+  if (alertasGerados.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="emoji">✅</div>
+        <h3 style="color:#2f855a; margin-bottom:8px;">Tudo em dia!</h3>
+        <p>Não há receitas vencidas ou perto de vencer na sua microárea.</p>
+      </div>`;
+    return;
+  }
+
+  // Ordena para mostrar as mais urgentes (vencidas ou com menos dias) primeiro
+  alertasGerados.sort((a, b) => a.diasRestantes - b.diasRestantes);
+
+  // Desenha os alertas na tela
+  alertasGerados.forEach(alerta => {
+    const { membro, medicamento, vencimento, diasRestantes } = alerta;
+    let classe = '', icone = '', titulo = '', prazo = '';
+
+    if (diasRestantes < 0) {
+      classe = 'urgente'; icone = '🚨';
+      titulo = `Receita VENCIDA: ${medicamento.nome}`;
+      prazo  = `Venceu há ${Math.abs(diasRestantes)} dia(s) — renovação urgente!`;
+    } else if (diasRestantes <= 10) {
+      classe = 'urgente'; icone = '⚠️';
+      titulo = `Vence em ${diasRestantes} dia(s): ${medicamento.nome}`;
+      prazo  = `Vence dia ${vencimento.toLocaleDateString('pt-BR')}`;
+    } else {
+      classe = 'atencao'; icone = '📋';
+      titulo = `Aviso: expira em ${diasRestantes} dias`;
+      prazo  = `${medicamento.nome} — Vence dia ${vencimento.toLocaleDateString('pt-BR')}`;
+    }
+
+    const div = document.createElement('div');
+    div.className = `alerta-receita ${classe}`;
+    div.innerHTML = `
+      <div class="icone-alerta">${icone}</div>
+      <div class="corpo">
+        <div class="nome-paciente">👤 ${membro.nome}</div>
+        <div class="titulo">${titulo}</div>
+        <div class="detalhe">${medicamento.dose || ''} · ${medicamento.tipo === 'controlada' ? 'Receita Controlada' : 'Uso Contínuo'}</div>
+        <div class="prazo">${prazo}</div>
+      </div>
+      <button onclick="abrirHistoricoSaude(${membro.id})" class="btn-ver-paciente">Ver Prontuário</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function abrirHistoricoSaude(membroId) {
+  localStorage.setItem("membroSaudeAtual", membroId);
+  window.location.href = "saude_cidadao.html";
+}
+</script>
+</body>
+</html>

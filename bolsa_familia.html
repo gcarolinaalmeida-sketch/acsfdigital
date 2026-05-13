@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bolsa Família - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .cond-card { background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:16px; margin-bottom:14px; border-left:4px solid #d69e2e; }
+    .cond-titulo { font-size:15px; font-weight:700; color:#744210; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .cond-membro { background:#fffbeb; border:1px solid #fbd38d; border-radius:8px; padding:14px; margin-bottom:10px; }
+    .cond-membro:last-child { margin-bottom:0; }
+    .membro-nome { font-size:14px; font-weight:700; color:#2c5282; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .cond-grupo { margin-bottom:12px; }
+    .cond-grupo-titulo { font-size:12px; font-weight:700; color:#744210; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+    .check-linha { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:white; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:6px; }
+    .check-linha:last-child { margin-bottom:0; }
+    .check-label { font-size:13px; color:#4a5568; display:flex; align-items:center; gap:8px; }
+    .check-status { display:flex; align-items:center; gap:6px; }
+    .toggle-btn { width:44px; height:24px; border-radius:12px; border:none; cursor:pointer; position:relative; transition:background 0.2s; flex-shrink:0; }
+    .toggle-btn.on  { background:#38a169; }
+    .toggle-btn.off { background:#e2e8f0; }
+    .toggle-btn::after { content:''; position:absolute; top:3px; width:18px; height:18px; border-radius:50%; background:white; transition:left 0.2s; }
+    .toggle-btn.on::after  { left:23px; }
+    .toggle-btn.off::after { left:3px; }
+    .data-input { padding:5px 8px; border:1px solid #cbd5e0; border-radius:5px; font-size:12px; width:130px; }
+    .resumo-bar { height:8px; border-radius:4px; background:#edf2f7; overflow:hidden; margin-top:4px; }
+    .resumo-bar-fill { height:100%; border-radius:4px; transition:width 0.5s; }
+    .status-chip { font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; }
+    .chip-ok   { background:#c6f6d5; color:#22543d; }
+    .chip-pend { background:#fed7d7; color:#742a2a; }
+    .chip-half { background:#feebc8; color:#744210; }
+    .sem-bolsa { text-align:center; padding:40px 20px; color:#718096; }
+    .info-box { background:#ebf8ff; border:1px solid #bee3f8; border-radius:8px; padding:12px 16px; font-size:13px; color:#2c5282; margin-bottom:16px; }
+  </style>
+</head>
+<body style="padding-bottom:80px;">
+
+<button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="logo">💚 ACS Digital</div>
+  <nav>
+    <button onclick="window.location.href='index.html'">🏠 Painel inicial</button>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn active" id="btn_familias" onclick="toggleGrupo('familias')"><span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span></button>
+      <div class="nav-submenu aberto" id="sub_familias">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+        <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
+        <button class="active">💰 Bolsa Família</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')"><span>📅 Visitas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_visitas">
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')"><span>📊 Relatórios e Metas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_relatorios">
+        <button onclick="window.location.href='relatorios.html'">📊 Relatório</button>
+        <button onclick="window.location.href='metas.html'">🎯 Metas</button>
+      </div>
+    </div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_planejamento">
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
+        <button onclick="window.location.href='percurso.html'">🚶 Percurso</button>
+        <button onclick="window.location.href='mapa.html'">🗺️ Mapa</button>
+      </div>
+    </div>
+    <div class="nav-divisor"></div>
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_config">
+        <button onclick="window.location.href='configuracoes.html'">⚙️ Perfil e Backup</button>
+        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
+        <button onclick="window.location.href='pin.html'">🔒 Alterar PIN</button>
+      </div>
+    </div>
+  </nav>
+  <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+    <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <h1>💰 Bolsa Família — Condicionalidades</h1>
+      <p style="color:#718096;font-size:13px;">Acompanhamento das exigências do programa por família.</p>
+    </div>
+    <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
+  </header>
+
+  <!-- Resumo geral ou detalhes da família -->
+  <div id="conteudoPagina"></div>
+
+  <nav class="bottom-nav no-print">
+    <a href="index.html" class="nav-item">🏠<span>Início</span></a>
+    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+    <a href="vacinacao.html" class="nav-item">💉<span>Vacinas</span></a>
+    <a href="relatorios.html" class="nav-item">📊<span>Relatório</span></a>
+  </nav>
+</main>
+
+<script src="script.js"></script>
+<script>
+  const ANO_ATUAL = new Date().getFullYear();
+  const familiaId = localStorage.getItem("familiaAtual");
+
+  function carregarPagina() {
+    const container = document.getElementById("conteudoPagina");
+    const condicionalidades = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+    const vacinacao = JSON.parse(localStorage.getItem("vacinacao")) || {};
+    const hoje = new Date();
+
+    // Se vier de uma família específica, mostra o detalhe
+    if (familiaId) {
+      const familia = familias.find(f => f.id == familiaId);
+      if (!familia) { container.innerHTML = '<p style="color:#e53e3e;">Família não encontrada.</p>'; return; }
+
+      if (familia.bolsaFamilia !== "Sim") {
+        container.innerHTML = `
+          <div class="sem-bolsa">
+            <div style="font-size:48px;margin-bottom:12px;">💰</div>
+            <p>Esta família não está cadastrada como beneficiária do Bolsa Família.</p>
+            <button onclick="editarFamilia(${familia.id})" class="btn btn-primary" style="margin-top:16px;">✏️ Editar cadastro</button>
+          </div>`;
+        return;
+      }
+
+      const memFam = membros.filter(m => m.familia_id == familiaId);
+      const cond = condicionalidades[familiaId] || {};
+
+      container.innerHTML = `
+        <div class="info-box">
+          ℹ️ <strong>Família ${familia.numeroFamilia} — ${familia.responsavel}</strong><br>
+          As condicionalidades são verificadas semestralmente pelo CRAS. Mantenha os registros atualizados.
+        </div>
+        ${renderizarResumoFamilia(familia, memFam, cond, vacinacao, hoje)}
+        ${memFam.map(m => renderizarMembroCondicionalidade(m, cond, vacinacao, hoje)).join('')}
+        <button onclick="salvarEVoltar()" style="margin-top:16px;background:#38a169;color:white;border:none;padding:14px;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;width:100%;">
+          ✅ Salvar e Voltar
+        </button>`;
+
+    } else {
+      // Visão geral — todas as famílias Bolsa Família
+      const famBolsa = familias.filter(f => f.bolsaFamilia === "Sim");
+      if (famBolsa.length === 0) {
+        container.innerHTML = `<div class="sem-bolsa"><div style="font-size:48px;margin-bottom:12px;">💰</div><p>Nenhuma família cadastrada como beneficiária do Bolsa Família.</p></div>`;
+        return;
+      }
+      container.innerHTML = `
+        <div class="info-box">💰 <strong>${famBolsa.length} família(s)</strong> beneficiárias do Bolsa Família na microárea.</div>
+        ${famBolsa.map(f => {
+          const memFam = membros.filter(m => m.familia_id == f.id);
+          const cond = condicionalidades[f.id] || {};
+          const { ok, total } = calcularStatusGeral(memFam, cond, vacinacao, hoje);
+          const pct = total ? Math.round((ok/total)*100) : 100;
+          const chipClass = pct>=100?'chip-ok':pct>=50?'chip-half':'chip-pend';
+          const chipTxt   = pct>=100?'✅ Em dia':pct>=50?'⚠️ Parcial':'❌ Pendente';
+          return `
+          <div class="cond-card" style="cursor:pointer;" onclick="localStorage.setItem('familiaAtual','${f.id}');carregarPagina()">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+              <div>
+                <div style="font-size:15px;font-weight:700;color:#1a365d;">Família ${f.numeroFamilia} — ${f.responsavel}</div>
+                <div style="font-size:12px;color:#718096;margin-top:2px;">📍 ${f.logradouro||'—'} · ${memFam.length} membro(s)</div>
+              </div>
+              <span class="status-chip ${chipClass}">${chipTxt}</span>
+            </div>
+            <div class="resumo-bar" style="margin-top:10px;">
+              <div class="resumo-bar-fill" style="width:${pct}%;background:${pct>=100?'#38a169':pct>=50?'#d69e2e':'#e53e3e'};"></div>
+            </div>
+            <div style="font-size:11px;color:#718096;margin-top:4px;">${ok} de ${total} condicionalidade(s) cumprida(s)</div>
+          </div>`;
+        }).join('')}`;
+    }
+  }
+
+  function calcularStatusGeral(memFam, cond, vacinacao, hoje) {
+    let ok = 0, total = 0;
+    memFam.forEach(m => {
+      const idade = m.nascimento ? Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25)) : 99;
+      if (idade < 7) {
+        // Vacinas
+        total++;
+        const vac = vacinacao[m.id] || {};
+        if (["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VRH (Rotavírus)","Pneumo 10","Tríplice Viral (SCR)"].every(v => vac[v])) ok++;
+        // Peso 1º semestre
+        total++;
+        if ((cond[`peso_${m.id}`]||{}).semestre1) ok++;
+        // Peso 2º semestre
+        total++;
+        if ((cond[`peso_${m.id}`]||{}).semestre2) ok++;
+      }
+      if (idade >= 6 && idade <= 17) {
+        total++;
+        if (cond[`escola_${m.id}`]) ok++;
+      }
+    });
+    return { ok, total };
+  }
+
+  function renderizarResumoFamilia(familia, memFam, cond, vacinacao, hoje) {
+    const { ok, total } = calcularStatusGeral(memFam, cond, vacinacao, hoje);
+    const pct = total ? Math.round((ok/total)*100) : 100;
+    const cor = pct>=100?'#38a169':pct>=50?'#d69e2e':'#e53e3e';
+    return `
+    <div class="cond-card" style="margin-bottom:16px;">
+      <div class="cond-titulo">📊 Resumo das Condicionalidades</div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="font-size:32px;font-weight:800;color:${cor};">${pct}%</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;color:#718096;margin-bottom:4px;">${ok} de ${total} condicionalidade(s) cumprida(s)</div>
+          <div class="resumo-bar"><div class="resumo-bar-fill" style="width:${pct}%;background:${cor};"></div></div>
+        </div>
+        <span class="status-chip ${pct>=100?'chip-ok':pct>=50?'chip-half':'chip-pend'}">${pct>=100?'✅ Em dia':pct>=50?'⚠️ Parcial':'❌ Pendente'}</span>
+      </div>
+    </div>`;
+  }
+
+  function renderizarMembroCondicionalidade(m, cond, vacinacao, hoje) {
+    const idade = m.nascimento ? Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25)) : 99;
+    const pc = cond[`peso_${m.id}`] || {};
+    const vac = vacinacao[m.id] || {};
+
+    let secoes = '';
+
+    // ── SAÚDE: crianças < 7 anos ──
+    if (idade < 7) {
+      const vacObrigatorias = ["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VRH (Rotavírus)","Pneumo 10","Tríplice Viral (SCR)"];
+      const vacFaltando = vacObrigatorias.filter(v => !vac[v]);
+      const vacOk = vacFaltando.length === 0;
+
+      secoes += `
+      <div class="cond-grupo">
+        <div class="cond-grupo-titulo">💉 Vacinas obrigatórias (Bolsa Família)</div>
+        <div class="check-linha">
+          <div class="check-label">
+            ${vacOk ? '✅' : '❌'}
+            <span>${vacOk ? 'Todas as vacinas obrigatórias em dia' : `Faltam: ${vacFaltando.join(', ')}`}</span>
+          </div>
+          <button onclick="window.location.href='vacinacao.html'" style="font-size:12px;background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;padding:4px 10px;border-radius:4px;cursor:pointer;">
+            ${vacOk ? '✏️ Ver' : '⚠️ Atualizar'}
+          </button>
+        </div>
+      </div>
+
+      <div class="cond-grupo">
+        <div class="cond-grupo-titulo">⚖️ Acompanhamento de Peso e Altura — ${ANO_ATUAL}</div>
+        <div style="font-size:12px;color:#718096;margin-bottom:8px;">Obrigatório: 2 pesagens por ano (1º e 2º semestre)</div>
+
+        <div class="check-linha">
+          <div class="check-label">
+            ${pc.semestre1 ? '✅' : '⏳'}
+            <span>1º Semestre (Jan–Jun)</span>
+            ${pc.semestre1 ? `<span style="color:#718096;font-size:11px;">${pc.semestre1}</span>` : ''}
+          </div>
+          <div class="check-status">
+            <input type="date" class="data-input" id="peso1_${m.id}"
+              value="${pc.semestre1||''}"
+              onchange="salvarPeso('${m.id}','semestre1',this.value)"
+              placeholder="Data da pesagem">
+          </div>
+        </div>
+
+        <div class="check-linha">
+          <div class="check-label">
+            ${pc.semestre2 ? '✅' : '⏳'}
+            <span>2º Semestre (Jul–Dez)</span>
+            ${pc.semestre2 ? `<span style="color:#718096;font-size:11px;">${pc.semestre2}</span>` : ''}
+          </div>
+          <div class="check-status">
+            <input type="date" class="data-input" id="peso2_${m.id}"
+              value="${pc.semestre2||''}"
+              onchange="salvarPeso('${m.id}','semestre2',this.value)"
+              placeholder="Data da pesagem">
+          </div>
+        </div>
+
+        ${pc.semestre1 && pc.semestre2
+          ? `<div style="text-align:center;padding:8px;background:#f0fff4;border-radius:6px;font-size:13px;color:#22543d;font-weight:bold;margin-top:6px;">✅ Pesagens do ano concluídas!</div>`
+          : `<div style="text-align:center;padding:8px;background:#fffbeb;border-radius:6px;font-size:13px;color:#744210;margin-top:6px;">⚠️ ${pc.semestre1||pc.semestre2?'Falta 1 pesagem':'Faltam 2 pesagens'} para cumprir a condicionalidade</div>`
+        }
+      </div>`;
+    }
+
+    // ── EDUCAÇÃO: 6-17 anos ──
+    if (idade >= 6 && idade <= 17) {
+      const escOk = !!cond[`escola_${m.id}`];
+      secoes += `
+      <div class="cond-grupo">
+        <div class="cond-grupo-titulo">🏫 Frequência Escolar Mínima (85%)</div>
+        <div class="check-linha">
+          <div class="check-label">
+            ${escOk ? '✅' : '❌'}
+            <span>Frequência escolar verificada no bimestre</span>
+          </div>
+          <button class="toggle-btn ${escOk?'on':'off'}" id="escToggle_${m.id}"
+            onclick="toggleEscola('${m.id}', this)"></button>
+        </div>
+        ${!escOk ? `<div style="font-size:12px;color:#c53030;padding:6px 10px;background:#fff5f5;border-radius:4px;margin-top:4px;">⚠️ Verificar frequência escolar — risco de suspensão do benefício</div>` : ''}
+      </div>`;
+    }
+
+    if (!secoes) return ''; // sem condicionalidades para este membro
+
+    const idadeStr = `${idade} ano${idade!==1?'s':''}`;
+    return `
+    <div class="cond-membro">
+      <div class="membro-nome">👤 ${m.nome} <span style="font-size:12px;color:#718096;font-weight:normal;">${m.sexo||''} · ${idadeStr}</span></div>
+      ${secoes}
+    </div>`;
+  }
+
+  function salvarPeso(membroId, semestre, valor) {
+    const todas = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+    if (!todas[familiaId]) todas[familiaId] = {};
+    if (!todas[familiaId][`peso_${membroId}`]) todas[familiaId][`peso_${membroId}`] = {};
+    todas[familiaId][`peso_${membroId}`][semestre] = valor;
+    localStorage.setItem("condicionalidades", JSON.stringify(todas));
+    // Atualiza visual sem recarregar
+    const sem = semestre === 'semestre1' ? 1 : 2;
+    showToast(`✅ ${sem}º semestre registrado!`, 'verde', 2000);
+  }
+
+  function toggleEscola(membroId, btn) {
+    const todas = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+    if (!todas[familiaId]) todas[familiaId] = {};
+    const atual = !!todas[familiaId][`escola_${membroId}`];
+    todas[familiaId][`escola_${membroId}`] = !atual;
+    localStorage.setItem("condicionalidades", JSON.stringify(todas));
+    btn.classList.toggle('on',  !atual);
+    btn.classList.toggle('off', atual);
+    showToast(!atual ? '✅ Frequência confirmada' : 'Frequência removida', !atual?'verde':'normal', 2000);
+  }
+
+  function salvarEVoltar() {
+    showToast('✅ Condicionalidades salvas!', 'verde', 2000);
+    setTimeout(() => window.history.back(), 1500);
+  }
+
+  window.addEventListener('load', carregarPagina);
+</script>
+</body>
+</html>

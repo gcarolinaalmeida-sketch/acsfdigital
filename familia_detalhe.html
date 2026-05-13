@@ -8,7 +8,7 @@
 <!-- Ícone para a tela de início do iPad -->
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
   <meta charset="UTF-8">
-  <title>Famílias</title>
+  <title>Detalhe da Família</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -16,7 +16,6 @@
 <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
 
- 
 <aside class="sidebar">
   <div class="logo">💚 ACS Digital</div>
   <nav>
@@ -72,54 +71,30 @@
     <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
   </div>
 </aside>
-
 <div class="main">
   <div class="page-actions">
-    <h1>Famílias cadastradas</h1>
+    <h1>Detalhes da família</h1>
     <div class="page-actions-btns">
       <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
-      <button onclick="voltarPagina()" class="btn btn-secondary">⬅️ Voltar</button>
-      <button onclick="cadastrarFamilia()" class="btn btn-primary">➕ Nova família</button>
+      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
     </div>
   </div>
 
-  <!-- FILTROS -->
-  <div class="box" style="margin-bottom:16px; padding:16px;">
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
-      <input type="text" id="filtroTextoFam" placeholder="🔍 Buscar por nome ou nº..." oninput="filtrarFamilias()" style="padding:9px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:14px;">
-      <input type="text" id="filtroRuaFam" placeholder="📍 Filtrar por rua..." oninput="filtrarFamilias()" style="padding:9px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:14px;">
-    </div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:10px; align-items:center;">
-      <select id="filtroCondFam" onchange="filtrarFamilias()" style="padding:9px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:14px;">
-        <option value="">🏥 Todas as condições</option>
-        <option value="hipertensao">❤️ Hipertenso(s)</option>
-        <option value="diabetes">🩸 Diabético(s)</option>
-        <option value="gestante">🤰 Gestante</option>
-        <option value="idoso">👴 Idoso(s) 60+</option>
-      </select>
-      <select id="filtroVisitaFam" onchange="filtrarFamilias()" style="padding:9px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:14px;">
-        <option value="">📅 Qualquer situação de visita</option>
-        <option value="nunca">🚨 Nunca visitadas</option>
-        <option value="30dias">🚨 Há mais de 30 dias</option>
-        <option value="ok">✅ Visitadas recentemente</option>
-      </select>
-      <button onclick="limparFiltrosFam()" class="btn btn-secondary" style="white-space:nowrap;">✖ Limpar</button>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
-      <div style="font-size:13px;color:#718096;" id="contadorFamilias"></div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <label style="font-size:12px;color:#718096;">Ordenar:</label>
-        <select onchange="ordenarFamilias(this.value)" style="padding:4px 8px;border:1px solid #cbd5e0;border-radius:4px;font-size:13px;">
-          <option value="numero">Nº família</option>
-          <option value="nome">Nome</option>
-          <option value="visita">Mais antigas</option>
-        </select>
-      </div>
-    </div>
-  </div>
-  
+  <div id="dadosFamilia" class="box"></div>
 
-  <div id="listaFamilias" class="box" style="margin-top:20px;"></div>
+  <div class="box">
+    <h3>Membros da família</h3>
+    <div id="listaMembros"></div>
+  </div>
+
+  <div class="box" style="margin-top: 20px; border-top: 4px solid #3182ce;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px;">
+      <h3 style="margin: 0; color: #2c5282;">📋 Histórico de Visitas</h3>
+      <button id="btnNovaVisitaDetalhe" class="btn btn-success" style="font-size: 13px; padding: 7px 14px;">▶ Nova Visita</button>
+    </div>
+    <div id="historicoVisitasFamilia"></div>
+  </div>
+
 </div>
 
 <script src="script.js"></script>

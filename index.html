@@ -31,9 +31,10 @@
       <div class="nav-submenu" id="sub_familias">
         <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
         <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
-        <!-- CORRIGIDO: cidadaos_lista.html não existe, redireciona para familias_lista.html -->
-        <button onclick="window.location.href='familias_lista.html'">👤 Cidadãos</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+        <button onclick="window.location.href='receitas.html'">💊 Controle de Receitas</button>
         <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
+        <button onclick="window.location.href='bolsa_familia.html'">💰 Bolsa Família</button>
       </div>
     </div>
     <div class="nav-grupo">
@@ -55,8 +56,7 @@
       <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
       <div class="nav-submenu" id="sub_planejamento">
         <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
-        <!-- CORRIGIDO: calendario.html não existe, redireciona para agenda.html -->
-        <button onclick="window.location.href='agenda.html'">📆 Calendário</button>
+        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
         <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
         <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
       </div>
@@ -194,9 +194,11 @@
   </main>
 <script src="script.js?v=3"></script>
   <script>
+    // Coloca a data de hoje e atualiza automaticamente
     const dataFormatada = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
     document.getElementById('dataHoje').innerText = '📅 ' + dataFormatada;
 
+    // Ativa o Service Worker (modo offline) de forma segura
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
@@ -205,12 +207,16 @@
       });
     }
 
+    // ------------------------------------
+    // LEMBRETE AUTOMÁTICO DE BACKUP
+    // ------------------------------------
     (function verificarBackup() {
       const alerta  = document.getElementById('alertaBackup');
       const titulo  = document.getElementById('alertaBackupTitulo');
       const texto   = document.getElementById('alertaBackupTexto');
       if (!alerta) return;
 
+      // Se o usuário dispensou hoje, não mostra de novo
       const dispensado = localStorage.getItem('backupDispensado');
       const hoje = new Date().toISOString().split('T')[0];
       if (dispensado === hoje) return;
@@ -218,9 +224,11 @@
       const ultimoBackup  = localStorage.getItem('ultimoBackup');
       const temDados = localStorage.getItem('familias');
 
+      // Só mostra o alerta se houver dados cadastrados
       if (!temDados || JSON.parse(temDados).length === 0) return;
 
       if (!ultimoBackup) {
+        // Nunca fez backup
         titulo.textContent = '⚠️ Você nunca fez backup dos seus dados!';
         texto.textContent  = 'Seus dados ficam salvos apenas neste dispositivo. Faça um backup agora para não perder nada.';
         alerta.style.display = 'flex';
@@ -235,6 +243,7 @@
     })();
 
     function dispensarAlertaBackup() {
+      // Guarda que o usuário dispensou hoje — não mostra de novo até amanhã
       const hoje = new Date().toISOString().split('T')[0];
       localStorage.setItem('backupDispensado', hoje);
       document.getElementById('alertaBackup').style.display = 'none';

@@ -42,6 +42,7 @@
         <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
         <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
         <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
+        <button onclick="window.location.href='bolsa_familia.html'">💰 Bolsa Família</button>
       </div>
     </div>
     <div class="nav-grupo">
@@ -229,8 +230,15 @@
     }
 
     container.innerHTML = lista.map(n => {
-      const links = { familia_detalhe: ()=>{ localStorage.setItem("familiaAtual",n.familiaId); return "familia_detalhe.html"; }, familias_lista:"familias_lista.html", cidadaos_lista:"cidadaos_lista.html", configuracoes:"configuracoes.html", metas:"metas.html" };
-      const href = typeof links[n.link]==="function" ? links[n.link]() : (links[n.link]||"index.html");
+      
+      /* AQUI ESTÁ A CORREÇÃO MÁGICA */
+      let acaoClick = "";
+      if (n.link === "familia_detalhe" && n.familiaId) {
+        acaoClick = `abrirFamilia(${n.familiaId})`;
+      } else {
+        acaoClick = `window.location.href='${n.link}.html'`;
+      }
+
       return `
       <div class="notif-card ${n.lida?'ok':n.tipo}">
         <div class="notif-icone">${n.icone}</div>
@@ -240,7 +248,7 @@
           ${n.lida?'<div class="notif-data">✓ Marcada como lida</div>':''}
         </div>
         <div class="notif-acoes">
-          <button class="btn-notif btn-ver" onclick="window.location.href='${href}'">Ver →</button>
+          <button class="btn-notif btn-ver" onclick="${acaoClick}">Ver →</button>
           ${!n.lida?`<button class="btn-notif btn-ok" onclick="marcarLida('${n.id}')">✓ Lida</button>`:''}
         </div>
       </div>`;

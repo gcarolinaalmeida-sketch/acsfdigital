@@ -223,9 +223,6 @@
 </head>
 <body>
 
-<!-- ═══ MODAIS ═══ -->
-
-<!-- Modal: Registrar Sinal Vital -->
 <div class="modal-overlay" id="modalSinal">
   <div class="modal">
     <h3>📊 Registrar Sinal Vital</h3>
@@ -263,7 +260,6 @@
   </div>
 </div>
 
-<!-- Modal: Adicionar Medicamento -->
 <div class="modal-overlay" id="modalMed">
   <div class="modal">
     <h3>💊 Adicionar Medicamento</h3>
@@ -314,7 +310,6 @@
   </div>
 </div>
 
-<!-- Modal: Adicionar Exame/Consulta -->
 <div class="modal-overlay" id="modalExame">
   <div class="modal">
     <h3>🔬 Registrar Exame / Consulta</h3>
@@ -362,7 +357,6 @@
   </div>
 </div>
 
-<!-- Modal: Puericultura -->
 <div class="modal-overlay" id="modalPueri">
   <div class="modal">
     <h3>👶 Registrar Consulta de Puericultura</h3>
@@ -389,7 +383,6 @@
   </div>
 </div>
 
-<!-- ═══ CONTEÚDO PRINCIPAL ═══ -->
 <div class="main" style="margin-left:0; width:100%;">
   <div class="page-actions">
     <h1>Saúde do Cidadão</h1>
@@ -399,15 +392,14 @@
     </div>
   </div>
 
-  <!-- CABEÇALHO DO CIDADÃO -->
   <div class="cidadao-header" id="cidadaoHeader">
     <div class="cidadao-avatar" id="cidadaoAvatar">👤</div>
     <div class="cidadao-info">
-      <h2 id="cidadaoNome">—</h2>
+      <h2 id="cidadaoNome">Carregando...</h2>
       <div class="sub">
-        <span>📍 <span id="cidadaoMicroarea">—</span></span>
+        <span>📍 <span id="cidadaoMicroarea">03</span></span>
         <span>🎂 <span id="cidadaoIdade">—</span></span>
-        <span>🪪 <span id="cidadaoCNS">—</span></span>
+        <span>💳 <span id="cidadaoCNS">—</span></span>
       </div>
       <div style="margin-top:8px;">
         <span class="badge-status badge-ativo" id="cidadaoStatusBadge">● Cadastro Ativo</span>
@@ -415,7 +407,6 @@
     </div>
   </div>
 
-  <!-- ÚLTIMA VISITA -->
   <div class="box" id="boxUltimaVisita" style="margin-bottom:16px; padding:14px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
     <span style="font-size:24px;">📅</span>
     <div style="flex:1;">
@@ -426,7 +417,8 @@
     <div id="ultimaVisitaDias" style="font-size:13px; font-weight:700; padding:6px 12px; border-radius:99px; background:#edf2f7; color:#4a5568;"></div>
   </div>
 
-  <!-- TABS -->
+  <div id="alertasReceita"></div>
+
   <div class="tabs">
     <button class="tab-btn ativo" onclick="mostrarTab('sinais')">📊 Sinais Vitais</button>
     <button class="tab-btn" onclick="mostrarTab('medicamentos')">💊 Medicamentos</button>
@@ -435,11 +427,7 @@
     <button class="tab-btn" id="tabPueri" onclick="mostrarTab('puericultura')" style="display:none;">👶 Puericultura</button>
   </div>
 
-  <!-- ══ TAB: SINAIS VITAIS ══ -->
   <div class="secao ativa" id="tab-sinais">
-    <!-- Alertas de receita aparecem aqui quando há medicamentos com prazo vencendo -->
-    <div id="alertasReceita"></div>
-
     <div class="box">
       <h3 style="margin-bottom:14px;">📊 Últimos Sinais Vitais</h3>
       <div class="sinais-grid" id="sinaisGrid">
@@ -462,7 +450,6 @@
     </div>
   </div>
 
-  <!-- ══ TAB: MEDICAMENTOS ══ -->
   <div class="secao" id="tab-medicamentos">
     <div class="box">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
@@ -482,7 +469,6 @@
     </div>
   </div>
 
-  <!-- ══ TAB: EXAMES / CONSULTAS ══ -->
   <div class="secao" id="tab-exames">
     <div class="box">
       <h3 style="margin-bottom:14px;">🔬 Exames e Consultas</h3>
@@ -496,7 +482,6 @@
     </div>
   </div>
 
-  <!-- ══ TAB: CONDIÇÕES CLÍNICAS ══ -->
   <div class="secao" id="tab-condicoes">
     <div class="box">
       <h3 style="margin-bottom:12px;">🏥 Condições Clínicas e Vulnerabilidade</h3>
@@ -522,7 +507,6 @@
     </div>
   </div>
 
-  <!-- ══ TAB: PUERICULTURA ══ -->
   <div class="secao" id="tab-puericultura">
     <div class="box">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -530,7 +514,6 @@
         <span id="idadeCriancaBadge" style="font-size:12px; background:#ebf8ff; color:#2b6cb0; padding:4px 10px; border-radius:99px; font-weight:700;"></span>
       </div>
 
-      <!-- Calendário de consultas recomendadas -->
       <div style="margin-bottom:16px;">
         <div style="font-size:13px; font-weight:700; color:#4a5568; margin-bottom:8px;">Consultas recomendadas pelo MS:</div>
         <div id="calendarioPuericultura"></div>
@@ -547,9 +530,7 @@
     </div>
   </div>
 
-</div><!-- /main -->
-
-<script src="script.js"></script>
+</div><script src="script.js"></script>
 <script>
 // ════════════════════════════════════════════
 //  INICIALIZAÇÃO
@@ -559,28 +540,28 @@ let familiaAtual = null;
 const KEY_SAUDE = 'saudeCidadao_';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const params    = new URLSearchParams(window.location.search);
-  const cidadaoId = params.get('cidadao'); // m.id do membro
-  const familiaId = params.get('familia');
+  // Pega o ID que o script.js novo salvou ao clicar no botão "Saúde"
+  const membroId = localStorage.getItem('membroSaudeAtual');
 
-  if (!cidadaoId) {
-    document.getElementById('cidadaoNome').textContent = 'Cidadão não encontrado';
+  if (!membroId) {
+    document.getElementById('cidadaoNome').textContent = 'Cidadão não selecionado';
     return;
   }
 
-  // membros ficam em localStorage 'membros' (array global do script.js)
+  // Busca nas listas do novo banco de dados (localStorage)
   const todosMembros = JSON.parse(localStorage.getItem('membros') || '[]');
-  cidadaoAtual = todosMembros.find(m => String(m.id) === String(cidadaoId));
+  cidadaoAtual = todosMembros.find(m => String(m.id) === String(membroId));
 
   if (!cidadaoAtual) {
     document.getElementById('cidadaoNome').textContent = 'Cidadão não encontrado';
     return;
   }
 
-  // família para histórico de visitas
+  // Identifica a família
   const familias = JSON.parse(localStorage.getItem('familias') || '[]');
-  familiaAtual   = familias.find(f => String(f.id) === String(familiaId || cidadaoAtual.familia_id));
+  familiaAtual = familias.find(f => String(f.id) === String(cidadaoAtual.familia_id));
 
+  // Inicia a tela
   renderizarCabecalho();
   renderizarUltimaVisita();
   renderizarSinais();
@@ -592,11 +573,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ════════════════════════════════════════════
-//  CHAVE DE ARMAZENAMENTO
+//  CONTROLE DE DADOS
 // ════════════════════════════════════════════
 function getKey(tipo) {
-  const id = cidadaoAtual?.cns || cidadaoAtual?.cpf || (familiaAtual?.id + '_' + cidadaoAtual?.nome);
-  return KEY_SAUDE + id + '_' + tipo;
+  const idUnico = cidadaoAtual?.id || cidadaoAtual?.cns || cidadaoAtual?.cpf;
+  return KEY_SAUDE + idUnico + '_' + tipo;
 }
 
 function getDados(tipo) {
@@ -614,15 +595,13 @@ function renderizarCabecalho() {
   const c = cidadaoAtual;
   document.getElementById('cidadaoNome').textContent = c.nome || '—';
 
-  // Ícone por sexo
   const avatar = document.getElementById('cidadaoAvatar');
   avatar.textContent = (c.sexo === 'Feminino') ? '👩' : '👨';
 
-  // Microárea
-  const microarea = localStorage.getItem('configMicroarea') || '—';
+  // Forçando a Microárea 03 (Correção do JS que substituía por '—')
+  const microarea = localStorage.getItem('configMicroarea') || '03';
   document.getElementById('cidadaoMicroarea').textContent = 'Microárea ' + microarea;
 
-  // Idade
   if (c.nascimento) {
     const nasc  = new Date(c.nascimento);
     const hoje  = new Date();
@@ -631,10 +610,8 @@ function renderizarCabecalho() {
     document.getElementById('cidadaoIdade').textContent = anos < 2 ? meses + ' meses' : anos + ' anos';
   }
 
-  // CNS
   document.getElementById('cidadaoCNS').textContent = c.cns || 'Sem CNS';
 
-  // Status
   const badge = document.getElementById('cidadaoStatusBadge');
   if (c.situacao === 'Inativo' || c.ativo === false) {
     badge.className = 'badge-status badge-inativo';
@@ -647,12 +624,10 @@ function renderizarCabecalho() {
 // ════════════════════════════════════════════
 function renderizarUltimaVisita() {
   const visitas = JSON.parse(localStorage.getItem('visitas') || '[]');
-  const nome    = cidadaoAtual.nome?.toLowerCase() || '';
   const famId   = familiaAtual?.id || familiaAtual?.numero;
 
-  // Busca visitas da família deste cidadão
   const visitasFam = visitas
-    .filter(v => v.familiaId === famId || v.familia === famId)
+    .filter(v => v.familiaId == famId || v.familia == famId)
     .sort((a, b) => new Date(b.data) - new Date(a.data));
 
   if (visitasFam.length === 0) return;
@@ -672,7 +647,6 @@ function renderizarUltimaVisita() {
   else if (dias > 15) { diasEl.style.background = '#fffbeb'; diasEl.style.color = '#744210'; }
   else { diasEl.style.background = '#f0fff4'; diasEl.style.color = '#276749'; }
 
-  // Histórico mini
   const container = document.getElementById('historicoVisitasMini');
   container.innerHTML = '';
   visitasFam.slice(0, 5).forEach(v => {
@@ -711,7 +685,6 @@ function renderizarSinais() {
     return;
   }
 
-  // Pega o mais recente de cada tipo
   const ultimos = {};
   sinais.forEach(s => {
     if (!ultimos[s.tipo] || new Date(s.data) > new Date(ultimos[s.tipo].data)) {
@@ -719,7 +692,6 @@ function renderizarSinais() {
     }
   });
 
-  // Calcula IMC se tiver peso e altura
   const peso   = parseFloat(ultimos['peso']?.valor);
   const altura = parseFloat(ultimos['altura']?.valor);
   if (peso && altura) {
@@ -733,7 +705,6 @@ function renderizarSinais() {
     const card = document.createElement('div');
     card.className = 'sinal-card';
 
-    // Determina classe de alerta
     let classe = '';
     if (s.tipo === 'pressao') {
       const sistolica = parseInt(s.valor?.split('/')?.[0]);
@@ -817,7 +788,6 @@ function renderizarMedicamentos() {
   });
 }
 
-// Mostra/esconde campo de receita conforme tipo
 document.getElementById('medTipo')?.addEventListener('change', function() {
   document.getElementById('rowReceita').style.display =
     (this.value === 'controlada' || this.value === 'continuo') ? 'grid' : 'none';
@@ -852,21 +822,29 @@ function removerMed(idx) {
 }
 
 // ════════════════════════════════════════════
-//  ALERTAS DE RECEITA
+//  ALERTAS DE RECEITA (Ajustado para 10 dias)
 // ════════════════════════════════════════════
 function gerarAlertasReceita() {
   const meds      = getDados('medicamentos');
   const container = document.getElementById('alertasReceita');
+  if (!container) return;
   container.innerHTML = '';
 
+  // Pega a data de hoje e zera as horas para o cálculo ficar exato
   const hoje = new Date();
+  hoje.setHours(0,0,0,0);
 
   meds.forEach(m => {
+    // Se não tiver data de receita cadastrada, pula
     if (!m.dataReceita || !m.validade) return;
 
-    const dataReceita  = new Date(m.dataReceita);
+    // Usa T12:00:00 para evitar que o fuso horário atrase a data em 1 dia
+    const dataReceita  = new Date(m.dataReceita + 'T12:00:00');
     const dataVenc     = new Date(dataReceita);
     dataVenc.setDate(dataVenc.getDate() + m.validade);
+    dataVenc.setHours(0,0,0,0); // zera horas do vencimento também
+
+    // Calcula a diferença em dias
     const diasRestantes = Math.floor((dataVenc - hoje) / (24 * 60 * 60 * 1000));
 
     let classe = '', icone = '', titulo = '', prazo = '';
@@ -874,17 +852,17 @@ function gerarAlertasReceita() {
     if (diasRestantes < 0) {
       classe = 'urgente'; icone = '🚨';
       titulo = `Receita VENCIDA: ${m.nome}`;
-      prazo  = `Venceu há ${Math.abs(diasRestantes)} dia(s) — renovação necessária!`;
-    } else if (diasRestantes <= 7) {
+      prazo  = `Venceu há ${Math.abs(diasRestantes)} dia(s) — renovação urgente!`;
+    } else if (diasRestantes <= 10) {  // ⚠️ ALERTA DE 10 DIAS AQUI!
       classe = 'urgente'; icone = '⚠️';
-      titulo = `Receita vence em breve: ${m.nome}`;
-      prazo  = `Vence em ${diasRestantes} dia(s) — providencie a renovação`;
-    } else if (diasRestantes <= 15) {
+      titulo = `Atenção: Receita vence em ${diasRestantes} dia(s)!`;
+      prazo  = `Medicamento: ${m.nome} — Vence dia ${dataVenc.toLocaleDateString('pt-BR')}`;
+    } else if (diasRestantes <= 20) {
       classe = 'atencao'; icone = '📋';
-      titulo = `Atenção: receita expira em ${diasRestantes} dias — ${m.nome}`;
-      prazo  = `Vence em ${new Date(dataVenc).toLocaleDateString('pt-BR')}`;
+      titulo = `Aviso preventivo: receita expira em ${diasRestantes} dias`;
+      prazo  = `Medicamento: ${m.nome} — Vence dia ${dataVenc.toLocaleDateString('pt-BR')}`;
     } else {
-      return; // sem alerta
+      return; // Se faltar mais de 20 dias, não mostra alerta nenhum
     }
 
     const div = document.createElement('div');
@@ -918,7 +896,6 @@ function renderizarExames() {
     return;
   }
 
-  // Ordena por data desc
   exames.sort((a, b) => new Date(b.data) - new Date(a.data));
 
   exames.forEach(e => {
@@ -1056,7 +1033,6 @@ function adicionarVulnerabilidade() {
 // ════════════════════════════════════════════
 //  PUERICULTURA
 // ════════════════════════════════════════════
-// Calendário recomendado pelo Ministério da Saúde
 const CALENDARIO_PUERICULTURA = [
   { label: '1ª semana de vida',   meses: 0.25 },
   { label: '1 mês',               meses: 1    },
@@ -1076,20 +1052,18 @@ function verificarPuericultura() {
   const hoje  = new Date();
   const meses = (hoje - nasc) / (30.44 * 24 * 60 * 60 * 1000);
 
-  // Só mostra aba para crianças até 5 anos (60 meses)
   if (meses > 60) return;
 
   document.getElementById('tabPueri').style.display = '';
   document.getElementById('idadeCriancaBadge').textContent =
     meses < 24 ? `${Math.floor(meses)} meses` : `${Math.floor(meses/12)} anos`;
 
-  // Renderiza calendário de consultas
   const pueriFeitas = getDados('puericultura');
   const container   = document.getElementById('calendarioPuericultura');
   container.innerHTML = '';
 
   CALENDARIO_PUERICULTURA.forEach(c => {
-    if (c.meses > meses + 1) return; // consulta ainda não chegou
+    if (c.meses > meses + 1) return;
 
     const feita = pueriFeitas.some(p => p.consulta?.includes(c.label));
     const item  = document.createElement('div');
@@ -1158,7 +1132,6 @@ function mostrarTab(tab) {
 //  MODAIS
 // ════════════════════════════════════════════
 function abrirModal(id) {
-  // Preenche data de hoje por padrão
   const hoje = new Date().toISOString().split('T')[0];
   const campos = ['sinalData','medDataReceita','exameData','pueriData'];
   campos.forEach(c => { const el = document.getElementById(c); if (el) el.value = hoje; });
@@ -1170,7 +1143,6 @@ function fecharModal(id) {
   document.getElementById(id).classList.remove('aberto');
 }
 
-// Fecha modal ao clicar fora
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', e => {
     if (e.target === overlay) overlay.classList.remove('aberto');

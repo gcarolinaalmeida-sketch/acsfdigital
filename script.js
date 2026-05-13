@@ -344,6 +344,10 @@ function mostrarFamilias(filtradas) {
         lista.innerHTML = `<div style="text-align:center;padding:30px;color:#718096;">Nenhuma família encontrada.</div>`;
         return;
     }
+    const hoje = new Date();
+    const condicionalidades = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+    const vacinacao = JSON.parse(localStorage.getItem("vacinacao")) || {};
+
     dados.forEach(f => {
         const vFam = visitas.filter(v => v.familiaId == f.id).sort((a,b) => new Date(b.data)-new Date(a.data));
         const ultimaVisita = vFam.length ? vFam[0].data.split('-').reverse().join('/') : null;
@@ -353,14 +357,58 @@ function mostrarFamilias(filtradas) {
         const fotoHtml = f.fotoCasa
             ? `<img src="${f.fotoCasa}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e0;margin-left:10px;">`
             : `<div style="width:60px;height:60px;background:#edf2f7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-left:10px;">🏠</div>`;
+
+        // ── Bolsa Família ──
+        const isBolsa = f.bolsaFamilia === "Sim";
+
+        // ── Condicionalidades ──
+        let condHtml = '';
+        if (isBolsa) {
+            const memFam = membros.filter(m => m.familia_id == f.id);
+            const cond = condicionalidades[f.id] || {};
+            let vacOk=0, vacTotal=0, pesoOk=0, pesoTotal=0, escOk=0, escTotal=0;
+            memFam.forEach(m => {
+                const idade = m.nascimento ? Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25)) : 99;
+                if (idade < 7) {
+                    vacTotal++;
+                    const vac = vacinacao[m.id] || {};
+                    if (["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VRH (Rotavírus)","Pneumo 10","Tríplice Viral (SCR)"].every(v => vac[v])) vacOk++;
+                    pesoTotal++;
+                    const pc = cond[`peso_${m.id}`] || {};
+                    if (pc.semestre1 && pc.semestre2) pesoOk++;
+                    else if (pc.semestre1 || pc.semestre2) pesoOk += 0.5;
+                }
+                if (idade >= 6 && idade <= 17) { escTotal++; if (cond[`escola_${m.id}`]) escOk++; }
+            });
+            const mkBadge = (ok, total, label, icone) => {
+                if (!total) return '';
+                const pct = Math.round((ok/total)*100);
+                const cor = pct>=100?'#22543d':pct>=50?'#744210':'#742a2a';
+                const bg  = pct>=100?'#c6f6d5':pct>=50?'#feebc8':'#fed7d7';
+                return `<span title="${label}: ${ok}/${total}" style="font-size:11px;background:${bg};color:${cor};padding:2px 7px;border-radius:4px;font-weight:bold;cursor:pointer;" onclick="event.stopPropagation();abrirCondicionalidadesFamilia(${f.id})">${icone} ${Math.floor(ok)}/${total}</span>`;
+            };
+            const badges = [mkBadge(vacOk,vacTotal,"Vacinas","💉"), mkBadge(pesoOk,pesoTotal,"Peso/Altura","⚖️"), mkBadge(escOk,escTotal,"Frequência escolar","🏫")].filter(Boolean).join(' ');
+            if (badges || memFam.length > 0) {
+                condHtml = `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;align-items:center;">
+                    <span style="font-size:11px;color:#744210;font-weight:600;">Condicionalidades:</span>
+                    ${badges || '<span style="font-size:11px;color:#a0aec0;">Sem crianças/adolescentes</span>'}
+                    <button onclick="event.stopPropagation();abrirCondicionalidadesFamilia(${f.id})" style="font-size:11px;background:#fffbeb;color:#744210;border:1px solid #f6ad55;padding:2px 8px;border-radius:4px;cursor:pointer;">✏️ Atualizar</button>
+                </div>`;
+            }
+        }
+
         lista.innerHTML += `
-        <div class="box" style="margin-bottom:10px;border-left:4px solid #3182ce;padding:15px;">
+        <div class="box" style="margin-bottom:10px;border-left:4px solid ${isBolsa?'#d69e2e':'#3182ce'};padding:15px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="flex:1;cursor:pointer;" onclick="abrirFamilia(${f.id})">
-                    <strong style="font-size:16px;color:#1a365d;">Família ${f.numeroFamilia} — ${f.responsavel}</strong><br>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px;">
+                        <strong style="font-size:16px;color:#1a365d;">Família ${f.numeroFamilia} — ${f.responsavel}</strong>
+                        ${isBolsa?`<span style="background:#f6e05e;color:#744210;font-size:11px;font-weight:bold;padding:2px 8px;border-radius:4px;">💰 Bolsa Família</span>`:''}
+                    </div>
                     <span style="color:#718096;font-size:13px;">📍 ${f.logradouro||'—'}, ${f.numero||'S/N'}</span><br>
-                    ${f.numeroProntuario ? `<span style="font-size:12px;color:#4a5568;">📋 Prontuário: <strong>${f.numeroProntuario}</strong></span><br>` : ''}
+                    ${f.numeroProntuario?`<span style="font-size:12px;color:#4a5568;">📋 Prontuário: <strong>${f.numeroProntuario}</strong></span><br>`:''}
                     <span style="font-size:12px;color:${corVisita};font-weight:bold;">🕐 ${txtVisita}</span>
+                    ${condHtml}
                 </div>
                 <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
                     ${fotoHtml}
@@ -446,6 +494,13 @@ if (formCadastro) {
             set("tipoDomicilio", fEd.tipoDomicilio);
             set("animais",       fEd.animais);
             set("observacoes",   fEd.observacoes);
+            
+            // Marca Bolsa Familia
+            if (fEd.bolsaFamilia) {
+                const rBolsa = document.querySelector(`input[name="bolsaFamilia"][value="${fEd.bolsaFamilia}"]`);
+                if (rBolsa) rBolsa.checked = true;
+            }
+
             if (fEd.localizacao) {
                 const r = document.querySelector(`input[name="localizacao"][value="${fEd.localizacao}"]`);
                 if (r) r.checked = true;
@@ -465,22 +520,25 @@ if (formCadastro) {
     formCadastro.addEventListener("submit", function(e) {
         e.preventDefault();
         const locChecked = document.querySelector('input[name="localizacao"]:checked');
+        const bolsaChecked = document.querySelector('input[name="bolsaFamilia"]:checked');
+
         const dadosFamilia = {
             numeroFamilia:    document.getElementById("numeroFamilia").value,
             numeroProntuario: document.getElementById("numeroProntuario")?.value || "",
             dataCadastro:     document.getElementById("dataCadastro").value,
-            responsavel:   document.getElementById("responsavel").value,
-            telefone:      document.getElementById("telefone").value,
-            moradores:     document.getElementById("moradores").value,
-            logradouro:    document.getElementById("logradouro").value,
-            numero:        document.getElementById("numero").value,
-            bairro:        document.getElementById("bairro").value,
-            situacao:      document.getElementById("situacao").value,
-            tipoDomicilio: document.getElementById("tipoDomicilio").value,
-            localizacao:   locChecked ? locChecked.value : '',
-            animais:       document.getElementById("animais").value,
-            observacoes:   document.getElementById("observacoes").value,
-            fotoCasa:      window._fotoFamiliaBase64
+            responsavel:      document.getElementById("responsavel").value,
+            telefone:         document.getElementById("telefone").value,
+            moradores:        document.getElementById("moradores").value,
+            logradouro:       document.getElementById("logradouro").value,
+            numero:           document.getElementById("numero").value,
+            bairro:           document.getElementById("bairro").value,
+            situacao:         document.getElementById("situacao").value,
+            tipoDomicilio:    document.getElementById("tipoDomicilio").value,
+            localizacao:      locChecked ? locChecked.value : '',
+            bolsaFamilia:     bolsaChecked ? bolsaChecked.value : 'Não',
+            animais:          document.getElementById("animais").value,
+            observacoes:      document.getElementById("observacoes").value,
+            fotoCasa:         window._fotoFamiliaBase64
         };
         const idEdicao = localStorage.getItem("editandoFamilia");
         if (idEdicao) {
@@ -508,7 +566,7 @@ if (formMembro) {
 
     // ── Lista de todos os campos do formulário ──
     const CAMPOS_MEMBRO = [
-        "nomeMembro","cnsMembro","cpfMembro","nascimentoMembro","sexoMembro",
+        "nomeMembro","cnsMembro","cpfMembro","prontuarioMembro","nascimentoMembro","sexoMembro",
         "racaMembro","maeMembro","paiMembro","nacionalidadeMembro","municipioNascMembro",
         "ufNascMembro","celularMembro","parentescoMembro","ocupacaoMembro","escolaMembro",
         "escolaridadeMembro","mercadoTrabalhoMembro","orientacaoMembro","generoMembro",
@@ -639,12 +697,14 @@ if (formMembro) {
         if (!familiaId) { alert("Salve a família primeiro!"); return; }
         const doencas = Array.from(document.querySelectorAll('#formMembro input[type="checkbox"]:checked')).map(c=>c.value);
         const editId  = formMembro.dataset.editandoMembro;
+        
         const membro  = {
             id:             editId ? parseInt(editId) : Date.now(),
             familia_id:     familiaId,
             nome:           document.getElementById("nomeMembro").value,
             cns:            document.getElementById("cnsMembro").value,
             cpf:            document.getElementById("cpfMembro").value,
+            prontuario:     document.getElementById("prontuarioMembro")?.value || "",
             nascimento:     document.getElementById("nascimentoMembro").value,
             sexo:           document.getElementById("sexoMembro").value,
             raca:           document.getElementById("racaMembro").value,
@@ -1024,32 +1084,7 @@ if (document.getElementById("formVisita")) {
             pendenciaMarcacao:   document.getElementById("pendenciaMarcacao")?.checked||false,
             pendenciaPreventivo: document.getElementById("pendenciaPreventivo")?.checked||false,
             pendenciaEcg:        document.getElementById("pendenciaEcg")?.checked||false,
-            detalhePendencia:    document.getElementById("detalhePendencia")?.value||"",
-            // Endemias
-            endemiaFoco:           document.getElementById("endemiaFoco")?.checked||false,
-            endemiaFocoEncontrado: document.getElementById("endemiaFocoEncontrado")?.checked||false,
-            endemiaTratado:        document.getElementById("endemiaTratado")?.checked||false,
-            endemiaOrientado:      document.getElementById("endemiaOrientado")?.checked||false,
-            endemiaEncaminhado:    document.getElementById("endemiaEncaminhado")?.checked||false,
-            endemiaSintomas:       document.getElementById("endemiaSintomas")?.checked||false,
-            obsEndemias:           document.getElementById("obsEndemias")?.value||"",
-            // Previne Brasil
-            prevSifilis:           document.getElementById("prevSifilis")?.checked||false,
-            prevHiv:               document.getElementById("prevHiv")?.checked||false,
-            prevDentista:          document.getElementById("prevDentista")?.checked||false,
-            prevPreNatal:          document.getElementById("prevPreNatal")?.checked||false,
-            prevPaAferida:         document.getElementById("prevPaAferida")?.checked||false,
-            prevPaControlada:      document.getElementById("prevPaControlada")?.checked||false,
-            prevPaValor:           document.getElementById("prevPaValor")?.value||"",
-            prevHbA1c:             document.getElementById("prevHbA1c")?.checked||false,
-            prevGlicemia:          document.getElementById("prevGlicemia")?.checked||false,
-            prevGlicemiaValor:     document.getElementById("prevGlicemiaValor")?.value||"",
-            prevPaDiab:            document.getElementById("prevPaDiab")?.checked||false,
-            prevDentistaDiab:      document.getElementById("prevDentistaDiab")?.checked||false,
-            prevPuericultura:      document.getElementById("prevPuericultura")?.checked||false,
-            prevVacinaCrianca:     document.getElementById("prevVacinaCrianca")?.checked||false,
-            prevPesoCrianca:       document.getElementById("prevPesoCrianca")?.checked||false,
-            prevAleitamento:       document.getElementById("prevAleitamento")?.checked||false
+            detalhePendencia:    document.getElementById("detalhePendencia")?.value||""
         };
         // Atualiza roteiro
         const idTarefa=sessionStorage.getItem("idTarefaPercursoAtiva");
@@ -1417,13 +1452,6 @@ document.addEventListener("DOMContentLoaded", function() {
     carregarBuscaAtiva();
     verificarAlertasAutomaticos();
     renderizarGraficoVisitas();
-    // Melhorias extras
-    if (typeof injetarBotaoTema === 'function') injetarBotaoTema();
-    if (typeof colorirCardsDoPanel === 'function') colorirCardsDoPanel();
-    if (typeof verificarAniversariantes === 'function') verificarAniversariantes();
-    if (typeof verificarVacinacaoPainel === 'function') verificarVacinacaoPainel();
-    if (typeof atualizarBadgeNotificacoes === 'function') atualizarBadgeNotificacoes();
-    if (typeof atualizarContadorRegressivo === 'function') atualizarContadorRegressivo();
 
     if(document.getElementById("listaFamilias"))       filtrarFamilias();
     if(document.getElementById("listaCidadaos"))       mostrarCidadaosGeral();
@@ -1453,9 +1481,8 @@ document.addEventListener("DOMContentLoaded", function() {
 // HISTÓRICO DE SAÚDE POR CIDADÃO
 // ------------------------------------
 function abrirHistoricoSaude(membroId) {
-    const m = membros.find(x => String(x.id) === String(membroId));
-    const familiaId = m ? m.familia_id : '';
-    window.location.href = 'saude_cidadao.html?cidadao=' + membroId + '&familia=' + familiaId;
+    localStorage.setItem("membroSaudeAtual", membroId);
+    window.location.href = "saude_cidadao.html";
 }
 
 // ------------------------------------
@@ -1479,7 +1506,8 @@ function fecharSidebar() {
 }
 
 // Fecha sidebar ao navegar (click em botão do menu)
-document.querySelectorAll('.sidebar nav button').forEach(btn => {
+// Exclui os botões de grupo (nav-grupo-btn) para não fechar ao abrir submenu
+document.querySelectorAll('.sidebar nav button:not(.nav-grupo-btn)').forEach(btn => {
     btn.addEventListener('click', fecharSidebar);
 });
 
@@ -1881,47 +1909,35 @@ function colorirCardsDoPanel() {
     if (totalVis) totalVis.closest('.card')?.classList.add('card-visitas');
 }
 
+// ============================================================
+//  MELHORIAS — HOOK NA INICIALIZAÇÃO
+// ============================================================
+const _initOriginal = document.addEventListener;
+document.addEventListener("DOMContentLoaded", function() {
+    // Injeta botão de tema
+    injetarBotaoTema();
+    // Cards coloridos
+    colorirCardsDoPanel();
+    // Aniversariantes e vacinação no painel
+    verificarAniversariantes();
+    verificarVacinacaoPainel();
+    // Badge notificações
+    atualizarBadgeNotificacoes();
+    // Contador regressivo
+    atualizarContadorRegressivo();
+});
 
-// ============================================================
-//  TOAST — snackbar animado (substitui alert nas visitas)
-// ============================================================
-
-// ============================================================
-//  MODO ESCURO
-// ============================================================
-function toggleTema() {
-    const novo = (localStorage.getItem("tema")||"claro")==="escuro" ? "claro" : "escuro";
-    localStorage.setItem("tema", novo);
-    aplicarTema();
-    showToast(novo==="escuro"?"🌙 Modo escuro ativado":"☀️ Modo claro ativado","normal",1800);
+// ------------------------------------
+// BOLSA FAMÍLIA — CONDICIONALIDADES
+// ------------------------------------
+function abrirCondicionalidadesFamilia(familiaId) {
+    localStorage.setItem("familiaAtual", familiaId);
+    window.location.href = "bolsa_familia.html";
 }
-function injetarBotaoTema() {
-    if (document.getElementById("btnToggleTema")) return;
-    const btn = document.createElement("button");
-    btn.id = "btnToggleTema";
-    btn.title = "Alternar modo escuro/claro";
-    btn.onclick = toggleTema;
-    btn.style.cssText = "position:fixed;top:14px;right:14px;z-index:400;width:40px;height:40px;border-radius:50%;background:#2c5282;color:white;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);-webkit-tap-highlight-color:transparent;";
-    document.body.appendChild(btn);
-    aplicarTema();
+
+function salvarCondicionalidade(familiaId, chave, valor) {
+    const todas = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+    if (!todas[familiaId]) todas[familiaId] = {};
+    todas[familiaId][chave] = valor;
+    localStorage.setItem("condicionalidades", JSON.stringify(todas));
 }
-
-// ============================================================
-//  ANIVERSARIANTES DO DIA
-// ============================================================
-
-// ============================================================
-//  VACINAÇÃO PENDENTE NO PAINEL
-// ============================================================
-
-// ============================================================
-//  BADGE NOTIFICAÇÕES NA SIDEBAR
-// ============================================================
-
-// ============================================================
-//  CONTADOR REGRESSIVO DE META
-// ============================================================
-
-// ============================================================
-//  CARDS COLORIDOS NO PAINEL
-// ============================================================
