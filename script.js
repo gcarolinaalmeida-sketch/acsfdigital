@@ -1042,6 +1042,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 if(v.pendenciaEcg)      document.getElementById("pendenciaEcg").checked=true;
                 Array.from(document.querySelectorAll('.motivo-chk')).forEach(c=>{if((v.motivos||"").includes(c.value))c.checked=true;});
                 localStorage.removeItem("editandoVisita");
+                // Preserva assinatura original
+                if (v.assinatura) {
+                    formVisita.dataset.assinaturaOriginal = v.assinatura;
+                    const canvas = document.getElementById("signaturePad");
+                    if (canvas) {
+                        const img = new Image();
+                        img.onload = () => { const ctx = canvas.getContext("2d"); const ratio = window.devicePixelRatio||1; ctx.drawImage(img, 0, 0, canvas.width/ratio, canvas.height/ratio); };
+                        img.src = v.assinatura;
+                    }
+                }
+                if (v.foto) window._fotoVisitaBase64 = v.foto;
                 const h1=document.querySelector(".page-title");if(h1)h1.textContent="EDITAR VISITA";
             }
         }
@@ -1066,6 +1077,8 @@ if (document.getElementById("formVisita")) {
             const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
             const temDesenho = pixels.some((val, i) => i % 4 !== 3 && val !== 0);
             if (temDesenho) assinaturaBase64 = canvas.toDataURL("image/png");
+            // Se canvas vazio na edição, preserva a assinatura original
+            if (!assinaturaBase64) assinaturaBase64 = document.getElementById("formVisita").dataset.assinaturaOriginal || null;
         }
 
         const dadosVisita={
@@ -1506,8 +1519,7 @@ function fecharSidebar() {
 }
 
 // Fecha sidebar ao navegar (click em botão do menu)
-// Exclui os botões de grupo (nav-grupo-btn) para não fechar ao abrir submenu
-document.querySelectorAll('.sidebar nav button:not(.nav-grupo-btn)').forEach(btn => {
+document.querySelectorAll('.sidebar nav button').forEach(btn => {
     btn.addEventListener('click', fecharSidebar);
 });
 
