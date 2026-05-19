@@ -16,6 +16,16 @@
     .status-concluida { background: #c6f6d5; color: #22543d; }  /* ✅ Realizada */
     
     .input-mini { width: 60px !important; display: inline-block; padding: 4px !important; text-align: center; }
+
+    .day-chip { width:34px;height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;border:1px solid #e2e8f0;background:#f7fafc;font-size:11px;color:#718096;user-select:none;transition:transform 0.1s; }
+    .day-chip:active { transform:scale(0.92); }
+    .day-chip .dn { font-size:9px;font-weight:600; }
+    .day-chip.campo   { background:#E1F5EE;border-color:#5DCAA5;color:#0F6E56; }
+    .day-chip.ubs     { background:#E6F1FB;border-color:#85B7EB;color:#185FA5; }
+    .day-chip.reuniao { background:#EEEDFE;border-color:#AFA9EC;color:#3C3489; }
+    .day-chip.fora    { background:#FAEEDA;border-color:#EF9F27;color:#854F0B; }
+    .day-chip.falta   { background:#FCEBEB;border-color:#F09595;color:#A32D2D; }
+    .day-chip.folga   { background:#F1EFE8;border-color:#B4B2A9;color:#5F5E5A; }
   </style>
 </head>
 <body>
@@ -151,12 +161,57 @@
 
     <div class="box">
       <h3>🏥 Escala e Observações</h3>
-      <textarea id="obsAgenda" rows="4" placeholder="Ex: Terça-feira - Reunião de Equipe na UBS..." onchange="salvarAgenda()"></textarea>
-      
-      <div style="margin-top: 20px;">
-        <h4>Resumo do Mês</h4>
-        <ul class="list" id="resumoMesAgenda">
-          </ul>
+
+      <!-- Calendário do mês -->
+      <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">📆 Calendário do mês <span style="font-weight:400;color:#a0aec0;font-size:11px;">(clique para alternar)</span></p>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;" id="calEscala"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;">
+        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E1F5EE;color:#0F6E56;">📍 Campo</span>
+        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E6F1FB;color:#185FA5;">🏥 UBS/Recepção</span>
+        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#EEEDFE;color:#3C3489;">👥 Reunião</span>
+        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FAEEDA;color:#854F0B;">🚪 Fora da Unidade</span>
+        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FCEBEB;color:#A32D2D;">⚠️ Falta</span>
+        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#F1EFE8;color:#5F5E5A;">🌙 Folga</span>
+      </div>
+
+      <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
+
+      <!-- Observações -->
+      <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">📋 Observações do dia</p>
+      <select id="obsTipo" style="width:100%;margin-bottom:8px;padding:7px 10px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;color:#2d3748;" onchange="salvarAgenda()">
+        <option value="reuniao">Reunião de equipe</option>
+        <option value="atividade">Atividade especial</option>
+        <option value="treinamento">Treinamento</option>
+        <option value="fora">Fora da unidade</option>
+        <option value="outro">Outro</option>
+      </select>
+      <textarea id="obsAgenda" rows="3" placeholder="Ex: Terça-feira - Reunião de Equipe na UBS..." onchange="salvarAgenda()" style="width:100%;resize:none;"></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+        <button onclick="adicionarObsAgenda()" style="background:#2b6cb0;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;">+ Adicionar</button>
+      </div>
+      <div id="listaObsAgenda" style="margin-top:10px;"></div>
+
+      <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
+
+      <!-- Resumo do mês -->
+      <h4 style="margin-bottom:10px;">Resumo do Mês</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E1F5EE;border-radius:8px;">
+          <span style="font-size:13px;color:#0F6E56;font-weight:600;">📍 Dias de campo</span>
+          <span style="font-size:18px;font-weight:600;color:#085041;" id="resumoCampo">0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E6F1FB;border-radius:8px;">
+          <span style="font-size:13px;color:#185FA5;font-weight:600;">🏥 Dias na UBS</span>
+          <span style="font-size:18px;font-weight:600;color:#0C447C;" id="resumoUBS">0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#EEEDFE;border-radius:8px;">
+          <span style="font-size:13px;color:#3C3489;font-weight:600;">👥 Reuniões</span>
+          <span style="font-size:18px;font-weight:600;color:#26215C;" id="resumoReuniao">0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#FAEEDA;border-radius:8px;">
+          <span style="font-size:13px;color:#854F0B;font-weight:600;">🚪 Fora da unidade</span>
+          <span style="font-size:18px;font-weight:600;color:#633806;" id="resumoFora">0</span>
+        </div>
       </div>
     </div>
   </div>
@@ -170,12 +225,14 @@
       atualizarAgenda();
       renderizarRoteiro();
       
-      // Recupera as observações salvas
+      // Recupera os dados salvos
       const salvos = JSON.parse(localStorage.getItem("dadosAgenda"));
       if (salvos) {
-          if (document.getElementById('inputRecepcao')) document.getElementById('inputRecepcao').value = salvos.recepcao;
-          if (document.getElementById('obsAgenda')) document.getElementById('obsAgenda').value = salvos.obs;
+          if (document.getElementById('inputRecepcao') && salvos.recepcao) document.getElementById('inputRecepcao').value = salvos.recepcao;
+          if (salvos.estadoCal) estadoCal = salvos.estadoCal;
+          if (salvos.notasObs) { notasObs = salvos.notasObs; renderNotasObs(); }
       }
+      buildCalEscala();
   });
 
   function popularSelectFamilias() {
@@ -287,15 +344,105 @@
 
   function salvarAgenda() {
       const inputRec = document.getElementById('inputRecepcao');
-      const obsAg = document.getElementById('obsAgenda');
-      
-      if (!inputRec || !obsAg) return;
-
+      if (!inputRec) return;
       const dados = {
           recepcao: inputRec.value,
-          obs: obsAg.value
+          estadoCal: estadoCal,
+          notasObs: notasObs
       };
       localStorage.setItem("dadosAgenda", JSON.stringify(dados));
+  }
+
+  // ── Escala: calendário clicável ──────────────────────────────
+  const nomesDias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const tipoSeqCal = { '':'campo','campo':'ubs','ubs':'reuniao','reuniao':'fora','fora':'falta','falta':'folga','folga':'' };
+  let estadoCal = {};
+  let notasObs = [];
+
+  function getDiasUteisMes() {
+      const hoje = new Date();
+      const ano = hoje.getFullYear(), mes = hoje.getMonth();
+      const ultimo = new Date(ano, mes+1, 0).getDate();
+      const dias = [];
+      for (let d = 1; d <= ultimo; d++) {
+          const dow = new Date(ano, mes, d).getDay();
+          if (dow !== 0 && dow !== 6) dias.push({ d, dow });
+      }
+      return dias;
+  }
+
+  function buildCalEscala() {
+      const cal = document.getElementById('calEscala');
+      if (!cal) return;
+      cal.innerHTML = '';
+      getDiasUteisMes().forEach(({ d, dow }) => {
+          const chip = document.createElement('div');
+          chip.className = 'day-chip' + (estadoCal[d] ? ' ' + estadoCal[d] : '');
+          chip.id = 'escChip-' + d;
+          chip.innerHTML = '<span class="dn">' + nomesDias[dow] + '</span><span>' + d + '</span>';
+          chip.title = 'Clique para alternar tipo';
+          chip.onclick = () => toggleCalDia(d);
+          cal.appendChild(chip);
+      });
+      atualizarResumoEscala();
+  }
+
+  function toggleCalDia(d) {
+      const atual = estadoCal[d] || '';
+      const prox = tipoSeqCal[atual];
+      estadoCal[d] = prox;
+      const chip = document.getElementById('escChip-' + d);
+      if (chip) chip.className = 'day-chip' + (prox ? ' ' + prox : '');
+      atualizarResumoEscala();
+      salvarAgenda();
+  }
+
+  function atualizarResumoEscala() {
+      let campo = 0, ubs = 0, reuniao = 0, fora = 0;
+      Object.values(estadoCal).forEach(v => {
+          if (v === 'campo') campo++;
+          else if (v === 'ubs') ubs++;
+          else if (v === 'reuniao') reuniao++;
+          else if (v === 'fora') fora++;
+      });
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      set('resumoCampo', campo);
+      set('resumoUBS', ubs);
+      set('resumoReuniao', reuniao);
+      set('resumoFora', fora);
+  }
+
+  const corNota = { reuniao:'#7F77DD', atividade:'#1D9E75', treinamento:'#378ADD', fora:'#EF9F27', outro:'#888780' };
+
+  function adicionarObsAgenda() {
+      const tipo = document.getElementById('obsTipo').value;
+      const texto = document.getElementById('obsAgenda').value.trim();
+      if (!texto) return;
+      notasObs.push({ tipo, texto });
+      renderNotasObs();
+      document.getElementById('obsAgenda').value = '';
+      salvarAgenda();
+  }
+
+  function removerNotaObs(i) {
+      notasObs.splice(i, 1);
+      renderNotasObs();
+      salvarAgenda();
+  }
+
+  function renderNotasObs() {
+      const lista = document.getElementById('listaObsAgenda');
+      if (!lista) return;
+      lista.innerHTML = '';
+      notasObs.forEach((n, i) => {
+          const div = document.createElement('div');
+          div.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #edf2f7;';
+          div.innerHTML =
+            '<div style="width:8px;height:8px;border-radius:50%;background:' + (corNota[n.tipo]||'#888') + ';margin-top:5px;flex-shrink:0;"></div>' +
+            '<span style="font-size:12px;color:#4a5568;flex:1;">' + n.texto + '</span>' +
+            '<button onclick="removerNotaObs(' + i + ')" style="background:none;border:none;cursor:pointer;color:#a0aec0;font-size:14px;padding:0;line-height:1;" title="Remover">\xd7</button>';
+          lista.appendChild(div);
+      });
   }
 
 </script>
