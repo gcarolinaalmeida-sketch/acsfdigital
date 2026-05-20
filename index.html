@@ -209,7 +209,39 @@
       <button onclick="window.location.href='familias.html'">👨‍👩‍👧 Cadastrar Família / Cidadão</button>
       <button onclick="window.location.href='relatorios.html'">📊 Relatório mensal</button>
     </section>
+
+    <!-- ══ ESTATÍSTICAS PESSOAIS ══ -->
+    <section class="box" style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <h3 style="margin:0;">📈 Suas Estatísticas</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="periodoEstat" onchange="renderizarEstatisticas()" style="padding:6px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;">
+            <option value="semana">Esta semana</option>
+            <option value="mes" selected>Este mês</option>
+            <option value="total">Desde sempre</option>
+          </select>
+          <button id="btnTemaEscuro" onclick="toggleTemaEscuro()" title="Alternar tema escuro" style="background:#edf2f7;border:none;border-radius:6px;width:36px;height:36px;font-size:18px;cursor:pointer;">🌙</button>
+        </div>
+      </div>
+      <div id="estatisticasConteudo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;"></div>
+      <div id="recordeMensagem" style="margin-top:12px;font-size:13px;color:#718096;text-align:center;min-height:20px;"></div>
+    </section>
   </main>
+
+  <!-- CSS TEMA ESCURO -->
+  <style>
+    body.tema-escuro { background:#1a202c !important; color:#e2e8f0 !important; }
+    body.tema-escuro .main { background:#1a202c; }
+    body.tema-escuro .box, body.tema-escuro .card { background:#2d3748 !important; color:#e2e8f0 !important; }
+    body.tema-escuro h1, body.tema-escuro h2, body.tema-escuro h3 { color:#e2e8f0 !important; }
+    body.tema-escuro p, body.tema-escuro span, body.tema-escuro label { color:#a0aec0; }
+    body.tema-escuro strong, body.tema-escuro b { color:#e2e8f0; }
+    body.tema-escuro .topbar { background:#2d3748; border-bottom:1px solid #4a5568; }
+    body.tema-escuro input, body.tema-escuro select, body.tema-escuro textarea { background:#4a5568; color:#e2e8f0; border-color:#718096; }
+    body.tema-escuro .bottom-nav { background:#2d3748; border-top:1px solid #4a5568; }
+    body.tema-escuro .bottom-nav .nav-item { color:#a0aec0; }
+    body.tema-escuro .bottom-nav .nav-item.active { color:#63b3ed; }
+  </style>
 <script src="script.js?v=3"></script>
   <script>
     // Coloca a data de hoje e atualiza automaticamente
@@ -372,13 +404,93 @@
 
     window.addEventListener('load', () => {
       atualizarMiniResumo();
+      renderizarEstatisticas();
+      if (localStorage.getItem('temaEscuro') === '1') {
+        document.body.classList.add('tema-escuro');
+        const btn = document.getElementById('btnTemaEscuro');
+        if (btn) btn.textContent = '☀️';
+      }
     });
+    // ════════════════════════════════════════════
+    //  ESTATÍSTICAS PESSOAIS
+    // ════════════════════════════════════════════
+    function renderizarEstatisticas() {
+      const periodo = document.getElementById('periodoEstat')?.value || 'mes';
+      const _visitas = JSON.parse(localStorage.getItem('visitas') || '[]');
+      const hoje = new Date();
+
+      const filtradas = _visitas.filter(v => {
+        const d = new Date(v.data);
+        if (periodo === 'semana') {
+          const ini = new Date(hoje); ini.setDate(hoje.getDate() - hoje.getDay());
+          return d >= ini;
+        }
+        if (periodo === 'mes') return d.getMonth()===hoje.getMonth() && d.getFullYear()===hoje.getFullYear();
+        return true;
+      });
+
+      const realizadas = filtradas.filter(v => v.desfecho === 'Visita Realizada').length;
+      const ausentes   = filtradas.filter(v => v.desfecho === 'Ausente').length;
+      const recusadas  = filtradas.filter(v => v.desfecho === 'Visita Recusada').length;
+      const diasAtivos = new Set(filtradas.filter(v=>v.desfecho==='Visita Realizada').map(v=>v.data)).size;
+
+      const meses = {};
+      _visitas.filter(v=>v.desfecho==='Visita Realizada').forEach(v => {
+        const d = new Date(v.data); const k = `${d.getFullYear()}-${d.getMonth()}`;
+        meses[k] = (meses[k]||0)+1;
+      });
+      const recordeVal = Object.values(meses).length ? Math.max(...Object.values(meses)) : 0;
+      const mesAtualKey = `${hoje.getFullYear()}-${hoje.getMonth()}`;
+      const mesAtualVisitas = meses[mesAtualKey] || 0;
+
+      const stats = [
+        { label:'Visitas realizadas', val:realizadas, cor:'#22543d', bg:'#c6f6d5', icone:'✅' },
+        { label:'Dias trabalhados',   val:diasAtivos,  cor:'#2b6cb0', bg:'#ebf8ff', icone:'📅' },
+        { label:'Ausentes',           val:ausentes,    cor:'#744210', bg:'#feebc8', icone:'⚠️' },
+        { label:'Recusadas',          val:recusadas,   cor:'#742a2a', bg:'#fff5f5', icone:'❌' },
+      ];
+      const el = document.getElementById('estatisticasConteudo');
+      if (el) el.innerHTML = stats.map(s=>`
+        <div style="background:${s.bg};border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:20px;margin-bottom:4px;">${s.icone}</div>
+          <div style="font-size:26px;font-weight:800;color:${s.cor};">${s.val}</div>
+          <div style="font-size:11px;color:#4a5568;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">${s.label}</div>
+        </div>`).join('');
+
+      const rec = document.getElementById('recordeMensagem');
+      if (rec && recordeVal > 0) {
+        if (periodo==='mes' && mesAtualVisitas >= recordeVal && mesAtualVisitas > 0) {
+          rec.innerHTML = `🏆 <strong>Você bateu seu recorde!</strong> ${mesAtualVisitas} visitas — o melhor mês até agora!`;
+          rec.style.color = '#22543d';
+        } else if (periodo==='mes') {
+          const faltam = recordeVal - mesAtualVisitas;
+          rec.textContent = faltam > 0 ? `🎯 Recorde mensal: ${recordeVal} visitas. Faltam ${faltam} para bater!` : `🏅 ${mesAtualVisitas} visitas este mês.`;
+          rec.style.color = '#718096';
+        } else {
+          rec.textContent = `🏆 Recorde mensal: ${recordeVal} visitas`;
+          rec.style.color = '#718096';
+        }
+      }
+    }
+
+    // ════════════════════════════════════════════
+    //  TEMA ESCURO
+    // ════════════════════════════════════════════
+    function toggleTemaEscuro() {
+      const ativo = document.body.classList.toggle('tema-escuro');
+      localStorage.setItem('temaEscuro', ativo ? '1' : '0');
+      const btn = document.getElementById('btnTemaEscuro');
+      if (btn) btn.textContent = ativo ? '☀️' : '🌙';
+    }
   </script>
 
   <nav class="bottom-nav no-print">
     <a href="index.html" class="nav-item active">🏠<span>Início</span></a>
     <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
-    <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
+    <a href="visitas.html" class="nav-item" style="position:relative;">
+      <span style="background:#e53e3e;color:white;font-size:20px;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-18px;box-shadow:0 4px 12px rgba(229,62,62,0.4);">➕</span>
+      <span>Nova visita</span>
+    </a>
     <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
   </nav>
 </body>
