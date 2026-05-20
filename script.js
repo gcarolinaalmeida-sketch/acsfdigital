@@ -1553,9 +1553,12 @@ function toggleSidebar() {
 function fecharSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    if (sidebar) sidebar.classList.remove('aberta');
-    if (overlay) overlay.classList.remove('aberto');
-    document.body.style.overflow = '';
+    // Só fecha se estiver no modo mobile (sidebar com classe 'aberta')
+    if (sidebar && sidebar.classList.contains('aberta')) {
+        sidebar.classList.remove('aberta');
+        if (overlay) overlay.classList.remove('aberto');
+        document.body.style.overflow = '';
+    }
 }
 
 // Fecha sidebar ao navegar (click em botão do menu)
@@ -1594,22 +1597,29 @@ function iniciarMenuSidebar() {
 
     // Mapa de qual grupo abrir automaticamente por página
     const gruposPorPagina = {
-        'familias.html':       'familias',
-        'familias_lista.html': 'familias',
-        'familia_detalhe.html':'familias',
-        'cidadaos_lista.html': 'familias',
-        'saude_cidadao.html':  'familias',
-        'visitas.html':        'visitas',
-        'visitas_lista.html':  'visitas',
-        'pendencias.html':     'visitas',
-        'relatorios.html':     'relatorios',
-        'relatorio_mensal.html':'relatorios',
-        'metas.html':          'relatorios',
-        'agenda.html':         'planejamento',
-        'percurso.html':       'planejamento',
-        'mapa.html':           'planejamento',
-        'configuracoes.html':  'config',
-        'importador.html':     'config',
+        'familias.html':        'familias',
+        'familias_lista.html':  'familias',
+        'familia_detalhe.html': 'familias',
+        'familias_detalhe.html':'familias',
+        'cidadaos_lista.html':  'familias',
+        'saude_cidadao.html':   'familias',
+        'vacinacao.html':       'familias',
+        'bolsa_familia.html':   'familias',
+        'receitas.html':        'familias',
+        'visitas.html':         'visitas',
+        'visitas_lista.html':   'visitas',
+        'pendencias.html':      'visitas',
+        'comprovantes.html':    'visitas',
+        'relatorios.html':      'relatorios',
+        'relatorios_mensal.html':'relatorios',
+        'metas.html':           'relatorios',
+        'agenda.html':          'planejamento',
+        'calendario.html':      'planejamento',
+        'percurso.html':        'planejamento',
+        'mapa.html':            'planejamento',
+        'configuracoes.html':   'config',
+        'importador.html':      'config',
+        'pin.html':             'config',
     };
 
     const grupoAtivo = gruposPorPagina[paginaAtual];
@@ -1622,9 +1632,15 @@ function iniciarMenuSidebar() {
         if (btn) btn.classList.add('aberto');
     }
 
-    // Marca o botão da página atual como active
-    const todos = document.querySelectorAll('.nav-submenu button, .sidebar nav > button');
+    // Marca o botão da página atual como active (submenus e botões diretos)
+    const todos = document.querySelectorAll('.nav-submenu button, .sidebar nav > button, .sidebar nav > nav > button');
     todos.forEach(btn => {
+        const href = btn.getAttribute('onclick') || '';
+        if (href.includes(paginaAtual)) btn.classList.add('active');
+    });
+
+    // Marca botões diretos da sidebar (ex: Notificações, Painel inicial)
+    document.querySelectorAll('.sidebar nav button').forEach(btn => {
         const href = btn.getAttribute('onclick') || '';
         if (href.includes(paginaAtual)) btn.classList.add('active');
     });
