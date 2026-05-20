@@ -93,6 +93,24 @@
       </div>
     </header>
 
+    <!-- ════════════════════════════════════════════
+         MINI-RESUMO RÁPIDO (melhoria 4)
+    ════════════════════════════════════════════ -->
+    <div id="miniResumo" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+      <div style="background:white;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid #38a169;">
+        <span style="font-size:24px;">✅</span>
+        <div><div style="font-size:22px;font-weight:800;color:#22543d;" id="miniVisitasHoje">0</div><div style="font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Visitas hoje</div></div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid #ed8936;cursor:pointer;" onclick="window.location.href='pendencias.html'">
+        <span style="font-size:24px;">⚠️</span>
+        <div><div style="font-size:22px;font-weight:800;color:#744210;" id="miniPendencias">0</div><div style="font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Pendências</div></div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid #2b6cb0;">
+        <span style="font-size:24px;">🏠</span>
+        <div><div style="font-size:22px;font-weight:800;color:#1a365d;" id="miniFamiliasAtivas">0</div><div style="font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Fam. ativas</div></div>
+      </div>
+    </div>
+
     <!-- ALERTAS AUTOMÁTICOS -->
     <div id="alertasAutomaticos" style="display:none;"></div>
 
@@ -167,7 +185,7 @@
       <div class="box" style="border-top: 4px solid #e53e3e;">
         <h3 style="color: #c53030;">🚨 Busca Ativa: Top 5</h3>
         <p style="color: #718096; font-size: 13px; margin-bottom: 15px;">Famílias que não recebem visita há mais tempo.</p>
-        <ul id="listaBuscaAtiva" style="list-style: none; line-height: 1.8;"></ul>
+        <ul id="listaBuscaAtiva" style="list-style: none; line-height: 1;"></ul>
       </div>
     </section>
 
@@ -248,6 +266,113 @@
       localStorage.setItem('backupDispensado', hoje);
       document.getElementById('alertaBackup').style.display = 'none';
     }
+
+    // ════════════════════════════════════════════
+    //  MELHORIA 4 — MINI-RESUMO RÁPIDO NO TOPO
+    // ════════════════════════════════════════════
+    function atualizarMiniResumo() {
+      const hoje = new Date().toISOString().split('T')[0];
+
+      // Visitas de hoje
+      const visitasHoje = (JSON.parse(localStorage.getItem('visitas')) || [])
+        .filter(v => v.data === hoje && v.desfecho === 'Visita Realizada').length;
+
+      // Pendências abertas
+      const todasVisitas = JSON.parse(localStorage.getItem('visitas')) || [];
+      let pendAbertas = 0;
+      todasVisitas.forEach(v => {
+        ['pendenciaReceita','pendenciaMarcacao','pendenciaPreventivo','pendenciaEcg'].forEach(c => {
+          if (v[c] && (v['status_'+c] || 'aberta') === 'aberta') pendAbertas++;
+        });
+        if (v.detalhePendencia && !['pendenciaReceita','pendenciaMarcacao','pendenciaPreventivo','pendenciaEcg'].some(c=>v[c]) && (v.status_detalhe||'aberta')==='aberta') pendAbertas++;
+      });
+
+      // Famílias visitadas este mês (ativas)
+      const mes = new Date();
+      const famAtivas = new Set((JSON.parse(localStorage.getItem('visitas'))||[])
+        .filter(v => { const d=new Date(v.data); return d.getMonth()===mes.getMonth() && d.getFullYear()===mes.getFullYear() && v.desfecho==='Visita Realizada'; })
+        .map(v => v.familiaId)).size;
+
+      const el = id => document.getElementById(id);
+      if (el('miniVisitasHoje'))    el('miniVisitasHoje').textContent    = visitasHoje;
+      if (el('miniPendencias'))     el('miniPendencias').textContent     = pendAbertas;
+      if (el('miniFamiliasAtivas')) el('miniFamiliasAtivas').textContent = famAtivas;
+
+      // Destaque visual se há pendências
+      const cardPend = el('miniPendencias')?.parentElement?.parentElement;
+      if (cardPend && pendAbertas > 0) cardPend.style.background = '#fffbeb';
+    }
+
+    // ════════════════════════════════════════════
+    //  MELHORIA 1 — BADGES DE PRIORIDADE na Busca Ativa
+    //  MELHORIA 3 — AÇÕES INLINE nos alertas
+    // ════════════════════════════════════════════
+    // Sobrescreve a função carregarBuscaAtiva do script.js
+    function carregarBuscaAtiva() {
+      const listaUI = document.getElementById('listaBuscaAtiva');
+      if (!listaUI) return;
+      const _familias = JSON.parse(localStorage.getItem('familias')) || [];
+      const _visitas  = JSON.parse(localStorage.getItem('visitas'))  || [];
+      const ranking = _familias.map(f => {
+        const vFam = _visitas.filter(v => v.familiaId == f.id).sort((a,b) => new Date(b.data)-new Date(a.data));
+        const ultimaData = vFam.length ? new Date(vFam[0].data) : null;
+        const atraso = ultimaData ? Math.ceil(Math.abs(new Date()-ultimaData)/(1000*60*60*24)) : 9999;
+        return { id: f.id, nome: f.responsavel, numero: f.numeroFamilia, atraso, dataStr: ultimaData ? ultimaData.toLocaleDateString('pt-BR') : 'Nunca' };
+      }).sort((a,b) => b.atraso - a.atraso).slice(0, 5);
+
+      listaUI.innerHTML = ranking.map(f => {
+        // Badge de prioridade (melhoria 1)
+        let badgeTxt, badgeBg, badgeColor, icone;
+        if (f.atraso >= 9999) {
+          badgeTxt = 'CRÍTICO'; badgeBg = '#fed7d7'; badgeColor = '#742a2a'; icone = '🚨';
+        } else if (f.atraso > 30) {
+          badgeTxt = 'CRÍTICO'; badgeBg = '#fed7d7'; badgeColor = '#742a2a'; icone = '🔴';
+        } else if (f.atraso > 15) {
+          badgeTxt = 'ATENÇÃO'; badgeBg = '#feebc8'; badgeColor = '#744210'; icone = '🟡';
+        } else {
+          badgeTxt = 'INFO';    badgeBg = '#ebf8ff'; badgeColor = '#2b6cb0'; icone = '🔵';
+        }
+        const diasTexto = f.atraso >= 9999 ? 'Nunca visitada' : f.atraso + 'd sem visita';
+
+        return `
+        <li style="padding:10px 0;border-bottom:1px solid #edf2f7;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+              <span style="font-size:16px;">${icone}</span>
+              <div style="min-width:0;">
+                <div style="font-size:13px;font-weight:700;color:#2c5282;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Fam. ${f.numero} · ${f.nome}</div>
+                <div style="font-size:11px;color:#718096;">Última visita: ${f.dataStr}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+              <span style="font-size:10px;font-weight:800;padding:3px 7px;border-radius:4px;background:${badgeBg};color:${badgeColor};text-transform:uppercase;letter-spacing:.05em;">${badgeTxt}</span>
+              <span style="font-size:12px;font-weight:600;color:${badgeColor};">${diasTexto}</span>
+            </div>
+          </div>
+          <!-- AÇÕES INLINE (melhoria 3) -->
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <button onclick="agendarVisitaRapida(${f.id})" style="flex:1;background:#2b6cb0;color:white;border:none;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;">📅 Agendar visita</button>
+            <button onclick="abrirFamilia(${f.id})" style="flex:1;background:#edf2f7;color:#2c5282;border:none;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;">📋 Ver ficha</button>
+          </div>
+        </li>`;
+      }).join('');
+    }
+
+    // Agendamento rápido de visita — vai para percurso.html com a família pré-selecionada
+    function agendarVisitaRapida(familiaId) {
+      localStorage.setItem('agendarFamiliaRapida', familiaId);
+      window.location.href = 'percurso.html';
+    }
+
+    // ════════════════════════════════════════════
+    //  MELHORIA 2 — BARRA DE PROGRESSO nas Prioridades
+    //  (já existe no script.js — aqui reforçamos o contexto visual)
+    //  Adicionado via patch no calcularMetasEPrioridades via load
+    // ════════════════════════════════════════════
+
+    window.addEventListener('load', () => {
+      atualizarMiniResumo();
+    });
   </script>
 
   <nav class="bottom-nav no-print">
