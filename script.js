@@ -126,45 +126,23 @@ function calcularMetasEPrioridades() {
         const faltam  = Math.max(0, total - g.visitados);
         const pctG    = total === 0 ? 0 : Math.min(100, Math.round((g.visitados / total) * 100));
         const corBarra = pctG >= 80 ? "#38a169" : pctG >= 50 ? "#d69e2e" : "#e53e3e";
-
-        // ── MELHORIA 1 & 2: Badge de nível + contexto visual ──
-        let badgeTxt, badgeBg, badgeCor;
-        if (total === 0) {
-            badgeTxt = "—"; badgeBg = "#edf2f7"; badgeCor = "#718096";
-        } else if (pctG >= 80) {
-            badgeTxt = "EM DIA"; badgeBg = "#c6f6d5"; badgeCor = "#22543d";
-        } else if (pctG >= 50) {
-            badgeTxt = "ATENÇÃO"; badgeBg = "#feebc8"; badgeCor = "#744210";
-        } else {
-            badgeTxt = "CRÍTICO"; badgeBg = "#fed7d7"; badgeCor = "#742a2a";
-        }
-        const metaLabel = total > 0 ? `Meta: ≥80% (${Math.ceil(total*0.8)} de ${total})` : "";
         const textoStatus = total === 0
             ? `<span style="color:#a0aec0;font-size:12px;">Nenhum cadastrado</span>`
             : faltam === 0
-                ? `<span style="color:#22543d;font-size:12px;font-weight:bold;">✅ Todos acompanhados ${g.periodo}</span>`
+                ? `<span style="color:#22543d;font-size:12px;font-weight:bold;">✅ Todos acompanhados</span>`
                 : `<span style="color:${corBarra};font-size:12px;font-weight:bold;">⚠️ Faltam ${faltam} ${g.periodo}</span>`;
 
-        // ── MELHORIA 3: Ação inline "Ver lista" destacada ──
-        const acaoBtn = total > 0
-            ? `<button onclick="localStorage.setItem('filtroGrupo','${g.label.toLowerCase().split(' ')[0]}');window.location.href='cidadaos_lista.html'" style="background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;">Ver ficha →</button>`
-            : '';
-
-        return `<li style="padding:12px 0;border-bottom:1px solid #edf2f7;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;">
+        return `<li style="padding:10px 0;border-bottom:1px solid #edf2f7;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                 <span style="font-size:14px;font-weight:600;color:#2c5282;">${g.emoji} ${g.label}</span>
-                <div style="display:flex;align-items:center;gap:6px;">
-                    <span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:4px;background:${badgeBg};color:${badgeCor};text-transform:uppercase;letter-spacing:.05em;">${badgeTxt}</span>
-                    <span style="font-size:13px;color:#4a5568;font-weight:600;">${g.visitados}/${total}</span>
-                </div>
+                <span style="font-size:13px;color:#4a5568;">${g.visitados}/${total}</span>
             </div>
-            <div style="background:#edf2f7;border-radius:999px;height:8px;overflow:hidden;margin-bottom:4px;position:relative;">
-                <div style="height:100%;border-radius:999px;background:${corBarra};width:${pctG}%;transition:width 0.6s;"></div>
-                ${total>0 ? `<div style="position:absolute;top:0;left:80%;width:2px;height:100%;background:rgba(0,0,0,0.15);" title="Meta 80%"></div>` : ''}
+            <div style="background:#edf2f7;border-radius:999px;height:7px;overflow:hidden;margin-bottom:5px;">
+                <div style="height:100%;border-radius:999px;background:${corBarra};width:${pctG}%;transition:width 0.5s;"></div>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
-                <div>${textoStatus}${metaLabel ? `<span style="font-size:11px;color:#a0aec0;margin-left:6px;">(${metaLabel})</span>` : ''}</div>
-                ${acaoBtn}
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                ${textoStatus}
+                ${total > 0 ? `<button onclick="localStorage.setItem('filtroGrupo','${g.label.toLowerCase().split(' ')[0]}');window.location.href='cidadaos_lista.html'" style="background:none;border:none;color:#3182ce;font-size:12px;cursor:pointer;padding:0;">Ver lista →</button>` : ''}
             </div>
         </li>`;
     }).join('');
@@ -250,45 +228,14 @@ function carregarBuscaAtiva() {
     const ranking = familias.map(f => {
         const vFam = visitas.filter(v => v.familiaId == f.id).sort((a,b) => new Date(b.data)-new Date(a.data));
         const ultimaData = vFam.length ? new Date(vFam[0].data) : null;
-        const atraso = ultimaData ? Math.ceil(Math.abs(new Date()-ultimaData)/(1000*60*60*24)) : 9999;
+        const atraso = ultimaData ? Math.ceil(Math.abs(new Date()-ultimaData)/(1000*60*60*24)) : 999;
         return { id: f.id, nome: f.responsavel, numero: f.numeroFamilia, atraso, data: ultimaData ? ultimaData.toLocaleDateString('pt-BR') : "Nunca" };
     }).sort((a,b) => b.atraso-a.atraso).slice(0,5);
-
-    listaUI.innerHTML = ranking.map(f => {
-        // Badge de prioridade (melhoria 1)
-        let badgeTxt, badgeBg, badgeColor, icone;
-        if (f.atraso >= 9999) {
-            badgeTxt = "CRÍTICO"; badgeBg = "#fed7d7"; badgeColor = "#742a2a"; icone = "🚨";
-        } else if (f.atraso > 30) {
-            badgeTxt = "CRÍTICO"; badgeBg = "#fed7d7"; badgeColor = "#742a2a"; icone = "🔴";
-        } else if (f.atraso > 15) {
-            badgeTxt = "ATENÇÃO"; badgeBg = "#feebc8"; badgeColor = "#744210"; icone = "🟡";
-        } else {
-            badgeTxt = "INFO";    badgeBg = "#ebf8ff"; badgeColor = "#2b6cb0"; icone = "🔵";
-        }
-        const diasTexto = f.atraso >= 9999 ? "Nunca visitada" : f.atraso + "d sem visita";
-
-        return `
-        <li style="padding:10px 0;border-bottom:1px solid #edf2f7;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-              <span style="font-size:16px;">${icone}</span>
-              <div style="min-width:0;">
-                <div style="font-size:13px;font-weight:700;color:#2c5282;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Fam. ${f.numero} · ${f.nome}</div>
-                <div style="font-size:11px;color:#718096;">Última visita: ${f.data}</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-              <span style="font-size:10px;font-weight:800;padding:3px 7px;border-radius:4px;background:${badgeBg};color:${badgeColor};text-transform:uppercase;letter-spacing:.05em;">${badgeTxt}</span>
-              <span style="font-size:12px;font-weight:600;color:${badgeColor};">${diasTexto}</span>
-            </div>
-          </div>
-          <div style="display:flex;gap:6px;margin-top:8px;">
-            <button onclick="localStorage.setItem('agendarFamiliaRapida',${f.id});window.location.href='percurso.html'" style="flex:1;background:#2b6cb0;color:white;border:none;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;">📅 Agendar visita</button>
-            <button onclick="abrirFamilia(${f.id})" style="flex:1;background:#edf2f7;color:#2c5282;border:none;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;">📋 Ver ficha</button>
-          </div>
-        </li>`;
-    }).join('');
+    listaUI.innerHTML = ranking.map(f => `
+        <li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #edf2f7;cursor:pointer;" onclick="abrirFamilia(${f.id})">
+            <div><strong>Fam. ${f.numero} - ${f.nome}</strong><br><small style="color:#718096;">Última: ${f.data}</small></div>
+            <span style="color:${f.atraso>30?'#e53e3e':'#38a169'};font-weight:bold;">${f.atraso>300?'⚠️ Nunca':f.atraso+'d'}</span>
+        </li>`).join('');
 }
 
 // ------------------------------------
@@ -451,12 +398,13 @@ function mostrarFamilias(filtradas) {
         }
 
         lista.innerHTML += `
-        <div class="box" style="margin-bottom:10px;border-left:4px solid ${isBolsa?'#d69e2e':'#3182ce'};padding:15px;">
+        <div class="box" style="margin-bottom:10px;border-left:4px solid ${isBolsa?'#d69e2e':diasSem>30?'#e53e3e':diasSem>15?'#ed8936':'#3182ce'};padding:15px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="flex:1;cursor:pointer;" onclick="abrirFamilia(${f.id})">
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px;">
                         <strong style="font-size:16px;color:#1a365d;">Família ${f.numeroFamilia} — ${f.responsavel}</strong>
                         ${isBolsa?`<span style="background:#f6e05e;color:#744210;font-size:11px;font-weight:bold;padding:2px 8px;border-radius:4px;">💰 Bolsa Família</span>`:''}
+                        <span style="font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;background:${!ultimaVisita?'#fed7d7':diasSem>30?'#fed7d7':diasSem>15?'#feebc8':'#c6f6d5'};color:${!ultimaVisita?'#742a2a':diasSem>30?'#742a2a':diasSem>15?'#744210':'#22543d'};">${!ultimaVisita?'🚨 Nunca visitada':diasSem>30?`🔴 ${diasSem}d sem visita`:diasSem>15?`🟡 ${diasSem}d sem visita`:`✅ ${diasSem}d`}</span>
                     </div>
                     <span style="color:#718096;font-size:13px;">📍 ${f.logradouro||'—'}, ${f.numero||'S/N'}</span><br>
                     ${f.numeroProntuario?`<span style="font-size:12px;color:#4a5568;">📋 Prontuário: <strong>${f.numeroProntuario}</strong></span><br>`:''}
@@ -476,7 +424,9 @@ function mostrarFamilias(filtradas) {
 }
 
 function excluirFamilia(id) {
-    if (!confirm("Excluir esta família e todos os seus membros? Esta ação não pode ser desfeita.")) return;
+    const fam = familias.find(f => f.id == id);
+    const nomeFam = fam ? `Família ${fam.numeroFamilia} — ${fam.responsavel}` : 'esta família';
+    if (!confirm(`⚠️ Excluir ${nomeFam}?\n\nIsso também apagará todos os membros e visitas desta família.\nEsta ação NÃO pode ser desfeita.`)) return;
     familias = familias.filter(f => f.id != id);
     membros  = membros.filter(m => m.familia_id != id);
     localStorage.setItem("familias", JSON.stringify(familias));
@@ -1553,12 +1503,9 @@ function toggleSidebar() {
 function fecharSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    // Só fecha se estiver no modo mobile (sidebar com classe 'aberta')
-    if (sidebar && sidebar.classList.contains('aberta')) {
-        sidebar.classList.remove('aberta');
-        if (overlay) overlay.classList.remove('aberto');
-        document.body.style.overflow = '';
-    }
+    if (sidebar) sidebar.classList.remove('aberta');
+    if (overlay) overlay.classList.remove('aberto');
+    document.body.style.overflow = '';
 }
 
 // Fecha sidebar ao navegar (click em botão do menu)
@@ -1597,29 +1544,22 @@ function iniciarMenuSidebar() {
 
     // Mapa de qual grupo abrir automaticamente por página
     const gruposPorPagina = {
-        'familias.html':        'familias',
-        'familias_lista.html':  'familias',
-        'familia_detalhe.html': 'familias',
-        'familias_detalhe.html':'familias',
-        'cidadaos_lista.html':  'familias',
-        'saude_cidadao.html':   'familias',
-        'vacinacao.html':       'familias',
-        'bolsa_familia.html':   'familias',
-        'receitas.html':        'familias',
-        'visitas.html':         'visitas',
-        'visitas_lista.html':   'visitas',
-        'pendencias.html':      'visitas',
-        'comprovantes.html':    'visitas',
-        'relatorios.html':      'relatorios',
-        'relatorios_mensal.html':'relatorios',
-        'metas.html':           'relatorios',
-        'agenda.html':          'planejamento',
-        'calendario.html':      'planejamento',
-        'percurso.html':        'planejamento',
-        'mapa.html':            'planejamento',
-        'configuracoes.html':   'config',
-        'importador.html':      'config',
-        'pin.html':             'config',
+        'familias.html':       'familias',
+        'familias_lista.html': 'familias',
+        'familia_detalhe.html':'familias',
+        'cidadaos_lista.html': 'familias',
+        'saude_cidadao.html':  'familias',
+        'visitas.html':        'visitas',
+        'visitas_lista.html':  'visitas',
+        'pendencias.html':     'visitas',
+        'relatorios.html':     'relatorios',
+        'relatorio_mensal.html':'relatorios',
+        'metas.html':          'relatorios',
+        'agenda.html':         'planejamento',
+        'percurso.html':       'planejamento',
+        'mapa.html':           'planejamento',
+        'configuracoes.html':  'config',
+        'importador.html':     'config',
     };
 
     const grupoAtivo = gruposPorPagina[paginaAtual];
@@ -1632,15 +1572,9 @@ function iniciarMenuSidebar() {
         if (btn) btn.classList.add('aberto');
     }
 
-    // Marca o botão da página atual como active (submenus e botões diretos)
-    const todos = document.querySelectorAll('.nav-submenu button, .sidebar nav > button, .sidebar nav > nav > button');
+    // Marca o botão da página atual como active
+    const todos = document.querySelectorAll('.nav-submenu button, .sidebar nav > button');
     todos.forEach(btn => {
-        const href = btn.getAttribute('onclick') || '';
-        if (href.includes(paginaAtual)) btn.classList.add('active');
-    });
-
-    // Marca botões diretos da sidebar (ex: Notificações, Painel inicial)
-    document.querySelectorAll('.sidebar nav button').forEach(btn => {
         const href = btn.getAttribute('onclick') || '';
         if (href.includes(paginaAtual)) btn.classList.add('active');
     });
