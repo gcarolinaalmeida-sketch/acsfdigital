@@ -1166,6 +1166,28 @@ window.addEventListener('beforeunload', () => { if (vozAtiva && reconhecimento) 
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
+
+// Popula o select de famílias independente do formVisita
+function popularSelectVisita(filtro) {
+  const selectFamilia = document.getElementById('familiaVisita');
+  if (!selectFamilia) return;
+  const atual = selectFamilia.value;
+  selectFamilia.innerHTML = '<option value="">Selecione a família...</option>';
+  let lista = (familias||[]).slice().sort((a,b) => a.numeroFamilia - b.numeroFamilia);
+  if (filtro) {
+    const f = filtro.toLowerCase();
+    lista = lista.filter(fam =>
+      String(fam.numeroFamilia).includes(f) ||
+      (fam.responsavel||'').toLowerCase().includes(f)
+    );
+  }
+  lista.forEach(f => selectFamilia.add(new Option(`Família Nº ${f.numeroFamilia} — ${f.responsavel}`, f.id)));
+  if (atual) selectFamilia.value = atual;
+}
+
+// Filtro de busca da família
+window.filtrarSelectFamilia = () => popularSelectVisita(document.getElementById('buscaFamiliaVisita')?.value || '');
+
 window.addEventListener('load', () => {
   // Preenche select de famílias
   popularSelectVisita();
