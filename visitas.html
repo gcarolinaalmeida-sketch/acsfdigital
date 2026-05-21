@@ -187,7 +187,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 14px;
+    padding: 10px 16px;
     border: 1.5px solid #e2e8f0;
     border-radius: 999px;
     font-size: 13px;
@@ -199,8 +199,10 @@
     -webkit-tap-highlight-color: transparent;
     user-select: none;
   }
-  .motivo-chip input { display: none; }
-  .motivo-chip.marcado {
+  .motivo-chip input[type="checkbox"] {
+    display: none;
+  }
+  .motivo-chip:has(input:checked) {
     background: #ebf8ff;
     border-color: #2b6cb0;
     color: #2b6cb0;
@@ -237,7 +239,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   .endemia-item input { accent-color: #d69e2e; width:18px; height:18px; flex-shrink:0; }
-  .endemia-item.marcada { background: #fefcbf; border-color: #d69e2e; }
+  .endemia-item:has(input:checked) { background: #fefcbf; border-color: #d69e2e; }
 
   /* ══ MEMBROS (passo 2) ══ */
   .membro-card {
@@ -333,7 +335,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   .acao-item input { accent-color: #2b6cb0; width:18px; height:18px; flex-shrink:0; }
-  .acao-item.marcada { background: #ebf8ff; border-color: #2b6cb0; color: #2b6cb0; }
+  .acao-item:has(input:checked) { background: #ebf8ff; border-color: #2b6cb0; color: #2b6cb0; }
 
   /* Previne Brasil dentro do membro */
   .previne-membro {
@@ -375,7 +377,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   .pend-chip input { display: none; }
-  .pend-chip.marcado { background: #feebc8; border-color: #ed8936; color: #744210; }
+  .pend-chip:has(input:checked) { background: #feebc8; border-color: #ed8936; color: #744210; }
 
   /* ══ PASSO 3 — RESUMO ══ */
   .resumo-bloco {
@@ -607,22 +609,22 @@
     <div class="form-card">
       <label class="field-label">Motivo da Visita</label>
       <div class="motivos-grid">
-        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+        <label class="motivo-chip">
           <input type="checkbox" class="motivo-chk" value="Cadastramento/Atualização"> 📋 Cadastramento
         </label>
-        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+        <label class="motivo-chip">
           <input type="checkbox" class="motivo-chk" value="Visita Periódica"> 🏠 Visita Periódica
         </label>
-        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+        <label class="motivo-chip">
           <input type="checkbox" class="motivo-chk" value="Acompanhamento"> 🩺 Acompanhamento
         </label>
-        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+        <label class="motivo-chip">
           <input type="checkbox" class="motivo-chk" value="Controle Vetorial"> 🦟 Controle Vetorial
         </label>
-        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+        <label class="motivo-chip">
           <input type="checkbox" class="motivo-chk" value="Busca Ativa"> 🔍 Busca Ativa
         </label>
-        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+        <label class="motivo-chip">
           <input type="checkbox" class="motivo-chk" value="Orientação/Prevenção"> 💬 Orientação
         </label>
       </div>
@@ -635,22 +637,22 @@
       </summary>
       <div class="bloco-endemias" style="border-radius:0 0 10px 10px;margin-top:0;">
         <div class="endemias-grid">
-          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+          <label class="endemia-item">
             <input type="checkbox" id="endemiaFoco"> 🔍 Verificado foco de criadouro
           </label>
-          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+          <label class="endemia-item">
             <input type="checkbox" id="endemiaFocoEncontrado"> ⚠️ Foco encontrado
           </label>
-          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+          <label class="endemia-item">
             <input type="checkbox" id="endemiaTratado"> ✅ Foco eliminado/tratado
           </label>
-          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+          <label class="endemia-item">
             <input type="checkbox" id="endemiaOrientado"> 🗣️ Morador orientado
           </label>
-          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+          <label class="endemia-item">
             <input type="checkbox" id="endemiaEncaminhado"> 📋 Encaminhado ao ACE
           </label>
-          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+          <label class="endemia-item">
             <input type="checkbox" id="endemiaSintomas"> 🤒 Sintomas relatados
           </label>
         </div>
@@ -872,37 +874,37 @@ function construirListaMembros(famId) {
         <div class="acoes-grid">`;
       if (temHip || temDia) {
         previneHtml += `
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="paAferida"> 📊 PA aferida
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="paControlada"> ✅ PA controlada
           </label>`;
       }
       if (temDia) {
         previneHtml += `
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="glicemia"> 🩸 Glicemia verificada
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="hba1c"> 🧪 HbA1c solicitada
           </label>`;
       }
       if (temGes) {
         previneHtml += `
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="sifilis"> 🔬 Teste Sífilis
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="preNatal"> 📋 Pré-natal em dia
           </label>`;
       }
       if (temCri) {
         previneHtml += `
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="puericultura"> 👶 Puericultura
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="pesoCrianca"> ⚖️ Peso/altura
           </label>`;
       }
@@ -922,22 +924,22 @@ function construirListaMembros(famId) {
       <div class="membro-body" id="membroBody${idx}">
         <div style="font-size:12px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">O que foi feito?</div>
         <div class="acoes-grid">
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Aferição de PA"> 📊 Aferição de PA
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Glicemia"> 🩸 Glicemia
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Orientação"> 💬 Orientação
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Verificação vacinas"> 💉 Vacinas
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Peso/altura"> ⚖️ Peso/altura
           </label>
-          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+          <label class="acao-item">
             <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Curativo/procedimento"> 🩹 Curativo
           </label>
         </div>
@@ -946,16 +948,16 @@ function construirListaMembros(famId) {
 
         <div style="font-size:12px;font-weight:700;color:#744210;text-transform:uppercase;letter-spacing:.05em;margin:12px 0 8px;">Pendências</div>
         <div class="pend-grid">
-          <label class="pend-chip" onclick="this.classList.toggle('marcado')">
+          <label class="pend-chip">
             <input type="checkbox" class="pend-chk" data-idx="${idx}" value="Renovação de Receita"> 💊 Receita
           </label>
-          <label class="pend-chip" onclick="this.classList.toggle('marcado')">
+          <label class="pend-chip">
             <input type="checkbox" class="pend-chk" data-idx="${idx}" value="Marcação de Consulta"> 📅 Consulta
           </label>
-          <label class="pend-chip" onclick="this.classList.toggle('marcado')">
+          <label class="pend-chip">
             <input type="checkbox" class="pend-chk" data-idx="${idx}" value="Preventivo"> 🩺 Preventivo
           </label>
-          <label class="pend-chip" onclick="this.classList.toggle('marcado')">
+          <label class="pend-chip">
             <input type="checkbox" class="pend-chk" data-idx="${idx}" value="Eletrocardiograma"> ❤️ ECG
           </label>
         </div>
