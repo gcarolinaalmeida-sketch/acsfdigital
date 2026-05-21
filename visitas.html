@@ -5,565 +5,1208 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ACS Digital">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
-  <meta charset="UTF-8">
-  <title>Registrar Visita</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* ── Botão de Microfone ── */
-    .btn-mic {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: #2b6cb0;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      margin-top: 6px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-mic:hover  { background: #2c5282; }
-    .btn-mic:active { transform: scale(0.96); }
-    .btn-mic.gravando {
-      background: #e53e3e;
-      animation: pulse-mic 1.2s infinite;
-    }
-    @keyframes pulse-mic {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(229,62,62,0.4); }
-      50%       { box-shadow: 0 0 0 8px rgba(229,62,62,0); }
-    }
-    .mic-status {
-      font-size: 12px;
-      color: #718096;
-      margin-top: 4px;
-    }
-    .mic-status.gravando { color: #e53e3e; font-weight: 600; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Registrar Visita — ACS Digital</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ══ WIZARD CONTAINER ══ */
+  .wizard-wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 0 100px;
+  }
 
-    /* ── Checklist Endemias ── */
-    .bloco-endemias {
-      background: #fffbeb;
-      border: 1px solid #f6e05e;
-      border-left: 4px solid #d69e2e;
-      border-radius: 8px;
-      padding: 14px 16px;
-    }
-    .bloco-endemias h4 {
-      color: #744210;
-      font-size: 14px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .endemias-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-    .endemia-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: white;
-      border-radius: 6px;
-      padding: 8px 10px;
-      border: 1px solid #ecc94b;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      color: #744210;
-      transition: background 0.15s;
-    }
-    .endemia-item input[type="checkbox"] { accent-color: #d69e2e; }
-    .endemia-item:has(input:checked) { background: #fefcbf; border-color: #d69e2e; }
+  /* ══ STEPS INDICATOR ══ */
+  .steps-bar {
+    display: flex;
+    align-items: center;
+    padding: 20px 20px 0;
+    margin-bottom: 24px;
+    gap: 0;
+  }
+  .step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+  .step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 55%;
+    right: -45%;
+    height: 2px;
+    background: #e2e8f0;
+    z-index: 0;
+    transition: background 0.4s;
+  }
+  .step-item.done:not(:last-child)::after { background: #38a169; }
+  .step-item.active:not(:last-child)::after { background: #e2e8f0; }
 
-    /* ── Previne Brasil ── */
-    .bloco-previne {
-      background: #f0fff4;
-      border: 1px solid #9ae6b4;
-      border-left: 4px solid #38a169;
-      border-radius: 8px;
-      padding: 14px 16px;
-    }
-    .bloco-previne h4 {
-      color: #22543d;
-      font-size: 14px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .previne-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-    .previne-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: white;
-      border-radius: 6px;
-      padding: 8px 10px;
-      border: 1px solid #9ae6b4;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      color: #22543d;
-      transition: background 0.15s;
-    }
-    .previne-item input[type="checkbox"] { accent-color: #38a169; }
-    .previne-item:has(input:checked) { background: #c6f6d5; border-color: #38a169; }
+  .step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    border: 2px solid #e2e8f0;
+    background: white;
+    color: #a0aec0;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+  }
+  .step-item.active .step-circle {
+    background: #2b6cb0;
+    border-color: #2b6cb0;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(43,108,176,0.15);
+  }
+  .step-item.done .step-circle {
+    background: #38a169;
+    border-color: #38a169;
+    color: white;
+  }
+  .step-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #a0aec0;
+    margin-top: 6px;
+    text-align: center;
+  }
+  .step-item.active .step-label { color: #2b6cb0; }
+  .step-item.done .step-label   { color: #38a169; }
 
-    .previne-secao-titulo {
-      font-size: 12px;
-      font-weight: 700;
-      color: #276749;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 10px 0 6px;
-      grid-column: 1 / -1;
-    }
+  /* ══ PANELS ══ */
+  .step-panel {
+    display: none;
+    padding: 0 16px;
+    animation: fadeSlide 0.25s ease;
+  }
+  .step-panel.ativo { display: block; }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-    /* Indicador de Previne (só aparece quando família tem grupo prioritário) */
-    #indicadorPrevine { display: none; }
-    #indicadorPrevine.visivel { display: block; }
+  /* ══ SECTION TITLE ══ */
+  .sec-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a365d;
+    margin-bottom: 4px;
+  }
+  .sec-sub {
+    font-size: 13px;
+    color: #718096;
+    margin-bottom: 20px;
+  }
 
-    @media (max-width: 480px) {
-      .endemias-grid, .previne-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  /* ══ FORM CARDS ══ */
+  .form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 14px;
+  }
+  .form-card label.field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #4a5568;
+    margin-bottom: 6px;
+  }
+  .form-card input[type="text"],
+  .form-card input[type="date"],
+  .form-card select,
+  .form-card textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #1a202c;
+    background: #f8fafc;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-card input:focus,
+  .form-card select:focus,
+  .form-card textarea:focus {
+    outline: none;
+    border-color: #2b6cb0;
+    box-shadow: 0 0 0 3px rgba(43,108,176,0.12);
+    background: white;
+  }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ══ DESFECHO CARDS ══ */
+  .desfecho-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 10px;
+  }
+  .desfecho-opt {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .desfecho-opt .opt-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+  .desfecho-opt .opt-label { font-size: 12px; font-weight: 700; color: #4a5568; }
+  .desfecho-opt.sel-realizada { border-color: #38a169; background: #f0fff4; }
+  .desfecho-opt.sel-realizada .opt-label { color: #22543d; }
+  .desfecho-opt.sel-ausente   { border-color: #ed8936; background: #fffbeb; }
+  .desfecho-opt.sel-ausente .opt-label   { color: #744210; }
+  .desfecho-opt.sel-recusada  { border-color: #e53e3e; background: #fff5f5; }
+  .desfecho-opt.sel-recusada .opt-label  { color: #742a2a; }
+
+  /* ══ MOTIVOS CHIPS ══ */
+  .motivos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .motivo-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    background: white;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .motivo-chip input { display: none; }
+  .motivo-chip.marcado {
+    background: #ebf8ff;
+    border-color: #2b6cb0;
+    color: #2b6cb0;
+  }
+
+  /* ══ ENDEMIAS ══ */
+  .bloco-endemias {
+    background: #fffbeb;
+    border: 1px solid #f6e05e;
+    border-left: 4px solid #d69e2e;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .bloco-endemias h4 { color: #744210; font-size: 14px; margin-bottom: 12px; }
+  .endemias-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .endemia-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border-radius: 6px;
+    padding: 10px 12px;
+    border: 1.5px solid #ecc94b;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #744210;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .endemia-item input { accent-color: #d69e2e; width:18px; height:18px; flex-shrink:0; }
+  .endemia-item.marcada { background: #fefcbf; border-color: #d69e2e; }
+
+  /* ══ MEMBROS (passo 2) ══ */
+  .membro-card {
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .membro-card.presente {
+    border-color: #2b6cb0;
+    box-shadow: 0 2px 12px rgba(43,108,176,0.12);
+  }
+  .membro-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .membro-toggle {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 2px solid #cbd5e0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .membro-card.presente .membro-toggle {
+    background: #2b6cb0;
+    border-color: #2b6cb0;
+    color: white;
+  }
+  .membro-nome {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c5282;
+    flex: 1;
+  }
+  .membro-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .tag-cond {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #fed7d7;
+    color: #742a2a;
+  }
+  .tag-cond.gestante { background: #fed7e2; color: #702459; }
+  .tag-cond.hipertenso { background: #fed7d7; color: #742a2a; }
+  .tag-cond.diabetico { background: #feebc8; color: #744210; }
+  .tag-cond.crianca { background: #ebf8ff; color: #2b6cb0; }
+  .tag-cond.idoso { background: #e9d8fd; color: #44337a; }
+  .tag-cond.acamado { background: #edf2f7; color: #2d3748; }
+
+  .membro-body {
+    display: none;
+    padding: 0 16px 16px;
+    border-top: 1px solid #edf2f7;
+  }
+  .membro-card.presente .membro-body { display: block; }
+
+  .acoes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .acao-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .acao-item input { accent-color: #2b6cb0; width:18px; height:18px; flex-shrink:0; }
+  .acao-item.marcada { background: #ebf8ff; border-color: #2b6cb0; color: #2b6cb0; }
+
+  /* Previne Brasil dentro do membro */
+  .previne-membro {
+    margin-top: 10px;
+    background: #f0fff4;
+    border: 1px solid #9ae6b4;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .previne-membro h5 {
+    font-size: 12px;
+    font-weight: 800;
+    color: #22543d;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  /* Pendências por membro */
+  .pend-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .pend-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #744210;
+    background: white;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pend-chip input { display: none; }
+  .pend-chip.marcado { background: #feebc8; border-color: #ed8936; color: #744210; }
+
+  /* ══ PASSO 3 — RESUMO ══ */
+  .resumo-bloco {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 14px;
+  }
+  .resumo-bloco h4 {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #718096;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #edf2f7;
+  }
+  .resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 14px;
+    padding: 4px 0;
+    gap: 12px;
+  }
+  .resumo-chave { color: #718096; flex-shrink: 0; }
+  .resumo-val   { color: #1a202c; font-weight: 600; text-align: right; }
+  .resumo-membro-item {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .resumo-membro-nome { font-weight: 700; color: #2c5282; margin-bottom: 4px; }
+  .resumo-membro-det  { color: #4a5568; font-size: 12px; }
+
+  /* ══ BOTÕES DE NAVEGAÇÃO ══ */
+  .nav-btns {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .nav-btns.primeiro { grid-template-columns: 1fr; }
+  .btn-back {
+    padding: 14px;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #4a5568;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-back:hover { background: #f7fafc; }
+  .btn-next {
+    padding: 14px;
+    background: #2b6cb0;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-next:hover  { background: #2c5282; }
+  .btn-next:active { transform: scale(0.98); }
+  .btn-save {
+    padding: 16px;
+    background: #38a169;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.2s, transform 0.1s;
+    box-shadow: 0 4px 12px rgba(56,161,105,0.3);
+  }
+  .btn-save:hover  { background: #2f855a; }
+  .btn-save:active { transform: scale(0.98); }
+
+  /* ══ VOZ ══ */
+  .btn-mic {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #2b6cb0; color: white; border: none;
+    border-radius: 6px; padding: 9px 14px; font-size: 13px;
+    font-weight: 700; cursor: pointer; transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-mic.gravando { background: #e53e3e; animation: pulse-mic 1.2s infinite; }
+  @keyframes pulse-mic {
+    0%,100%{ box-shadow:0 0 0 0 rgba(229,62,62,.4); }
+    50%    { box-shadow:0 0 0 8px rgba(229,62,62,0); }
+  }
+
+  /* ══ SIGNATURE ══ */
+  .signature-wrapper {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    overflow: hidden;
+    touch-action: none;
+  }
+  .signature-wrapper canvas {
+    display: block;
+    width: 100%;
+    height: 130px;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  @media (max-width: 480px) {
+    .desfecho-grid { grid-template-columns: 1fr; gap: 8px; }
+    .endemias-grid { grid-template-columns: 1fr; }
+    .acoes-grid    { grid-template-columns: 1fr; }
+    .row-2         { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
 <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
 
-<div class="container">
-  <div class="page-actions">
-    <h1 class="page-title" style="margin:0;">REGISTRAR VISITA DOMICILIAR</h1>
-    <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+<div class="wizard-wrap">
+
+  <!-- TOPBAR SIMPLES -->
+  <div style="display:flex;align-items:center;gap:12px;padding:16px 16px 0;">
+    <button onclick="window.history.back()" style="background:#edf2f7;border:none;border-radius:8px;width:38px;height:38px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+    <div>
+      <div style="font-size:17px;font-weight:800;color:#1a365d;">Registrar Visita</div>
+      <div style="font-size:12px;color:#718096;" id="wizardSubtitulo">Passo 1 de 3</div>
+    </div>
+    <button onclick="window.location.href='index.html'" style="margin-left:auto;background:#edf2f7;border:none;border-radius:8px;width:38px;height:38px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🏠</button>
   </div>
 
-  <div class="card">
-    <form id="formVisita" class="form-grid">
-
-      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;">
-        1. Dados da Visita
-      </h3>
-
-      <div class="form-group span-full">
-        <label>Família Visitada / Domicílio</label>
-        <input type="text" id="buscaFamiliaVisita" placeholder="🔍 Digite o nome ou nº da família para filtrar..." oninput="filtrarSelectFamilia()" style="margin-bottom:6px;">
-        <select id="familiaVisita" onchange="carregarMembrosFamiliaParaVisita()" required>
-          <option value="">Selecione a família visitada...</option>
-        </select>
-      </div>
-
-      <div class="form-group span-full" id="membrosFamiliaContainer" style="background:#ebf8ff;padding:15px;border-radius:6px;border:1px solid #bee3f8;display:none;"></div>
-
-      <div class="form-group">
-        <label>Data da Visita</label>
-        <input type="date" id="dataVisita" required onchange="validarDataVisita(this)">
-        <p id="avisoDataFutura" style="display:none;margin-top:6px;font-size:12px;color:#c53030;background:#fff5f5;border:1px solid #fc8181;border-radius:4px;padding:6px 10px;">
-          ⚠️ A data selecionada é futura. Visitas só podem ser registradas para hoje ou dias anteriores.
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label>Turno</label>
-        <select id="turnoVisita" required>
-          <option value="Manhã">Manhã</option>
-          <option value="Tarde">Tarde</option>
-          <option value="Noite">Noite</option>
-        </select>
-      </div>
-
-      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:10px;">
-        2. Motivo da Visita
-      </h3>
-
-      <div class="form-group span-full">
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#f8fafc;padding:15px;border-radius:6px;border:1px solid #cbd5e0;">
-          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Cadastramento/Atualização"> Cadastramento/Atualização</label>
-          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Visita Periódica"> Visita Periódica (VD)</label>
-          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Acompanhamento"> Acompanhamento de Saúde</label>
-          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Controle Vetorial"> Controle Ambiental/Vetorial</label>
-          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Busca Ativa"> Busca Ativa</label>
-          <label class="radio-label"><input type="checkbox" class="motivo-chk" value="Orientação/Prevenção"> Orientação/Prevenção</label>
-        </div>
-      </div>
-
-      <!-- ════════════════════════════════════════════
-           CHECKLIST DE ENDEMIAS (NOVO)
-      ════════════════════════════════════════════ -->
-      <div class="form-group span-full">
-        <div class="bloco-endemias">
-          <h4>🦟 Vigilância de Endemias (Dengue/Zika/Chikungunya)</h4>
-          <div class="endemias-grid">
-            <label class="endemia-item">
-              <input type="checkbox" id="endemiaFoco" value="Foco verificado">
-              🔍 Verificado foco de criadouro
-            </label>
-            <label class="endemia-item">
-              <input type="checkbox" id="endemiaFocoEncontrado" value="Foco encontrado">
-              ⚠️ Foco encontrado no domicílio
-            </label>
-            <label class="endemia-item">
-              <input type="checkbox" id="endemiaTratado" value="Foco tratado">
-              ✅ Foco eliminado/tratado
-            </label>
-            <label class="endemia-item">
-              <input type="checkbox" id="endemiaOrientado" value="Morador orientado">
-              🗣️ Morador orientado sobre prevenção
-            </label>
-            <label class="endemia-item">
-              <input type="checkbox" id="endemiaEncaminhado" value="Encaminhado ao ACE">
-              📋 Encaminhado ao ACE
-            </label>
-            <label class="endemia-item">
-              <input type="checkbox" id="endemiaSintomas" value="Sintomas relatados">
-              🤒 Sintomas relatados pelo morador
-            </label>
-          </div>
-          <input type="text" id="obsEndemias" placeholder="Observações sobre endemias (opcional)..." style="margin-top:10px;font-size:13px;">
-        </div>
-      </div>
-
-      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:10px;">
-        Pendências / Solicitações do Cidadão
-      </h3>
-
-      <div class="form-group span-full">
-        <div style="display:flex;gap:15px;flex-wrap:wrap;background:#fffaf0;padding:15px;border-radius:6px;border:1px solid #ecc94b;">
-          <label class="radio-label"><input type="checkbox" id="pendenciaReceita" value="Renovação de Receita"> 💊 Receita</label>
-          <label class="radio-label"><input type="checkbox" id="pendenciaMarcacao" value="Marcação de Consulta"> 📅 Consulta</label>
-          <label class="radio-label"><input type="checkbox" id="pendenciaPreventivo" value="Preventivo"> 🩺 Preventivo</label>
-          <label class="radio-label"><input type="checkbox" id="pendenciaEcg" value="Eletrocardiograma"> ❤️ ECG</label>
-        </div>
-        <input type="text" id="detalhePendencia" placeholder="Detalhes (Ex: Receita de Losartana, Preventivo da Dalva)..." style="margin-top:10px;">
-      </div>
-
-      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:10px;">
-        3. Informações e Desfecho
-      </h3>
-
-      <div class="form-group">
-        <label>Desfecho da Visita</label>
-        <select id="desfechoVisita" required>
-          <option value="Visita Realizada">Visita Realizada</option>
-          <option value="Visita Recusada">Visita Recusada</option>
-          <option value="Ausente">Ausente</option>
-        </select>
-      </div>
-
-      <!-- Campo vazio para manter grid 2 colunas -->
-      <div class="form-group"></div>
-
-      <!-- ════════════════════════════════════════════
-           INFORMAÇÕES COM DIGITAÇÃO POR VOZ (NOVO)
-      ════════════════════════════════════════════ -->
-      <div class="form-group span-full">
-        <label>Informações / Evolução da Visita</label>
-        <div style="position:relative;">
-          <textarea id="infoVisita" rows="4" placeholder="Descreva aqui o que foi observado, aferição de PA, glicemia..." required></textarea>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap;">
-          <button type="button" class="btn-mic" id="btnMic" onclick="alternarVoz()">
-            🎤 Ditar por voz
-          </button>
-          <span class="mic-status" id="micStatus">Clique no microfone para ditar</span>
-        </div>
-        <p id="micIndisponivel" style="display:none;font-size:12px;color:#c53030;margin-top:4px;">
-          ⚠️ Reconhecimento de voz não disponível neste navegador. Use Chrome ou Safari.
-        </p>
-      </div>
-
-      <!-- ════════════════════════════════════════════
-           PREVINE BRASIL (NOVO — aparece por contexto)
-      ════════════════════════════════════════════ -->
-      <div class="form-group span-full" id="indicadorPrevine">
-        <div class="bloco-previne">
-          <h4>🩺 Indicadores Previne Brasil</h4>
-          <p style="font-size:12px;color:#276749;margin-bottom:10px;">Registre os indicadores exigidos pelo Previne Brasil para os grupos prioritários desta família.</p>
-
-          <!-- Gestantes -->
-          <div id="previneGestante" style="display:none;">
-            <div class="previne-secao-titulo">🤰 Gestantes</div>
-            <div class="previne-grid">
-              <label class="previne-item"><input type="checkbox" id="prevSifilis"> 🔬 Teste de Sífilis realizado</label>
-              <label class="previne-item"><input type="checkbox" id="prevHiv"> 🔬 Teste HIV realizado</label>
-              <label class="previne-item"><input type="checkbox" id="prevDentista"> 🦷 Consulta odontológica realizada</label>
-              <label class="previne-item"><input type="checkbox" id="prevPreNatal"> 📋 Pré-natal em dia (≥6 consultas)</label>
-            </div>
-          </div>
-
-          <!-- Hipertensos -->
-          <div id="previneHipertenso" style="display:none;">
-            <div class="previne-secao-titulo">❤️ Hipertensos</div>
-            <div class="previne-grid">
-              <label class="previne-item"><input type="checkbox" id="prevPaAferida"> 📊 PA aferida na visita</label>
-              <label class="previne-item"><input type="checkbox" id="prevPaControlada"> ✅ PA controlada (< 140/90)</label>
-            </div>
-            <input type="text" id="prevPaValor" placeholder="Valor da PA (ex: 130/80 mmHg)..." style="margin-top:8px;font-size:13px;">
-          </div>
-
-          <!-- Diabéticos -->
-          <div id="previneDiabetico" style="display:none;">
-            <div class="previne-secao-titulo">🩸 Diabéticos</div>
-            <div class="previne-grid">
-              <label class="previne-item"><input type="checkbox" id="prevHbA1c"> 🧪 Hemoglobina Glicada (HbA1c) solicitada</label>
-              <label class="previne-item"><input type="checkbox" id="prevGlicemia"> 📊 Glicemia verificada na visita</label>
-              <label class="previne-item"><input type="checkbox" id="prevPaDiab"> ❤️ PA aferida (também obrigatória)</label>
-              <label class="previne-item"><input type="checkbox" id="prevDentistaDiab"> 🦷 Consulta odontológica realizada</label>
-            </div>
-            <input type="text" id="prevGlicemiaValor" placeholder="Valor da glicemia (ex: 120 mg/dL)..." style="margin-top:8px;font-size:13px;">
-          </div>
-
-          <!-- Crianças -->
-          <div id="previneCrianca" style="display:none;">
-            <div class="previne-secao-titulo">👶 Crianças (< 2 anos)</div>
-            <div class="previne-grid">
-              <label class="previne-item"><input type="checkbox" id="prevPuericultura"> 👶 Consulta de puericultura realizada</label>
-              <label class="previne-item"><input type="checkbox" id="prevVacinaCrianca"> 💉 Vacinas em dia verificadas</label>
-              <label class="previne-item"><input type="checkbox" id="prevPesoCrianca"> ⚖️ Peso/altura aferidos</label>
-              <label class="previne-item"><input type="checkbox" id="prevAleitamento"> 🤱 Aleitamento materno verificado</label>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Foto e Assinatura -->
-      <div class="form-group">
-        <label>📷 Foto do Local / Situação (Opcional)</label>
-        <div class="photo-wrapper">
-          <input type="file" id="fotoVisita" accept="image/*" capture="environment" onchange="preVisualizarFoto(this)">
-          <img id="fotoPreview" alt="Pré-visualização da foto">
-          <p id="fotoStatus" style="font-size:12px;color:#718096;margin-top:6px;display:none;">📎 Foto carregada e pronta para salvar.</p>
-          <button type="button" id="btnRemoverFoto" onclick="removerFoto()" style="display:none;margin-top:8px;background:#fed7d7;color:#c53030;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">🗑️ Remover foto</button>
-        </div>
-      </div>
-
-      <div class="form-group span-full">
-        <label>Assinatura do responsável / cidadão</label>
-        <div class="signature-wrapper" style="border:1px solid #cbd5e0;border-radius:8px;padding:10px;background:#fff;">
-          <canvas id="signaturePad" class="signature-pad" style="width:100%;height:150px;cursor:crosshair;touch-action:none;"></canvas>
-        </div>
-        <button type="button" class="btn-limpar" onclick="limparAssinatura()" style="margin-top:8px;">🗑️ Limpar Assinatura</button>
-      </div>
-
-      <div class="form-group span-full" style="display:flex;gap:10px;margin-top:20px;">
-        <button type="button" onclick="window.location.href='visitas_lista.html'" class="btn btn-secondary" style="flex:1;">Cancelar</button>
-        <button type="submit" class="btn btn-green btn-salvar" style="flex:2;margin-top:0;">Salvar Visita Completa</button>
-      </div>
-
-    </form>
+  <!-- STEPS BAR -->
+  <div class="steps-bar">
+    <div class="step-item active" id="stepItem1">
+      <div class="step-circle" id="stepCircle1">1</div>
+      <div class="step-label">Domicílio</div>
+    </div>
+    <div class="step-item" id="stepItem2">
+      <div class="step-circle" id="stepCircle2">2</div>
+      <div class="step-label">Moradores</div>
+    </div>
+    <div class="step-item" id="stepItem3">
+      <div class="step-circle" id="stepCircle3">3</div>
+      <div class="step-label">Confirmar</div>
+    </div>
   </div>
-</div>
+
+  <!-- ══════════════════════════════
+       PASSO 1 — DOMICÍLIO
+  ══════════════════════════════ -->
+  <div class="step-panel ativo" id="panel1">
+    <div class="sec-title">🏠 Dados do Domicílio</div>
+    <div class="sec-sub">Selecione a família e informe os dados da visita.</div>
+
+    <!-- Família -->
+    <div class="form-card">
+      <label class="field-label">Família Visitada</label>
+      <input type="text" id="buscaFamiliaVisita" placeholder="🔍 Buscar por nome ou número..." oninput="filtrarSelectFamilia()" style="margin-bottom:8px;">
+      <select id="familiaVisita" onchange="aoSelecionarFamilia()" style="font-size:15px;">
+        <option value="">Selecione a família...</option>
+      </select>
+      <!-- Preview da família selecionada -->
+      <div id="familiaPreview" style="display:none;margin-top:10px;padding:10px 12px;background:#ebf8ff;border-radius:8px;border:1px solid #bee3f8;">
+        <div style="font-size:13px;font-weight:700;color:#2c5282;" id="famPreviewNome">—</div>
+        <div style="font-size:12px;color:#4a5568;margin-top:2px;" id="famPreviewEnd">—</div>
+      </div>
+    </div>
+
+    <!-- Data e Turno -->
+    <div class="form-card">
+      <div class="row-2">
+        <div>
+          <label class="field-label">Data da Visita</label>
+          <input type="date" id="dataVisita" onchange="validarDataVisita(this)">
+          <p id="avisoDataFutura" style="display:none;margin-top:6px;font-size:12px;color:#c53030;">⚠️ Data futura não permitida.</p>
+        </div>
+        <div>
+          <label class="field-label">Turno</label>
+          <select id="turnoVisita">
+            <option>Manhã</option>
+            <option>Tarde</option>
+            <option>Noite</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desfecho -->
+    <div class="form-card">
+      <label class="field-label">Desfecho da Visita</label>
+      <div class="desfecho-grid">
+        <div class="desfecho-opt" id="optRealizada" onclick="selecionarDesfecho('Visita Realizada')">
+          <span class="opt-icon">✅</span>
+          <span class="opt-label">Realizada</span>
+        </div>
+        <div class="desfecho-opt" id="optAusente" onclick="selecionarDesfecho('Ausente')">
+          <span class="opt-icon">⚠️</span>
+          <span class="opt-label">Ausente</span>
+        </div>
+        <div class="desfecho-opt" id="optRecusada" onclick="selecionarDesfecho('Visita Recusada')">
+          <span class="opt-icon">❌</span>
+          <span class="opt-label">Recusada</span>
+        </div>
+      </div>
+      <input type="hidden" id="desfechoVisita" value="">
+    </div>
+
+    <!-- Motivo da Visita -->
+    <div class="form-card">
+      <label class="field-label">Motivo da Visita</label>
+      <div class="motivos-grid">
+        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+          <input type="checkbox" class="motivo-chk" value="Cadastramento/Atualização"> 📋 Cadastramento
+        </label>
+        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+          <input type="checkbox" class="motivo-chk" value="Visita Periódica"> 🏠 Visita Periódica
+        </label>
+        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+          <input type="checkbox" class="motivo-chk" value="Acompanhamento"> 🩺 Acompanhamento
+        </label>
+        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+          <input type="checkbox" class="motivo-chk" value="Controle Vetorial"> 🦟 Controle Vetorial
+        </label>
+        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+          <input type="checkbox" class="motivo-chk" value="Busca Ativa"> 🔍 Busca Ativa
+        </label>
+        <label class="motivo-chip" onclick="this.classList.toggle('marcado')">
+          <input type="checkbox" class="motivo-chk" value="Orientação/Prevenção"> 💬 Orientação
+        </label>
+      </div>
+    </div>
+
+    <!-- Endemias (colapsável) -->
+    <details style="margin-bottom:14px;">
+      <summary style="cursor:pointer;padding:12px 16px;background:white;border-radius:10px;font-size:14px;font-weight:700;color:#744210;box-shadow:0 2px 8px rgba(0,0,0,0.06);list-style:none;display:flex;align-items:center;gap:8px;">
+        🦟 Vigilância de Endemias <span style="font-size:12px;color:#a0aec0;font-weight:400;margin-left:auto;">(toque para expandir)</span>
+      </summary>
+      <div class="bloco-endemias" style="border-radius:0 0 10px 10px;margin-top:0;">
+        <div class="endemias-grid">
+          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" id="endemiaFoco"> 🔍 Verificado foco de criadouro
+          </label>
+          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" id="endemiaFocoEncontrado"> ⚠️ Foco encontrado
+          </label>
+          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" id="endemiaTratado"> ✅ Foco eliminado/tratado
+          </label>
+          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" id="endemiaOrientado"> 🗣️ Morador orientado
+          </label>
+          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" id="endemiaEncaminhado"> 📋 Encaminhado ao ACE
+          </label>
+          <label class="endemia-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" id="endemiaSintomas"> 🤒 Sintomas relatados
+          </label>
+        </div>
+        <input type="text" id="obsEndemias" placeholder="Observações sobre endemias (opcional)..." style="margin-top:10px;font-size:13px;border:1px solid #ecc94b;border-radius:6px;padding:8px 10px;width:100%;box-sizing:border-box;background:white;">
+      </div>
+    </details>
+
+    <div class="nav-btns primeiro">
+      <button class="btn-next" onclick="irPara2()">Próximo: Moradores →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       PASSO 2 — MORADORES
+  ══════════════════════════════ -->
+  <div class="step-panel" id="panel2">
+    <div class="sec-title">👥 Moradores Atendidos</div>
+    <div class="sec-sub">Marque quem estava em casa e registre o que foi feito.</div>
+
+    <div id="listaMembrosWizard">
+      <div style="text-align:center;padding:30px;color:#a0aec0;">Selecione uma família no passo anterior.</div>
+    </div>
+
+    <!-- Observação geral -->
+    <div class="form-card" style="margin-top:4px;">
+      <label class="field-label">📝 Observações gerais da visita</label>
+      <div style="position:relative;">
+        <textarea id="infoVisita" rows="3" placeholder="Ex: Verificado PA 130/80, orientado sobre medicação..."></textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+        <button type="button" class="btn-mic" id="btnMic" onclick="alternarVoz()">🎤 Ditar por voz</button>
+        <span style="font-size:12px;color:#718096;" id="micStatus">Clique para ditar</span>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-back" onclick="irPara(1)">← Voltar</button>
+      <button class="btn-next" onclick="irPara3()">Próximo: Confirmar →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       PASSO 3 — CONFIRMAR
+  ══════════════════════════════ -->
+  <div class="step-panel" id="panel3">
+    <div class="sec-title">✅ Confirmar e Salvar</div>
+    <div class="sec-sub">Revise os dados antes de salvar a visita.</div>
+
+    <div id="resumoVisita"></div>
+
+    <!-- Foto -->
+    <div class="form-card">
+      <label class="field-label">📷 Foto do Local (Opcional)</label>
+      <input type="file" id="fotoVisita" accept="image/*" capture="environment" onchange="preVisualizarFoto(this)" style="font-size:13px;width:100%;">
+      <img id="fotoPreview" alt="" style="max-width:100%;max-height:160px;border-radius:8px;margin-top:8px;display:none;">
+      <button type="button" id="btnRemoverFoto" onclick="removerFoto()" style="display:none;margin-top:6px;background:#fff5f5;color:#c53030;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">🗑️ Remover foto</button>
+    </div>
+
+    <!-- Assinatura -->
+    <div class="form-card">
+      <label class="field-label">✍️ Assinatura do Responsável (Opcional)</label>
+      <div class="signature-wrapper">
+        <canvas id="signaturePad" style="width:100%;height:130px;cursor:crosshair;touch-action:none;"></canvas>
+      </div>
+      <button type="button" onclick="limparAssinatura()" style="margin-top:8px;background:#edf2f7;color:#4a5568;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;">🗑️ Limpar assinatura</button>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-back" onclick="irPara(2)">← Voltar</button>
+      <button class="btn-next" id="btnSalvar" onclick="salvarVisitaWizard()" style="background:#38a169;box-shadow:0 4px 12px rgba(56,161,105,0.3);">💾 Salvar Visita</button>
+    </div>
+  </div>
+
+</div><!-- fim wizard-wrap -->
 
 <script src="script.js"></script>
 <script>
 // ══════════════════════════════════════════════
-//  DIGITAÇÃO POR VOZ (Speech-to-Text)
+//  ESTADO DO WIZARD
 // ══════════════════════════════════════════════
-let reconhecimento = null;
-let vozAtiva = false;
+let passoAtual = 1;
+let desfechoSelecionado = '';
+let membrosWizard = []; // [{membro, presente, acoes[], pendencias[], previne{}, obs}]
 
-function iniciarVoz() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        document.getElementById('micIndisponivel').style.display = 'block';
-        document.getElementById('btnMic').style.display = 'none';
-        return;
+// ══════════════════════════════════════════════
+//  NAVEGAÇÃO ENTRE PASSOS
+// ══════════════════════════════════════════════
+function irPara(passo) {
+  document.getElementById(`panel${passoAtual}`).classList.remove('ativo');
+  passoAtual = passo;
+  document.getElementById(`panel${passo}`).classList.add('ativo');
+  atualizarStepsBar();
+  document.querySelector('.wizard-wrap').scrollTo(0, 0);
+  window.scrollTo(0, 0);
+  document.getElementById('wizardSubtitulo').textContent = `Passo ${passo} de 3`;
+}
+
+function atualizarStepsBar() {
+  [1,2,3].forEach(i => {
+    const item   = document.getElementById(`stepItem${i}`);
+    const circle = document.getElementById(`stepCircle${i}`);
+    item.classList.remove('active','done');
+    if (i < passoAtual)      { item.classList.add('done');   circle.textContent = '✓'; }
+    else if (i === passoAtual){ item.classList.add('active'); circle.textContent = i; }
+    else                      { circle.textContent = i; }
+  });
+}
+
+// ══════════════════════════════════════════════
+//  PASSO 1 → 2
+// ══════════════════════════════════════════════
+function irPara2() {
+  const famId = document.getElementById('familiaVisita').value;
+  if (!famId) { alert('Selecione a família antes de continuar.'); return; }
+  if (!desfechoSelecionado) { alert('Selecione o desfecho da visita.'); return; }
+
+  // Se não realizou a visita, pula para passo 3
+  if (desfechoSelecionado !== 'Visita Realizada') {
+    construirResumo();
+    irPara(3);
+    return;
+  }
+
+  construirListaMembros(famId);
+  irPara(2);
+}
+
+// ══════════════════════════════════════════════
+//  PASSO 2 → 3
+// ══════════════════════════════════════════════
+function irPara3() {
+  coletarDadosMembros();
+  construirResumo();
+  irPara(3);
+}
+
+// ══════════════════════════════════════════════
+//  FAMÍLIA — preview ao selecionar
+// ══════════════════════════════════════════════
+function aoSelecionarFamilia() {
+  const famId = document.getElementById('familiaVisita').value;
+  const prev  = document.getElementById('familiaPreview');
+  if (!famId) { prev.style.display = 'none'; return; }
+  const fam = familias.find(f => f.id == famId);
+  if (!fam) { prev.style.display = 'none'; return; }
+  document.getElementById('famPreviewNome').textContent = `Família ${fam.numeroFamilia} — ${fam.responsavel}`;
+  document.getElementById('famPreviewEnd').textContent  = `📍 ${fam.logradouro||'—'}, ${fam.numero||'S/N'}`;
+  prev.style.display = 'block';
+  verificarIndicadoresPrevineGlobal(famId);
+}
+
+// ══════════════════════════════════════════════
+//  DESFECHO — seleção visual
+// ══════════════════════════════════════════════
+function selecionarDesfecho(valor) {
+  desfechoSelecionado = valor;
+  document.getElementById('desfechoVisita').value = valor;
+  ['optRealizada','optAusente','optRecusada'].forEach(id => {
+    document.getElementById(id).className = 'desfecho-opt';
+  });
+  const mapa = { 'Visita Realizada':'optRealizada', 'Ausente':'optAusente', 'Visita Recusada':'optRecusada' };
+  const cls  = { 'Visita Realizada':'sel-realizada', 'Ausente':'sel-ausente', 'Visita Recusada':'sel-recusada' };
+  const el = document.getElementById(mapa[valor]);
+  if (el) el.classList.add(cls[valor]);
+}
+
+// ══════════════════════════════════════════════
+//  CONSTRUIR LISTA DE MEMBROS (PASSO 2)
+// ══════════════════════════════════════════════
+function construirListaMembros(famId) {
+  const container = document.getElementById('listaMembrosWizard');
+  const memFam = membros.filter(m => m.familia_id == famId);
+  const hoje = new Date();
+
+  if (memFam.length === 0) {
+    container.innerHTML = `<div class="form-card" style="text-align:center;color:#a0aec0;padding:24px;">
+      <div style="font-size:32px;margin-bottom:8px;">👥</div>
+      <p>Nenhum membro cadastrado nesta família.</p>
+    </div>`;
+    membrosWizard = [];
+    return;
+  }
+
+  membrosWizard = memFam.map(m => ({
+    membro: m, presente: false,
+    acoes: [], pendencias: [], previne: {}, obs: ''
+  }));
+
+  container.innerHTML = membrosWizard.map((entry, idx) => {
+    const m = entry.membro;
+    const idade = m.nascimento
+      ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25))
+      : null;
+
+    // Tags de condição
+    const tags = [];
+    if (m.gestante === 'Sim')                            tags.push('<span class="tag-cond gestante">🤰 Gestante</span>');
+    if ((m.doencas_lista||'').includes('Hipertensão'))   tags.push('<span class="tag-cond hipertenso">❤️ Hipertenso</span>');
+    if ((m.doencas_lista||'').includes('Diabetes'))      tags.push('<span class="tag-cond diabetico">🩸 Diabético</span>');
+    if ((m.doencas_lista||'').includes('Acamado') || (m.doencas_lista||'').includes('Domiciliado'))
+                                                         tags.push('<span class="tag-cond acamado">🛏️ Acamado</span>');
+    if (idade !== null && idade < 2)                     tags.push('<span class="tag-cond crianca">👶 < 2 anos</span>');
+    if (idade !== null && idade >= 60)                   tags.push('<span class="tag-cond idoso">👴 Idoso</span>');
+
+    const idadeStr = idade !== null ? ` · ${idade} anos` : '';
+
+    // Indicadores Previne por membro
+    const temHip = (m.doencas_lista||'').includes('Hipertensão');
+    const temDia = (m.doencas_lista||'').includes('Diabetes');
+    const temGes = m.gestante === 'Sim';
+    const temCri = idade !== null && idade < 2;
+
+    let previneHtml = '';
+    if (temHip || temDia || temGes || temCri) {
+      previneHtml = `<div class="previne-membro">
+        <h5>🩺 Previne Brasil</h5>
+        <div class="acoes-grid">`;
+      if (temHip || temDia) {
+        previneHtml += `
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="paAferida"> 📊 PA aferida
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="paControlada"> ✅ PA controlada
+          </label>`;
+      }
+      if (temDia) {
+        previneHtml += `
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="glicemia"> 🩸 Glicemia verificada
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="hba1c"> 🧪 HbA1c solicitada
+          </label>`;
+      }
+      if (temGes) {
+        previneHtml += `
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="sifilis"> 🔬 Teste Sífilis
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="preNatal"> 📋 Pré-natal em dia
+          </label>`;
+      }
+      if (temCri) {
+        previneHtml += `
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="puericultura"> 👶 Puericultura
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="previne-chk" data-idx="${idx}" data-key="pesoCrianca"> ⚖️ Peso/altura
+          </label>`;
+      }
+      previneHtml += `</div></div>`;
     }
-    reconhecimento = new SpeechRecognition();
-    reconhecimento.lang = 'pt-BR';
-    reconhecimento.continuous = true;
-    reconhecimento.interimResults = true;
 
-    let textoFinal = '';
-    reconhecimento.onresult = (event) => {
-        let textoInterim = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcricao = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-                textoFinal += transcricao + ' ';
-            } else {
-                textoInterim = transcricao;
-            }
-        }
-        const area = document.getElementById('infoVisita');
-        const base = area.dataset.textoBase || '';
-        area.value = base + textoFinal + textoInterim;
-    };
+    return `
+    <div class="membro-card" id="membroCard${idx}">
+      <div class="membro-header" onclick="toggleMembro(${idx})">
+        <div class="membro-toggle" id="membroToggle${idx}">○</div>
+        <div style="flex:1;min-width:0;">
+          <div class="membro-nome">${m.nome}</div>
+          <div style="font-size:11px;color:#718096;">${m.parentesco||'Morador'}${idadeStr}</div>
+          ${tags.length ? `<div class="membro-tags" style="margin-top:4px;">${tags.join('')}</div>` : ''}
+        </div>
+      </div>
+      <div class="membro-body" id="membroBody${idx}">
+        <div style="font-size:12px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">O que foi feito?</div>
+        <div class="acoes-grid">
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Aferição de PA"> 📊 Aferição de PA
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Glicemia"> 🩸 Glicemia
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Orientação"> 💬 Orientação
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Verificação vacinas"> 💉 Vacinas
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Peso/altura"> ⚖️ Peso/altura
+          </label>
+          <label class="acao-item" onclick="this.classList.toggle('marcada')">
+            <input type="checkbox" class="acao-chk" data-idx="${idx}" value="Curativo/procedimento"> 🩹 Curativo
+          </label>
+        </div>
 
-    reconhecimento.onend = () => {
-        if (vozAtiva) reconhecimento.start(); // reinicia se ainda ativo
-    };
+        ${previneHtml}
 
-    reconhecimento.onerror = (e) => {
-        if (e.error === 'not-allowed') {
-            document.getElementById('micStatus').textContent = '❌ Permissão de microfone negada.';
-            document.getElementById('micStatus').classList.add('gravando');
-            pararVoz();
-        }
-    };
+        <div style="font-size:12px;font-weight:700;color:#744210;text-transform:uppercase;letter-spacing:.05em;margin:12px 0 8px;">Pendências</div>
+        <div class="pend-grid">
+          <label class="pend-chip" onclick="this.classList.toggle('marcado')">
+            <input type="checkbox" class="pend-chk" data-idx="${idx}" value="Renovação de Receita"> 💊 Receita
+          </label>
+          <label class="pend-chip" onclick="this.classList.toggle('marcado')">
+            <input type="checkbox" class="pend-chk" data-idx="${idx}" value="Marcação de Consulta"> 📅 Consulta
+          </label>
+          <label class="pend-chip" onclick="this.classList.toggle('marcado')">
+            <input type="checkbox" class="pend-chk" data-idx="${idx}" value="Preventivo"> 🩺 Preventivo
+          </label>
+          <label class="pend-chip" onclick="this.classList.toggle('marcado')">
+            <input type="checkbox" class="pend-chk" data-idx="${idx}" value="Eletrocardiograma"> ❤️ ECG
+          </label>
+        </div>
+
+        <input type="text" placeholder="Observação sobre ${m.nome} (ex: PA 130/80)..." 
+               class="obs-membro" data-idx="${idx}"
+               style="margin-top:10px;width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box;background:#f8fafc;">
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function alternarVoz() {
-    if (!reconhecimento) iniciarVoz();
-    if (!reconhecimento) return;
-
-    const btn = document.getElementById('btnMic');
-    const status = document.getElementById('micStatus');
-    const area = document.getElementById('infoVisita');
-
-    if (vozAtiva) {
-        pararVoz();
-    } else {
-        area.dataset.textoBase = area.value ? area.value.trim() + ' ' : '';
-        vozAtiva = true;
-        btn.classList.add('gravando');
-        btn.textContent = '⏹ Parar gravação';
-        status.textContent = '🔴 Gravando... fale agora';
-        status.classList.add('gravando');
-        reconhecimento.start();
-    }
+function toggleMembro(idx) {
+  const card = document.getElementById(`membroCard${idx}`);
+  const toggle = document.getElementById(`membroToggle${idx}`);
+  const presente = !card.classList.contains('presente');
+  card.classList.toggle('presente', presente);
+  toggle.textContent = presente ? '✓' : '○';
+  membrosWizard[idx].presente = presente;
 }
-
-function pararVoz() {
-    vozAtiva = false;
-    if (reconhecimento) reconhecimento.stop();
-    const btn = document.getElementById('btnMic');
-    const status = document.getElementById('micStatus');
-    btn.classList.remove('gravando');
-    btn.textContent = '🎤 Ditar por voz';
-    status.textContent = 'Clique no microfone para ditar';
-    status.classList.remove('gravando');
-    // Salva o texto final como base
-    const area = document.getElementById('infoVisita');
-    area.dataset.textoBase = area.value;
-}
-
-// Para a voz ao sair da página
-window.addEventListener('beforeunload', pararVoz);
 
 // ══════════════════════════════════════════════
-//  INDICADOR PREVINE BRASIL (por contexto)
+//  COLETA DADOS DOS MEMBROS
 // ══════════════════════════════════════════════
-function verificarIndicadoresPrevine(familiaId) {
-    const container = document.getElementById('indicadorPrevine');
-    if (!familiaId) { container.classList.remove('visivel'); return; }
-
-    const memFam = membros.filter(m => m.familia_id == familiaId);
-    const hoje = new Date();
-
-    let temGestante   = memFam.some(m => m.gestante === 'Sim');
-    let temHipertenso = memFam.some(m => m.doencas_lista?.includes('Hipertensão'));
-    let temDiabetico  = memFam.some(m => m.doencas_lista?.includes('Diabetes'));
-    let temCrianca    = memFam.some(m => {
-        if (!m.nascimento) return false;
-        return Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) < 2;
+function coletarDadosMembros() {
+  membrosWizard.forEach((entry, idx) => {
+    entry.acoes = Array.from(document.querySelectorAll(`.acao-chk[data-idx="${idx}"]:checked`)).map(c => c.value);
+    entry.pendencias = Array.from(document.querySelectorAll(`.pend-chk[data-idx="${idx}"]:checked`)).map(c => c.value);
+    const obsEl = document.querySelector(`.obs-membro[data-idx="${idx}"]`);
+    entry.obs = obsEl ? obsEl.value : '';
+    // Previne
+    entry.previne = {};
+    document.querySelectorAll(`.previne-chk[data-idx="${idx}"]`).forEach(c => {
+      entry.previne[c.dataset.key] = c.checked;
     });
-
-    document.getElementById('previneGestante').style.display   = temGestante   ? 'block' : 'none';
-    document.getElementById('previneHipertenso').style.display = temHipertenso ? 'block' : 'none';
-    document.getElementById('previneDiabetico').style.display  = temDiabetico  ? 'block' : 'none';
-    document.getElementById('previneCrianca').style.display    = temCrianca    ? 'block' : 'none';
-
-    if (temGestante || temHipertenso || temDiabetico || temCrianca) {
-        container.classList.add('visivel');
-    } else {
-        container.classList.remove('visivel');
-    }
+  });
 }
 
-// Sobrescreve o carregarMembrosFamiliaParaVisita para também verificar Previne
-const _carregarMembrosOriginal = window.carregarMembrosFamiliaParaVisita;
-window.carregarMembrosFamiliaParaVisitaOriginal = _carregarMembrosOriginal;
-document.addEventListener('DOMContentLoaded', () => {
-    const selectFamilia = document.getElementById('familiaVisita');
-    if (selectFamilia) {
-        selectFamilia.addEventListener('change', () => {
-            verificarIndicadoresPrevine(selectFamilia.value);
-        });
+// ══════════════════════════════════════════════
+//  CONSTRUIR RESUMO (PASSO 3)
+// ══════════════════════════════════════════════
+function construirResumo() {
+  const famId  = document.getElementById('familiaVisita').value;
+  const fam    = familias.find(f => f.id == famId);
+  const data   = document.getElementById('dataVisita').value;
+  const turno  = document.getElementById('turnoVisita').value;
+  const motivos = Array.from(document.querySelectorAll('.motivo-chk:checked')).map(c => c.value).join(', ');
+  const desfClasses = { 'Visita Realizada':'✅', 'Ausente':'⚠️', 'Visita Recusada':'❌' };
+
+  let membrosHtml = '';
+  const presentes = membrosWizard.filter(e => e.presente);
+  if (presentes.length > 0) {
+    membrosHtml = `<div class="resumo-bloco">
+      <h4>👥 Moradores Atendidos (${presentes.length})</h4>
+      ${presentes.map(e => {
+        const m = e.membro;
+        const det = [];
+        if (e.acoes.length) det.push(`✔ ${e.acoes.join(', ')}`);
+        if (e.pendencias.length) det.push(`⚠️ Pendências: ${e.pendencias.join(', ')}`);
+        if (e.obs) det.push(`📝 ${e.obs}`);
+        return `<div class="resumo-membro-item">
+          <div class="resumo-membro-nome">👤 ${m.nome}</div>
+          ${det.length ? `<div class="resumo-membro-det">${det.join('<br>')}</div>` : '<div class="resumo-membro-det" style="color:#a0aec0;">Sem ações registradas</div>'}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  document.getElementById('resumoVisita').innerHTML = `
+    <div class="resumo-bloco">
+      <h4>🏠 Dados da Visita</h4>
+      <div class="resumo-linha"><span class="resumo-chave">Família</span><span class="resumo-val">${fam ? `Família ${fam.numeroFamilia} — ${fam.responsavel}` : '—'}</span></div>
+      <div class="resumo-linha"><span class="resumo-chave">Endereço</span><span class="resumo-val">${fam ? `${fam.logradouro||'—'}, ${fam.numero||'S/N'}` : '—'}</span></div>
+      <div class="resumo-linha"><span class="resumo-chave">Data</span><span class="resumo-val">${data ? data.split('-').reverse().join('/') : '—'} · ${turno}</span></div>
+      <div class="resumo-linha"><span class="resumo-chave">Desfecho</span><span class="resumo-val">${desfClasses[desfechoSelecionado]||''} ${desfechoSelecionado}</span></div>
+      ${motivos ? `<div class="resumo-linha"><span class="resumo-chave">Motivo</span><span class="resumo-val">${motivos}</span></div>` : ''}
+    </div>
+    ${membrosHtml}`;
+}
+
+// ══════════════════════════════════════════════
+//  SALVAR VISITA
+// ══════════════════════════════════════════════
+function salvarVisitaWizard() {
+  const famId = document.getElementById('familiaVisita').value;
+  if (!famId) { alert('Família não selecionada.'); return; }
+  const familia = familias.find(f => f.id == famId);
+
+  const presentes = membrosWizard.filter(e => e.presente);
+  const nomesPresentes = presentes.map(e => e.membro.nome);
+
+  // Pendências globais (agrega de todos os membros)
+  let pendReceit=false, pendMarc=false, pendPrev=false, pendEcg=false;
+  const detPend = [];
+  presentes.forEach(e => {
+    if (e.pendencias.includes('Renovação de Receita')) pendReceit = true;
+    if (e.pendencias.includes('Marcação de Consulta')) pendMarc   = true;
+    if (e.pendencias.includes('Preventivo'))           pendPrev   = true;
+    if (e.pendencias.includes('Eletrocardiograma'))    pendEcg    = true;
+    if (e.obs) detPend.push(`${e.membro.nome}: ${e.obs}`);
+  });
+
+  // Assinatura
+  let assinaturaBase64 = null;
+  const canvas = document.getElementById('signaturePad');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    if (pixels.some((v,i) => i%4 !== 3 && v !== 0)) assinaturaBase64 = canvas.toDataURL('image/png');
+  }
+
+  const infoObs = document.getElementById('infoVisita').value;
+  const resumoAcoes = presentes.map(e => `${e.membro.nome}: ${e.acoes.join(', ')||'presente'}`).join(' | ');
+
+  const dadosVisita = {
+    id:                   Date.now(),
+    familiaId:            famId,
+    cidadao:              `Família Nº ${familia?.numeroFamilia||'?'}${nomesPresentes.length ? ` (${nomesPresentes.join(', ')})` : ''}`,
+    membrosAtendidos:     nomesPresentes,
+    data:                 document.getElementById('dataVisita').value,
+    turno:                document.getElementById('turnoVisita').value,
+    motivos:              Array.from(document.querySelectorAll('.motivo-chk:checked')).map(c=>c.value).join(', '),
+    desfecho:             desfechoSelecionado,
+    info:                 [infoObs, resumoAcoes].filter(Boolean).join('\n'),
+    foto:                 window._fotoVisitaBase64 || null,
+    assinatura:           assinaturaBase64,
+    pendenciaReceita:     pendReceit,
+    pendenciaMarcacao:    pendMarc,
+    pendenciaPreventivo:  pendPrev,
+    pendenciaEcg:         pendEcg,
+    detalhePendencia:     detPend.join(' | '),
+    // Extras endemias
+    endemiaFoco:          document.getElementById('endemiaFoco')?.checked||false,
+    endemiaFocoEncontrado:document.getElementById('endemiaFocoEncontrado')?.checked||false,
+    endemiaTratado:       document.getElementById('endemiaTratado')?.checked||false,
+    endemiaOrientado:     document.getElementById('endemiaOrientado')?.checked||false,
+    endemiaEncaminhado:   document.getElementById('endemiaEncaminhado')?.checked||false,
+    endemiaSintomas:      document.getElementById('endemiaSintomas')?.checked||false,
+    obsEndemias:          document.getElementById('obsEndemias')?.value||'',
+    // Dados por membro (para histórico rico)
+    dadosMembros:         presentes.map(e => ({
+      nome:      e.membro.nome,
+      acoes:     e.acoes,
+      pendencias:e.pendencias,
+      previne:   e.previne,
+      obs:       e.obs
+    }))
+  };
+
+  // Atualiza roteiro se veio do percurso
+  const idTarefa = sessionStorage.getItem('idTarefaPercursoAtiva');
+  if (idTarefa) {
+    let roteiro = JSON.parse(localStorage.getItem('roteiroDigital')||'[]');
+    roteiro = roteiro.map(item => item.id == idTarefa ? {...item, status:'✅ Realizada'} : item);
+    localStorage.setItem('roteiroDigital', JSON.stringify(roteiro));
+    sessionStorage.removeItem('idTarefaPercursoAtiva');
+  }
+
+  visitas.push(dadosVisita);
+  localStorage.setItem('visitas', JSON.stringify(visitas));
+
+  if (typeof showToast === 'function') showToast('✅ Visita salva com sucesso!', 'verde');
+  setTimeout(() => window.location.href = 'visitas_lista.html', 900);
+}
+
+// ══════════════════════════════════════════════
+//  VOZ
+// ══════════════════════════════════════════════
+let reconhecimento = null, vozAtiva = false;
+function iniciarVoz() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { document.getElementById('micStatus').textContent = '❌ Não suportado neste navegador.'; return; }
+  reconhecimento = new SR();
+  reconhecimento.lang = 'pt-BR';
+  reconhecimento.continuous = true;
+  reconhecimento.interimResults = true;
+  let textoFinal = '';
+  reconhecimento.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) textoFinal += t + ' ';
+      else interim = t;
     }
-});
+    const area = document.getElementById('infoVisita');
+    area.value = (area.dataset.base || '') + textoFinal + interim;
+  };
+  reconhecimento.onend = () => { if (vozAtiva) reconhecimento.start(); };
+}
+function alternarVoz() {
+  if (!reconhecimento) iniciarVoz();
+  if (!reconhecimento) return;
+  const btn = document.getElementById('btnMic');
+  const st  = document.getElementById('micStatus');
+  const area = document.getElementById('infoVisita');
+  if (vozAtiva) {
+    vozAtiva = false; reconhecimento.stop();
+    btn.classList.remove('gravando'); btn.textContent = '🎤 Ditar por voz';
+    st.textContent = 'Clique para ditar';
+    area.dataset.base = area.value;
+  } else {
+    area.dataset.base = area.value ? area.value.trim() + ' ' : '';
+    vozAtiva = true; reconhecimento.start();
+    btn.classList.add('gravando'); btn.textContent = '⏹ Parar';
+    st.textContent = '🔴 Gravando...';
+  }
+}
+window.addEventListener('beforeunload', () => { if (vozAtiva && reconhecimento) reconhecimento.stop(); });
 
 // ══════════════════════════════════════════════
-//  SALVAR COM DADOS EXTRAS (endemias + previne)
+//  INIT
 // ══════════════════════════════════════════════
-// Intercepta o submit para incluir os dados novos
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('formVisita');
-    if (!form) return;
+window.addEventListener('load', () => {
+  // Preenche select de famílias
+  popularSelectVisita();
 
-    // Armazena o listener original via submit
-    form.addEventListener('submit', function salvarExtras(e) {
-        // Os dados extras serão lidos pelo script.js principal
-        // Salvamos numa chave temporária que o script.js vai buscar
-        const extras = {
-            // Endemias
-            endemiaFoco:         document.getElementById('endemiaFoco')?.checked || false,
-            endemiaFocoEncontrado: document.getElementById('endemiaFocoEncontrado')?.checked || false,
-            endemiaTratado:      document.getElementById('endemiaTratado')?.checked || false,
-            endemiaOrientado:    document.getElementById('endemiaOrientado')?.checked || false,
-            endemiaEncaminhado:  document.getElementById('endemiaEncaminhado')?.checked || false,
-            endemiaSintomas:     document.getElementById('endemiaSintomas')?.checked || false,
-            obsEndemias:         document.getElementById('obsEndemias')?.value || '',
-            // Previne Brasil
-            prevSifilis:         document.getElementById('prevSifilis')?.checked || false,
-            prevHiv:             document.getElementById('prevHiv')?.checked || false,
-            prevDentista:        document.getElementById('prevDentista')?.checked || false,
-            prevPreNatal:        document.getElementById('prevPreNatal')?.checked || false,
-            prevPaAferida:       document.getElementById('prevPaAferida')?.checked || false,
-            prevPaControlada:    document.getElementById('prevPaControlada')?.checked || false,
-            prevPaValor:         document.getElementById('prevPaValor')?.value || '',
-            prevHbA1c:           document.getElementById('prevHbA1c')?.checked || false,
-            prevGlicemia:        document.getElementById('prevGlicemia')?.checked || false,
-            prevGlicemiaValor:   document.getElementById('prevGlicemiaValor')?.value || '',
-            prevPaDiab:          document.getElementById('prevPaDiab')?.checked || false,
-            prevDentistaDiab:    document.getElementById('prevDentistaDiab')?.checked || false,
-            prevPuericultura:    document.getElementById('prevPuericultura')?.checked || false,
-            prevVacinaCrianca:   document.getElementById('prevVacinaCrianca')?.checked || false,
-            prevPesoCrianca:     document.getElementById('prevPesoCrianca')?.checked || false,
-            prevAleitamento:     document.getElementById('prevAleitamento')?.checked || false,
-        };
-        sessionStorage.setItem('visitaExtras', JSON.stringify(extras));
-        // Não chama preventDefault — deixa o script.js principal tratar o submit
-    }, true); // true = capture phase, executa antes do script.js
-});
+  // Data padrão = hoje
+  const hoje = new Date();
+  hoje.setMinutes(hoje.getMinutes() - hoje.getTimezoneOffset());
+  document.getElementById('dataVisita').value = hoje.toISOString().split('T')[0];
 
-// Preencher dados extras ao editar visita
-document.addEventListener('DOMContentLoaded', () => {
-    const editId = localStorage.getItem('editandoVisita');
-    if (!editId) return;
+  // Desfecho padrão
+  selecionarDesfecho('Visita Realizada');
+
+  // Se veio com familiaId na URL ou localStorage
+  const params = new URLSearchParams(window.location.search);
+  const famIdUrl = params.get('familiaId') || localStorage.getItem('agendarFamiliaRapida');
+  if (famIdUrl) {
+    const sel = document.getElementById('familiaVisita');
+    if (sel) { sel.value = famIdUrl; aoSelecionarFamilia(); }
+    localStorage.removeItem('agendarFamiliaRapida');
+  }
+
+  // Se está editando
+  const editId = localStorage.getItem('editandoVisita');
+  if (editId) {
     const v = visitas.find(vis => vis.id == editId);
-    if (!v) return;
-    // Aguarda um tick para o form ser preenchido pelo script.js
-    setTimeout(() => {
-        const checkSet = (id, val) => { const el = document.getElementById(id); if(el) el.checked = !!val; };
-        const valSet   = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ''; };
-        checkSet('endemiaFoco', v.endemiaFoco); checkSet('endemiaFocoEncontrado', v.endemiaFocoEncontrado);
-        checkSet('endemiaTratado', v.endemiaTratado); checkSet('endemiaOrientado', v.endemiaOrientado);
-        checkSet('endemiaEncaminhado', v.endemiaEncaminhado); checkSet('endemiaSintomas', v.endemiaSintomas);
-        valSet('obsEndemias', v.obsEndemias);
-        checkSet('prevSifilis', v.prevSifilis); checkSet('prevHiv', v.prevHiv);
-        checkSet('prevDentista', v.prevDentista); checkSet('prevPreNatal', v.prevPreNatal);
-        checkSet('prevPaAferida', v.prevPaAferida); checkSet('prevPaControlada', v.prevPaControlada);
-        valSet('prevPaValor', v.prevPaValor);
-        checkSet('prevHbA1c', v.prevHbA1c); checkSet('prevGlicemia', v.prevGlicemia);
-        valSet('prevGlicemiaValor', v.prevGlicemiaValor);
-        checkSet('prevPaDiab', v.prevPaDiab); checkSet('prevDentistaDiab', v.prevDentistaDiab);
-        checkSet('prevPuericultura', v.prevPuericultura); checkSet('prevVacinaCrianca', v.prevVacinaCrianca);
-        checkSet('prevPesoCrianca', v.prevPesoCrianca); checkSet('prevAleitamento', v.prevAleitamento);
-        if (v.familiaId) verificarIndicadoresPrevine(v.familiaId);
-    }, 300);
+    if (v) {
+      document.getElementById('familiaVisita').value = v.familiaId;
+      aoSelecionarFamilia();
+      document.getElementById('dataVisita').value = v.data;
+      document.getElementById('turnoVisita').value = v.turno;
+      selecionarDesfecho(v.desfecho);
+      document.getElementById('infoVisita').value = v.info || '';
+      if (v.motivos) {
+        v.motivos.split(', ').forEach(mot => {
+          document.querySelectorAll('.motivo-chk').forEach(c => {
+            if (c.value === mot) { c.checked = true; c.closest('.motivo-chip')?.classList.add('marcado'); }
+          });
+        });
+      }
+    }
+  }
 });
 </script>
 </body>
