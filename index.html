@@ -77,155 +77,128 @@
   </div>
 </aside>
 
-  <main class="main">
-    <header class="topbar">
+  <main class="main" style="padding:0 0 90px;">
+
+    <!-- ── TOPBAR MINIMALISTA ── -->
+    <header style="display:flex;align-items:center;justify-content:space-between;padding:18px 16px 10px;gap:12px;">
       <div>
-        <h1>Olá, Gabriela! 👋</h1>
-        <p>Aqui está o resumo automático das suas atividades e metas.</p>
+        <div style="font-size:20px;font-weight:800;color:#1a365d;" id="saudacao">Olá! 👋</div>
+        <div style="font-size:12px;color:#718096;margin-top:1px;" id="dataHoje">—</div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
-        <div class="date-card" id="dataHoje">Hoje</div>
-        <!-- BUSCA GLOBAL -->
+      <div style="display:flex;align-items:center;gap:8px;">
+        <!-- Busca global -->
         <div style="position:relative;">
-          <input type="text" id="inputBuscaGlobal" placeholder="🔍 Buscar família ou cidadão..." oninput="buscaGlobal(this.value)" style="padding:8px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;width:260px;background:white;" onblur="setTimeout(()=>{document.getElementById('resultadoBuscaGlobal').style.display='none'},400)">
-          <div id="resultadoBuscaGlobal" onmousedown="event.preventDefault()" style="display:none;position:absolute;right:0;top:38px;width:320px;background:white;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:999;padding:8px;max-height:400px;overflow-y:auto;"></div>
+          <button onclick="document.getElementById('buscaWrap').classList.toggle('visivel')"
+                  style="background:#f0f4f8;border:none;border-radius:8px;width:36px;height:36px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔍</button>
+          <div id="buscaWrap" style="display:none;position:absolute;right:0;top:44px;width:300px;z-index:999;">
+            <input type="text" id="inputBuscaGlobal" placeholder="Buscar família ou cidadão..."
+                   oninput="buscaGlobal(this.value)"
+                   style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,0.12);box-sizing:border-box;">
+            <div id="resultadoBuscaGlobal" onmousedown="event.preventDefault()"
+                 style="background:white;border:1px solid #e2e8f0;border-radius:10px;margin-top:4px;max-height:300px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
+          </div>
         </div>
+        <!-- Tema escuro -->
+        <button id="btnTemaEscuro" onclick="toggleTemaEscuro()"
+                style="background:#f0f4f8;border:none;border-radius:8px;width:36px;height:36px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🌙</button>
+        <!-- Notificações -->
+        <a href="notificacoes.html" style="position:relative;background:#f0f4f8;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:17px;text-decoration:none;">
+          🔔<span id="badgeNotif" style="display:none;position:absolute;top:4px;right:4px;background:#e53e3e;color:white;font-size:9px;font-weight:800;border-radius:99px;min-width:16px;height:16px;padding:0 3px;line-height:16px;text-align:center;">0</span>
+        </a>
       </div>
     </header>
 
-    <!-- ════════════════════════════════════════════
-         MINI-RESUMO RÁPIDO (melhoria 4)
-    ════════════════════════════════════════════ -->
-    <div id="miniResumo" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-      <div style="background:white;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid #38a169;">
-        <span style="font-size:24px;">✅</span>
-        <div><div style="font-size:22px;font-weight:800;color:#22543d;" id="miniVisitasHoje">0</div><div style="font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Visitas hoje</div></div>
+    <!-- ── MINI RESUMO 3 NÚMEROS ── -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px 16px;">
+      <div style="background:white;border-radius:12px;padding:14px 12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);" onclick="window.location.href='visitas_lista.html'" role="button">
+        <div style="font-size:24px;font-weight:800;color:#22543d;" id="miniVisitasHoje">0</div>
+        <div style="font-size:10px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Hoje</div>
       </div>
-      <div style="background:white;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid #ed8936;cursor:pointer;" onclick="window.location.href='pendencias.html'">
-        <span style="font-size:24px;">⚠️</span>
-        <div><div style="font-size:22px;font-weight:800;color:#744210;" id="miniPendencias">0</div><div style="font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Pendências</div></div>
+      <div style="background:white;border-radius:12px;padding:14px 12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);" onclick="window.location.href='pendencias.html'" role="button">
+        <div style="font-size:24px;font-weight:800;color:#744210;" id="miniPendencias">0</div>
+        <div style="font-size:10px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Pendências</div>
       </div>
-      <div style="background:white;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid #2b6cb0;">
-        <span style="font-size:24px;">🏠</span>
-        <div><div style="font-size:22px;font-weight:800;color:#1a365d;" id="miniFamiliasAtivas">0</div><div style="font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Fam. ativas</div></div>
+      <div style="background:white;border-radius:12px;padding:14px 12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="font-size:24px;font-weight:800;color:#2b6cb0;" id="miniFamiliasAtivas">0</div>
+        <div style="font-size:10px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Fam. ativas</div>
       </div>
     </div>
 
-    <!-- ALERTAS AUTOMÁTICOS -->
-    <div id="alertasAutomaticos" style="display:none;"></div>
+    <!-- ── ALERTAS DISCRETOS ── -->
+    <div id="alertasTopBar" style="padding:0 16px 12px;display:flex;flex-direction:column;gap:6px;"></div>
 
-    <section class="cards">
-      <!-- LEMBRETE DE BACKUP (aparece automaticamente se necessário) -->
-      <div id="alertaBackup" style="display:none; grid-column:1/-1; background:#fffbeb; border:1px solid #f6ad55; border-left:5px solid #ed8936; border-radius:8px; padding:14px 18px; display:none; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:24px;">💾</span>
-          <div>
-            <strong style="color:#744210; font-size:14px;" id="alertaBackupTitulo">Faça um backup dos seus dados!</strong>
-            <p style="color:#975a16; font-size:13px; margin-top:2px;" id="alertaBackupTexto">Você está há mais de 7 dias sem fazer backup.</p>
-          </div>
-        </div>
-        <div style="display:flex; gap:8px; flex-shrink:0;">
-          <button onclick="window.location.href='configuracoes.html'" style="background:#ed8936; color:white; border:none; padding:8px 16px; border-radius:6px; font-size:13px; font-weight:bold; cursor:pointer;">📥 Fazer Backup</button>
-          <button onclick="dispensarAlertaBackup()" style="background:#e2e8f0; color:#4a5568; border:none; padding:8px 12px; border-radius:6px; font-size:13px; cursor:pointer;">Lembrar depois</button>
-        </div>
-      </div>
-      <div class="card">
-        <span class="icon green">👥</span>
-        <h2 id="totalFamilias">0</h2>
-        <p>Famílias cadastradas</p>
-      </div>
-      <div class="card">
-        <span class="icon blue">👤</span>
-        <h2 id="totalCidadaos">0</h2>
-        <p>Cidadãos cadastrados</p>
-      </div>
-      <div class="card">
-        <span class="icon purple">📋</span>
-        <h2 id="totalVisitas">0</h2>
-        <p>Visitas realizadas</p>
-      </div>
-      <div class="card" id="cardMeta">
-        <span class="icon orange">🚩</span>
-        <h2 id="progressoMeta">0%</h2>
-        <p>Progresso da meta</p>
-      </div>
-    </section>
-
-    <section class="grid" style="grid-template-columns:1fr;">
-      <div class="box" style="display:flex; flex-direction:column; justify-content:space-between;">
+    <!-- ── BARRA DE META (elemento central) ── -->
+    <div style="background:white;border-radius:14px;padding:18px 16px;margin:0 16px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div>
-          <h3>🎯 Metas e Indicadores</h3>
-          <p style="color:#718096; font-size:14px; margin-bottom:16px;">Acompanhe o progresso das visitas, grupos prioritários e indicadores do Brasil 360.</p>
-
-          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-            <span style="font-size:28px; font-weight:bold; color:#1a365d;" id="metaPorcentagem">0%</span>
-            <div style="flex:1;">
-              <div style="font-size:13px; color:#718096; margin-bottom:4px;" id="metaFracao">0 de 0 visitas no mês</div>
-              <div class="meta-barra-wrap">
-                <div id="metaBarra" class="meta-barra-fill" style="width:0%;"></div>
-              </div>
-            </div>
-          </div>
-          <div id="metaAlerta" style="font-size:13px; color:#718096;">🎯 Cadastre cidadãos para calcular a meta!</div>
-          <div id="metaCountdown" style="display:none;"></div>
+          <div style="font-size:13px;font-weight:700;color:#4a5568;">🎯 Meta do mês</div>
+          <div style="font-size:11px;color:#a0aec0;margin-top:1px;" id="metaFracao">— de — famílias</div>
         </div>
-
-        <button onclick="window.location.href='metas.html'" style="margin-top:20px; background:#2b6cb0; color:white; border:none; padding:10px 16px; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer; width:100%;">
-          Ver todas as metas →
-        </button>
+        <div style="font-size:28px;font-weight:800;" id="metaPorcentagem" style="color:#1a365d;">—%</div>
       </div>
-    </section>
-
-    <section class="grid">
-      <div class="box large">
-        <h3>Prioridades de Acompanhamento (Brasil 360)</h3>
-        <ul class="list" id="listaPrioridades"></ul>
+      <div style="background:#edf2f7;border-radius:999px;height:10px;overflow:hidden;position:relative;">
+        <div id="metaBarra" style="height:100%;border-radius:999px;background:#38a169;width:0%;transition:width 0.8s cubic-bezier(.4,0,.2,1);"></div>
       </div>
-
-      <div class="box" style="border-top: 4px solid #e53e3e;">
-        <h3 style="color: #c53030;">🚨 Busca Ativa: Top 5</h3>
-        <p style="color: #718096; font-size: 13px; margin-bottom: 15px;">Famílias que não recebem visita há mais tempo.</p>
-        <ul id="listaBuscaAtiva" style="list-style: none; line-height: 1;"></ul>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;">
+        <div style="font-size:11px;color:#a0aec0;" id="metaAlerta">—</div>
+        <a href="metas.html" style="font-size:11px;font-weight:700;color:#2b6cb0;text-decoration:none;">Ver metas →</a>
       </div>
-    </section>
+      <!-- Countdown -->
+      <div id="metaCountdown" style="display:none;"></div>
+    </div>
 
-    <!-- GRÁFICO DE VISITAS POR SEMANA -->
-    <section class="grid" style="margin-top:0;">
-      <div class="box">
-        <h3>📈 Visitas por Semana (mês atual)</h3>
-        <canvas id="graficoVisitasSemana" width="400" height="140" style="width:100%;margin-top:10px;"></canvas>
+    <!-- ── ANIVERSARIANTES (se houver) ── -->
+    <div id="alertasAutomaticos" style="padding:0 16px;"></div>
+
+    <!-- ── BUSCA ATIVA ── -->
+    <div style="background:white;border-radius:14px;padding:16px;margin:0 16px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:#2c5282;">🚨 Busca Ativa</div>
+        <a href="familias_lista.html" style="font-size:11px;font-weight:700;color:#718096;text-decoration:none;">Ver todas →</a>
       </div>
+      <ul id="listaBuscaAtiva" style="list-style:none;margin:0;padding:0;"></ul>
+    </div>
 
-      <!-- PENDÊNCIAS ABERTAS -->
-      <div class="box" style="border-top:4px solid #ed8936;">
-        <h3 style="color:#744210;">⚠️ Pendências Abertas</h3>
-        <p style="font-size:13px;color:#718096;margin-bottom:10px;" id="resumoPendencias">—</p>
-        <div id="listaPendencias"></div>
-        <button onclick="window.location.href='visitas_lista.html'" style="margin-top:12px;background:#ed8936;color:white;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;width:100%;">Ver todas as visitas →</button>
+    <!-- ── GRUPOS PRIORITÁRIOS ── -->
+    <div style="background:white;border-radius:14px;padding:16px;margin:0 16px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:#2c5282;">🩺 Grupos Prioritários</div>
+        <a href="metas.html" style="font-size:11px;font-weight:700;color:#718096;text-decoration:none;">Metas →</a>
       </div>
-    </section>
+      <ul class="list" id="listaPrioridades" style="margin:0;padding:0;"></ul>
+    </div>
 
-    <section class="quick" style="margin-top: 20px;">
-      <button onclick="window.location.href='familias.html'">👨‍👩‍👧 Cadastrar Família / Cidadão</button>
-      <button onclick="window.location.href='relatorios.html'">📊 Relatório mensal</button>
-    </section>
-
-    <!-- ══ ESTATÍSTICAS PESSOAIS ══ -->
-    <section class="box" style="margin-top:20px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-        <h3 style="margin:0;">📈 Suas Estatísticas</h3>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <select id="periodoEstat" onchange="renderizarEstatisticas()" style="padding:6px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;">
-            <option value="semana">Esta semana</option>
-            <option value="mes" selected>Este mês</option>
-            <option value="total">Desde sempre</option>
-          </select>
-          <button id="btnTemaEscuro" onclick="toggleTemaEscuro()" title="Alternar tema escuro" style="background:#edf2f7;border:none;border-radius:6px;width:36px;height:36px;font-size:18px;cursor:pointer;">🌙</button>
-        </div>
+    <!-- ── PENDÊNCIAS ── -->
+    <div style="background:white;border-radius:14px;padding:16px;margin:0 16px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:700;color:#744210;">⚠️ Pendências</div>
+        <a href="pendencias.html" style="font-size:11px;font-weight:700;color:#718096;text-decoration:none;">Ver todas →</a>
       </div>
-      <div id="estatisticasConteudo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;"></div>
-      <div id="recordeMensagem" style="margin-top:12px;font-size:13px;color:#718096;text-align:center;min-height:20px;"></div>
-    </section>
+      <div style="font-size:12px;color:#a0aec0;margin-bottom:10px;" id="resumoPendencias">—</div>
+      <div id="listaPendencias"></div>
+    </div>
+
+    <!-- ── ESTATÍSTICAS ── -->
+    <div style="background:white;border-radius:14px;padding:16px;margin:0 16px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:#2c5282;">📈 Suas Estatísticas</div>
+        <select id="periodoEstat" onchange="renderizarEstatisticas()"
+                style="font-size:12px;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;color:#4a5568;">
+          <option value="semana">Semana</option>
+          <option value="mes" selected>Mês</option>
+          <option value="total">Total</option>
+        </select>
+      </div>
+      <div id="estatisticasConteudo" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
+      <div id="recordeMensagem" style="margin-top:10px;font-size:12px;color:#718096;text-align:center;"></div>
+    </div>
+
+    <!-- ── GRÁFICO SEMANA ── -->
+    <div style="background:white;border-radius:14px;padding:16px;margin:0 16px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+      <div style="font-size:13px;font-weight:700;color:#2c5282;margin-bottom:10px;">📊 Visitas por Semana</div>
+      <canvas id="graficoVisitasSemana" height="120" style="width:100%;"></canvas>
+    </div>
+
   </main>
 
   <!-- CSS TEMA ESCURO -->
@@ -236,253 +209,197 @@
     body.tema-escuro h1, body.tema-escuro h2, body.tema-escuro h3 { color:#e2e8f0 !important; }
     body.tema-escuro p, body.tema-escuro span, body.tema-escuro label { color:#a0aec0; }
     body.tema-escuro strong, body.tema-escuro b { color:#e2e8f0; }
-    body.tema-escuro .topbar { background:#2d3748; border-bottom:1px solid #4a5568; }
-    body.tema-escuro input, body.tema-escuro select, body.tema-escuro textarea { background:#4a5568; color:#e2e8f0; border-color:#718096; }
+    body.tema-escuro input, body.tema-escuro select { background:#4a5568; color:#e2e8f0; border-color:#718096; }
     body.tema-escuro .bottom-nav { background:#2d3748; border-top:1px solid #4a5568; }
     body.tema-escuro .bottom-nav .nav-item { color:#a0aec0; }
     body.tema-escuro .bottom-nav .nav-item.active { color:#63b3ed; }
+    body.tema-escuro [style*="background:white"] { background:#2d3748 !important; }
+    body.tema-escuro [style*="color:#1a365d"] { color:#e2e8f0 !important; }
+    body.tema-escuro [style*="color:#4a5568"] { color:#a0aec0 !important; }
+    body.tema-escuro [style*="color:#718096"] { color:#718096 !important; }
+    body.tema-escuro [style*="color:#2c5282"] { color:#90cdf4 !important; }
   </style>
+
 <script src="script.js?v=3"></script>
-  <script>
-    // Coloca a data de hoje e atualiza automaticamente
-    const dataFormatada = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
-    document.getElementById('dataHoje').innerText = '📅 ' + dataFormatada;
+<script>
+  // ── DATA E SAUDAÇÃO ──
+  (function() {
+    const h = new Date().getHours();
+    const saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+    const perfil = JSON.parse(localStorage.getItem('acsPerfil')) || {};
+    const primeiroNome = (perfil.nome || 'Gabriela').split(' ')[0];
+    const el = document.getElementById('saudacao');
+    if (el) el.textContent = `${saud}, ${primeiroNome}! ${h < 12 ? '☀️' : h < 18 ? '👋' : '🌙'}`;
+    const data = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
+    const elD = document.getElementById('dataHoje');
+    if (elD) elD.textContent = data.charAt(0).toUpperCase() + data.slice(1);
+  })();
 
-    // Ativa o Service Worker (modo offline) de forma segura
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then((reg) => console.log('Modo offline ativado!', reg.scope))
-          .catch((err) => console.log('Erro ao ativar modo offline:', err));
-      });
-    }
-
-    // ------------------------------------
-    // LEMBRETE AUTOMÁTICO DE BACKUP
-    // ------------------------------------
-    (function verificarBackup() {
-      const alerta  = document.getElementById('alertaBackup');
-      const titulo  = document.getElementById('alertaBackupTitulo');
-      const texto   = document.getElementById('alertaBackupTexto');
-      if (!alerta) return;
-
-      // Se o usuário dispensou hoje, não mostra de novo
-      const dispensado = localStorage.getItem('backupDispensado');
-      const hoje = new Date().toISOString().split('T')[0];
-      if (dispensado === hoje) return;
-
-      const ultimoBackup  = localStorage.getItem('ultimoBackup');
-      const temDados = localStorage.getItem('familias');
-
-      // Só mostra o alerta se houver dados cadastrados
-      if (!temDados || JSON.parse(temDados).length === 0) return;
-
-      if (!ultimoBackup) {
-        // Nunca fez backup
-        titulo.textContent = '⚠️ Você nunca fez backup dos seus dados!';
-        texto.textContent  = 'Seus dados ficam salvos apenas neste dispositivo. Faça um backup agora para não perder nada.';
-        alerta.style.display = 'flex';
-      } else {
-        const diasSemBackup = Math.floor((new Date() - new Date(ultimoBackup)) / (1000 * 60 * 60 * 24));
-        if (diasSemBackup >= 7) {
-          titulo.textContent = `💾 Faça um backup dos seus dados!`;
-          texto.textContent  = `Último backup há ${diasSemBackup} dia(s). Recomendamos fazer backup semanalmente.`;
-          alerta.style.display = 'flex';
-        }
-      }
-    })();
-
-    function dispensarAlertaBackup() {
-      // Guarda que o usuário dispensou hoje — não mostra de novo até amanhã
-      const hoje = new Date().toISOString().split('T')[0];
-      localStorage.setItem('backupDispensado', hoje);
-      document.getElementById('alertaBackup').style.display = 'none';
-    }
-
-    // ════════════════════════════════════════════
-    //  MELHORIA 4 — MINI-RESUMO RÁPIDO NO TOPO
-    // ════════════════════════════════════════════
-    function atualizarMiniResumo() {
-      const hoje = new Date().toISOString().split('T')[0];
-
-      // Visitas de hoje
-      const visitasHoje = (JSON.parse(localStorage.getItem('visitas')) || [])
-        .filter(v => v.data === hoje && v.desfecho === 'Visita Realizada').length;
-
-      // Pendências abertas
-      const todasVisitas = JSON.parse(localStorage.getItem('visitas')) || [];
-      let pendAbertas = 0;
-      todasVisitas.forEach(v => {
-        ['pendenciaReceita','pendenciaMarcacao','pendenciaPreventivo','pendenciaEcg'].forEach(c => {
-          if (v[c] && (v['status_'+c] || 'aberta') === 'aberta') pendAbertas++;
-        });
-        if (v.detalhePendencia && !['pendenciaReceita','pendenciaMarcacao','pendenciaPreventivo','pendenciaEcg'].some(c=>v[c]) && (v.status_detalhe||'aberta')==='aberta') pendAbertas++;
-      });
-
-      // Famílias visitadas este mês (ativas)
-      const mes = new Date();
-      const famAtivas = new Set((JSON.parse(localStorage.getItem('visitas'))||[])
-        .filter(v => { const d=new Date(v.data); return d.getMonth()===mes.getMonth() && d.getFullYear()===mes.getFullYear() && v.desfecho==='Visita Realizada'; })
-        .map(v => v.familiaId)).size;
-
-      const el = id => document.getElementById(id);
-      if (el('miniVisitasHoje'))    el('miniVisitasHoje').textContent    = visitasHoje;
-      if (el('miniPendencias'))     el('miniPendencias').textContent     = pendAbertas;
-      if (el('miniFamiliasAtivas')) el('miniFamiliasAtivas').textContent = famAtivas;
-
-      // Destaque visual se há pendências
-      const cardPend = el('miniPendencias')?.parentElement?.parentElement;
-      if (cardPend && pendAbertas > 0) cardPend.style.background = '#fffbeb';
-    }
-
-    // ════════════════════════════════════════════
-    //  MELHORIA 1 — BADGES DE PRIORIDADE na Busca Ativa
-    //  MELHORIA 3 — AÇÕES INLINE nos alertas
-    // ════════════════════════════════════════════
-    // Sobrescreve a função carregarBuscaAtiva do script.js
-    function carregarBuscaAtiva() {
-      const listaUI = document.getElementById('listaBuscaAtiva');
-      if (!listaUI) return;
-      const _familias = JSON.parse(localStorage.getItem('familias')) || [];
-      const _visitas  = JSON.parse(localStorage.getItem('visitas'))  || [];
-      const ranking = _familias.map(f => {
-        const vFam = _visitas.filter(v => v.familiaId == f.id).sort((a,b) => new Date(b.data)-new Date(a.data));
-        const ultimaData = vFam.length ? new Date(vFam[0].data) : null;
-        const atraso = ultimaData ? Math.ceil(Math.abs(new Date()-ultimaData)/(1000*60*60*24)) : 9999;
-        return { id: f.id, nome: f.responsavel, numero: f.numeroFamilia, atraso, dataStr: ultimaData ? ultimaData.toLocaleDateString('pt-BR') : 'Nunca' };
-      }).sort((a,b) => b.atraso - a.atraso).slice(0, 5);
-
-      listaUI.innerHTML = ranking.map(f => {
-        // Badge de prioridade (melhoria 1)
-        let badgeTxt, badgeBg, badgeColor, icone;
-        if (f.atraso >= 9999) {
-          badgeTxt = 'CRÍTICO'; badgeBg = '#fed7d7'; badgeColor = '#742a2a'; icone = '🚨';
-        } else if (f.atraso > 30) {
-          badgeTxt = 'CRÍTICO'; badgeBg = '#fed7d7'; badgeColor = '#742a2a'; icone = '🔴';
-        } else if (f.atraso > 15) {
-          badgeTxt = 'ATENÇÃO'; badgeBg = '#feebc8'; badgeColor = '#744210'; icone = '🟡';
-        } else {
-          badgeTxt = 'INFO';    badgeBg = '#ebf8ff'; badgeColor = '#2b6cb0'; icone = '🔵';
-        }
-        const diasTexto = f.atraso >= 9999 ? 'Nunca visitada' : f.atraso + 'd sem visita';
-
-        return `
-        <li style="padding:10px 0;border-bottom:1px solid #edf2f7;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-              <span style="font-size:16px;">${icone}</span>
-              <div style="min-width:0;">
-                <div style="font-size:13px;font-weight:700;color:#2c5282;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Fam. ${f.numero} · ${f.nome}</div>
-                <div style="font-size:11px;color:#718096;">Última visita: ${f.dataStr}</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-              <span style="font-size:10px;font-weight:800;padding:3px 7px;border-radius:4px;background:${badgeBg};color:${badgeColor};text-transform:uppercase;letter-spacing:.05em;">${badgeTxt}</span>
-              <span style="font-size:12px;font-weight:600;color:${badgeColor};">${diasTexto}</span>
-            </div>
-          </div>
-          <!-- AÇÕES INLINE (melhoria 3) -->
-          <div style="display:flex;gap:6px;margin-top:8px;">
-            <button onclick="agendarVisitaRapida(${f.id})" style="flex:1;background:#2b6cb0;color:white;border:none;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;">📅 Agendar visita</button>
-            <button onclick="abrirFamilia(${f.id})" style="flex:1;background:#edf2f7;color:#2c5282;border:none;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;">📋 Ver ficha</button>
-          </div>
-        </li>`;
-      }).join('');
-    }
-
-    // Agendamento rápido de visita — vai para percurso.html com a família pré-selecionada
-    function agendarVisitaRapida(familiaId) {
-      localStorage.setItem('agendarFamiliaRapida', familiaId);
-      window.location.href = 'percurso.html';
-    }
-
-    // ════════════════════════════════════════════
-    //  MELHORIA 2 — BARRA DE PROGRESSO nas Prioridades
-    //  (já existe no script.js — aqui reforçamos o contexto visual)
-    //  Adicionado via patch no calcularMetasEPrioridades via load
-    // ════════════════════════════════════════════
-
+  // Service Worker
+  if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      atualizarMiniResumo();
-      renderizarEstatisticas();
-      if (localStorage.getItem('temaEscuro') === '1') {
-        document.body.classList.add('tema-escuro');
-        const btn = document.getElementById('btnTemaEscuro');
-        if (btn) btn.textContent = '☀️';
-      }
+      navigator.serviceWorker.register('sw.js').catch(() => {});
     });
-    // ════════════════════════════════════════════
-    //  ESTATÍSTICAS PESSOAIS
-    // ════════════════════════════════════════════
-    function renderizarEstatisticas() {
-      const periodo = document.getElementById('periodoEstat')?.value || 'mes';
-      const _visitas = JSON.parse(localStorage.getItem('visitas') || '[]');
-      const hoje = new Date();
+  }
 
-      const filtradas = _visitas.filter(v => {
-        const d = new Date(v.data);
-        if (periodo === 'semana') {
-          const ini = new Date(hoje); ini.setDate(hoje.getDate() - hoje.getDay());
-          return d >= ini;
-        }
-        if (periodo === 'mes') return d.getMonth()===hoje.getMonth() && d.getFullYear()===hoje.getFullYear();
-        return true;
-      });
+  // ── ALERTAS DISCRETOS (backup + vacinação) ──
+  (function gerarAlertasTopBar() {
+    const container = document.getElementById('alertasTopBar');
+    if (!container) return;
+    const alertas = [];
+    const hoje = new Date().toISOString().split('T')[0];
+    const dispensado = localStorage.getItem('backupDispensado');
 
-      const realizadas = filtradas.filter(v => v.desfecho === 'Visita Realizada').length;
-      const ausentes   = filtradas.filter(v => v.desfecho === 'Ausente').length;
-      const recusadas  = filtradas.filter(v => v.desfecho === 'Visita Recusada').length;
-      const diasAtivos = new Set(filtradas.filter(v=>v.desfecho==='Visita Realizada').map(v=>v.data)).size;
-
-      const meses = {};
-      _visitas.filter(v=>v.desfecho==='Visita Realizada').forEach(v => {
-        const d = new Date(v.data); const k = `${d.getFullYear()}-${d.getMonth()}`;
-        meses[k] = (meses[k]||0)+1;
-      });
-      const recordeVal = Object.values(meses).length ? Math.max(...Object.values(meses)) : 0;
-      const mesAtualKey = `${hoje.getFullYear()}-${hoje.getMonth()}`;
-      const mesAtualVisitas = meses[mesAtualKey] || 0;
-
-      const stats = [
-        { label:'Visitas realizadas', val:realizadas, cor:'#22543d', bg:'#c6f6d5', icone:'✅' },
-        { label:'Dias trabalhados',   val:diasAtivos,  cor:'#2b6cb0', bg:'#ebf8ff', icone:'📅' },
-        { label:'Ausentes',           val:ausentes,    cor:'#744210', bg:'#feebc8', icone:'⚠️' },
-        { label:'Recusadas',          val:recusadas,   cor:'#742a2a', bg:'#fff5f5', icone:'❌' },
-      ];
-      const el = document.getElementById('estatisticasConteudo');
-      if (el) el.innerHTML = stats.map(s=>`
-        <div style="background:${s.bg};border-radius:10px;padding:14px;text-align:center;">
-          <div style="font-size:20px;margin-bottom:4px;">${s.icone}</div>
-          <div style="font-size:26px;font-weight:800;color:${s.cor};">${s.val}</div>
-          <div style="font-size:11px;color:#4a5568;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">${s.label}</div>
-        </div>`).join('');
-
-      const rec = document.getElementById('recordeMensagem');
-      if (rec && recordeVal > 0) {
-        if (periodo==='mes' && mesAtualVisitas >= recordeVal && mesAtualVisitas > 0) {
-          rec.innerHTML = `🏆 <strong>Você bateu seu recorde!</strong> ${mesAtualVisitas} visitas — o melhor mês até agora!`;
-          rec.style.color = '#22543d';
-        } else if (periodo==='mes') {
-          const faltam = recordeVal - mesAtualVisitas;
-          rec.textContent = faltam > 0 ? `🎯 Recorde mensal: ${recordeVal} visitas. Faltam ${faltam} para bater!` : `🏅 ${mesAtualVisitas} visitas este mês.`;
-          rec.style.color = '#718096';
+    // Backup
+    if (dispensado !== hoje) {
+      const ub = localStorage.getItem('ultimoBackup');
+      const temDados = localStorage.getItem('familias');
+      if (temDados && JSON.parse(temDados).length > 0) {
+        if (!ub) {
+          alertas.push({ icone:'💾', texto:'Você nunca fez backup dos dados.', cor:'#744210', bg:'#fffbeb', acao:`window.location.href='configuracoes.html'`, label:'Fazer backup', id:'backup' });
         } else {
-          rec.textContent = `🏆 Recorde mensal: ${recordeVal} visitas`;
-          rec.style.color = '#718096';
+          const dias = Math.floor((new Date() - new Date(ub)) / 86400000);
+          if (dias >= 7) alertas.push({ icone:'💾', texto:`Backup há ${dias} dias.`, cor:'#744210', bg:'#fffbeb', acao:`window.location.href='configuracoes.html'`, label:'Fazer backup', id:'backup' });
         }
       }
     }
 
-    // ════════════════════════════════════════════
-    //  TEMA ESCURO
-    // ════════════════════════════════════════════
-    function toggleTemaEscuro() {
-      const ativo = document.body.classList.toggle('tema-escuro');
-      localStorage.setItem('temaEscuro', ativo ? '1' : '0');
-      const btn = document.getElementById('btnTemaEscuro');
-      if (btn) btn.textContent = ativo ? '☀️' : '🌙';
+    container.innerHTML = alertas.map(a => `
+      <div style="display:flex;align-items:center;gap:10px;background:${a.bg};border-radius:10px;padding:10px 14px;border:1px solid rgba(0,0,0,0.06);">
+        <span style="font-size:18px;">${a.icone}</span>
+        <span style="flex:1;font-size:12px;font-weight:600;color:${a.cor};">${a.texto}</span>
+        <button onclick="${a.acao}" style="background:${a.cor};color:white;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">${a.label}</button>
+        <button onclick="localStorage.setItem('backupDispensado','${hoje}');this.parentElement.remove()" style="background:none;border:none;color:#a0aec0;cursor:pointer;font-size:16px;padding:0 2px;">×</button>
+      </div>`).join('');
+  })();
+
+  // ── MINI RESUMO ──
+  function atualizarMiniResumo() {
+    const hoje = new Date().toISOString().split('T')[0];
+    const _vis = JSON.parse(localStorage.getItem('visitas') || '[]');
+    const visitasHoje = _vis.filter(v => v.data === hoje && v.desfecho === 'Visita Realizada').length;
+    let pend = 0;
+    _vis.forEach(v => {
+      ['pendenciaReceita','pendenciaMarcacao','pendenciaPreventivo','pendenciaEcg'].forEach(c => {
+        if (v[c] && (v['status_'+c]||'aberta')==='aberta') pend++;
+      });
+    });
+    const mes = new Date();
+    const famAtivas = new Set(_vis.filter(v => {
+      const d = new Date(v.data);
+      return d.getMonth()===mes.getMonth() && d.getFullYear()===mes.getFullYear() && v.desfecho==='Visita Realizada';
+    }).map(v => v.familiaId)).size;
+    const el = id => document.getElementById(id);
+    if (el('miniVisitasHoje'))    el('miniVisitasHoje').textContent    = visitasHoje;
+    if (el('miniPendencias'))     el('miniPendencias').textContent     = pend;
+    if (el('miniFamiliasAtivas')) el('miniFamiliasAtivas').textContent = famAtivas;
+  }
+
+  // ── BUSCA ATIVA override ──
+  function carregarBuscaAtiva() {
+    const listaUI = document.getElementById('listaBuscaAtiva');
+    if (!listaUI) return;
+    const _fam = JSON.parse(localStorage.getItem('familias') || '[]');
+    const _vis = JSON.parse(localStorage.getItem('visitas')  || '[]');
+    const ranking = _fam.map(f => {
+      const vF = _vis.filter(v => v.familiaId == f.id).sort((a,b) => new Date(b.data)-new Date(a.data));
+      const ul = vF.length ? new Date(vF[0].data) : null;
+      const atraso = ul ? Math.ceil(Math.abs(new Date()-ul)/86400000) : 9999;
+      return { id:f.id, nome:f.responsavel, numero:f.numeroFamilia, atraso, dataStr: ul ? ul.toLocaleDateString('pt-BR') : 'Nunca' };
+    }).sort((a,b) => b.atraso - a.atraso).slice(0, 5);
+
+    listaUI.innerHTML = ranking.map(f => {
+      let cor, badgeTxt, icone;
+      if (f.atraso >= 9999 || f.atraso > 30) { cor='#c53030'; badgeTxt=f.atraso>=9999?'Nunca':f.atraso+'d'; icone='🔴'; }
+      else if (f.atraso > 15) { cor='#744210'; badgeTxt=f.atraso+'d'; icone='🟡'; }
+      else { cor='#2b6cb0'; badgeTxt=f.atraso+'d'; icone='🔵'; }
+      return `
+      <li style="padding:10px 0;border-bottom:1px solid #f0f4f8;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:14px;">${icone}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:#2c5282;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Fam. ${f.numero} — ${f.nome}</div>
+            <div style="font-size:11px;color:#a0aec0;">Última visita: ${f.dataStr}</div>
+          </div>
+          <span style="font-size:11px;font-weight:800;color:${cor};white-space:nowrap;">${badgeTxt}</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:7px;">
+          <button onclick="localStorage.setItem('agendarFamiliaRapida',${f.id});window.location.href='percurso.html'"
+                  style="flex:1;background:#edf2f7;color:#2c5282;border:none;padding:7px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">📅 Agendar</button>
+          <button onclick="abrirFamilia(${f.id})"
+                  style="flex:1;background:#edf2f7;color:#2c5282;border:none;padding:7px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">📋 Ver ficha</button>
+        </div>
+      </li>`;
+    }).join('');
+  }
+
+  // ── ESTATÍSTICAS ──
+  function renderizarEstatisticas() {
+    const periodo = document.getElementById('periodoEstat')?.value || 'mes';
+    const _vis = JSON.parse(localStorage.getItem('visitas') || '[]');
+    const hoje = new Date();
+    const fil = _vis.filter(v => {
+      const d = new Date(v.data);
+      if (periodo==='semana') { const s=new Date(hoje); s.setDate(hoje.getDate()-hoje.getDay()); return d>=s; }
+      if (periodo==='mes') return d.getMonth()===hoje.getMonth() && d.getFullYear()===hoje.getFullYear();
+      return true;
+    });
+    const real = fil.filter(v=>v.desfecho==='Visita Realizada').length;
+    const dias = new Set(fil.filter(v=>v.desfecho==='Visita Realizada').map(v=>v.data)).size;
+    const ause = fil.filter(v=>v.desfecho==='Ausente').length;
+    const recu = fil.filter(v=>v.desfecho==='Visita Recusada').length;
+    const meses = {};
+    _vis.filter(v=>v.desfecho==='Visita Realizada').forEach(v=>{ const d=new Date(v.data),k=`${d.getFullYear()}-${d.getMonth()}`; meses[k]=(meses[k]||0)+1; });
+    const rec = Object.values(meses).length ? Math.max(...Object.values(meses)) : 0;
+    const mesK = `${hoje.getFullYear()}-${hoje.getMonth()}`;
+    const mesV = meses[mesK]||0;
+    const el = document.getElementById('estatisticasConteudo');
+    if (el) el.innerHTML = [
+      {l:'Realizadas', v:real,  c:'#22543d', bg:'#f0fff4', i:'✅'},
+      {l:'Dias ativos', v:dias, c:'#2b6cb0', bg:'#ebf8ff', i:'📅'},
+      {l:'Ausentes',   v:ause,  c:'#744210', bg:'#fffbeb', i:'⚠️'},
+      {l:'Recusadas',  v:recu,  c:'#742a2a', bg:'#fff5f5', i:'❌'},
+    ].map(s=>`<div style="background:${s.bg};border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:10px;color:#a0aec0;font-weight:700;text-transform:uppercase;margin-bottom:4px;">${s.i} ${s.l}</div>
+      <div style="font-size:24px;font-weight:800;color:${s.c};">${s.v}</div>
+    </div>`).join('');
+    const relEl = document.getElementById('recordeMensagem');
+    if (relEl && rec>0) {
+      relEl.textContent = periodo==='mes' && mesV>=rec && mesV>0
+        ? `🏆 Recorde batido! ${mesV} visitas este mês.`
+        : periodo==='mes' && rec>mesV
+          ? `🎯 Recorde: ${rec} visitas. Faltam ${rec-mesV}!`
+          : `🏆 Recorde mensal: ${rec} visitas`;
     }
-  </script>
+  }
+
+  // ── TEMA ESCURO ──
+  function toggleTemaEscuro() {
+    const ativo = document.body.classList.toggle('tema-escuro');
+    localStorage.setItem('temaEscuro', ativo?'1':'0');
+    const btn = document.getElementById('btnTemaEscuro');
+    if (btn) btn.textContent = ativo ? '☀️' : '🌙';
+  }
+
+  // ── FECHAR BUSCA AO CLICAR FORA ──
+  document.addEventListener('click', e => {
+    const wrap = document.getElementById('buscaWrap');
+    if (wrap && !e.target.closest('#buscaWrap') && !e.target.closest('[onclick*="buscaWrap"]')) {
+      wrap.style.display = 'none';
+    }
+  });
+
+  // ── LOAD ──
+  window.addEventListener('load', () => {
+    atualizarMiniResumo();
+    renderizarEstatisticas();
+    if (localStorage.getItem('temaEscuro') === '1') {
+      document.body.classList.add('tema-escuro');
+      const btn = document.getElementById('btnTemaEscuro');
+      if (btn) btn.textContent = '☀️';
+    }
+  });
+</script>
 
   <nav class="bottom-nav no-print">
     <a href="index.html" class="nav-item active">🏠<span>Início</span></a>
