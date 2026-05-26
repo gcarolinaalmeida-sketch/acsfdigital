@@ -1,16 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Planejamento - ACS Digital</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Grid principal ── */
+    .agenda-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start; /* permite sticky funcionar */
+    }
+    @media (max-width: 768px) {
+      .agenda-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Coluna Escala: sticky no desktop ── */
+    .escala-sticky {
+      position: sticky;
+      top: 16px;          /* distância do topo da viewport ao rolar */
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+      /* scroll interno suave sem barra visível */
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e0 transparent;
+    }
+    .escala-sticky::-webkit-scrollbar { width: 4px; }
+    .escala-sticky::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+
+    /* No mobile, sticky não faz sentido — desabilita */
+    @media (max-width: 768px) {
+      .escala-sticky {
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+      }
+    }
+
+    /* ── Badges de status ── */
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    .status-aguardando { background: #feebc8; color: #744210; }
+    .status-concluida  { background: #c6f6d5; color: #22543d; }
+
+    .input-mini { width: 60px !important; display: inline-block; padding: 4px !important; text-align: center; }
+
+    /* ── Chips do calendário ── */
+    .day-chip { width:34px;height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;border:1px solid #e2e8f0;background:#f7fafc;font-size:11px;color:#718096;user-select:none;transition:transform 0.1s; }
+    .day-chip:active { transform:scale(0.92); }
+    .day-chip .dn { font-size:9px;font-weight:600; }
+    .day-chip.campo   { background:#E1F5EE;border-color:#5DCAA5;color:#0F6E56; }
+    .day-chip.ubs     { background:#E6F1FB;border-color:#85B7EB;color:#185FA5; }
+    .day-chip.reuniao { background:#EEEDFE;border-color:#AFA9EC;color:#3C3489; }
+    .day-chip.fora    { background:#FAEEDA;border-color:#EF9F27;color:#854F0B; }
+    .day-chip.falta   { background:#FCEBEB;border-color:#F09595;color:#A32D2D; }
+    .day-chip.folga   { background:#F1EFE8;border-color:#B4B2A9;color:#5F5E5A; }
+
+    /* ── Botão toggle visitas realizadas ── */
+    .btn-toggle-realizadas {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f0fff4;
+      color: #22543d;
+      border: 1.5px solid #9ae6b4;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      margin-bottom: 10px;
+    }
+    .btn-toggle-realizadas:hover { background: #c6f6d5; border-color: #68d391; }
+    .btn-toggle-realizadas.oculto {
+      background: #fff5f5;
+      color: #742a2a;
+      border-color: #fc8181;
+    }
+    .btn-toggle-realizadas.oculto:hover { background: #fed7d7; }
+
+    /* ── Item do roteiro realizado (para animação de hide) ── */
+    .roteiro-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid #edf2f7;
+      transition: opacity 0.25s, max-height 0.3s;
+      overflow: hidden;
+    }
+    .roteiro-item.realizada-oculta {
+      display: none;
+    }
+
+    /* ── Contador de realizadas ocultas ── */
+    .badge-realizadas-ocultas {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #22543d;
+      background: #c6f6d5;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HAMBÚRGUER MOBILE -->
+<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+<aside class="sidebar">
   <div class="logo">💚 ACS Digital</div>
   <nav>
-
-    <!-- PAINEL -->
     <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
-
     <div class="nav-divisor"></div>
 
-    <!-- FAMÍLIAS E CIDADÃOS -->
     <div class="nav-grupo">
       <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')">
-        <span>👨‍👩‍👧 Famílias e Cidadãos</span>
-        <span class="seta">›</span>
+        <span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span>
       </button>
       <div class="nav-submenu" id="sub_familias">
         <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
@@ -19,11 +135,9 @@
       </div>
     </div>
 
-    <!-- VISITAS -->
     <div class="nav-grupo">
       <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')">
-        <span>📅 Visitas</span>
-        <span class="seta">›</span>
+        <span>📅 Visitas</span><span class="seta">›</span>
       </button>
       <div class="nav-submenu" id="sub_visitas">
         <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
@@ -32,11 +146,9 @@
       </div>
     </div>
 
-    <!-- RELATÓRIOS E METAS -->
     <div class="nav-grupo">
       <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')">
-        <span>📊 Relatórios e Metas</span>
-        <span class="seta">›</span>
+        <span>📊 Relatórios e Metas</span><span class="seta">›</span>
       </button>
       <div class="nav-submenu" id="sub_relatorios">
         <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
@@ -44,11 +156,9 @@
       </div>
     </div>
 
-    <!-- PLANEJAMENTO -->
     <div class="nav-grupo">
       <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')">
-        <span>🗓️ Planejamento</span>
-        <span class="seta">›</span>
+        <span>🗓️ Planejamento</span><span class="seta">›</span>
       </button>
       <div class="nav-submenu" id="sub_planejamento">
         <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
@@ -59,21 +169,20 @@
 
     <div class="nav-divisor"></div>
 
-    <!-- CONFIGURAÇÕES -->
     <div class="nav-grupo">
       <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')">
-        <span>⚙️ Configurações</span>
-        <span class="seta">›</span>
+        <span>⚙️ Configurações</span><span class="seta">›</span>
       </button>
       <div class="nav-submenu" id="sub_config">
         <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
         <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
       </div>
     </div>
-
   </nav>
-    <div class="user">
-    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
+
+  <div class="user">
+    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto"
+         style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
     <div>
       <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
       <span id="sidebarMicroarea">Microárea 03</span>
@@ -107,308 +216,382 @@
   </section>
 
   <div class="agenda-grid">
+
+    <!-- ── COLUNA ESQUERDA: Roteiro ── -->
     <div class="box">
       <h3>🚶 Roteiro do Dia (Percurso)</h3>
       <div style="margin-bottom: 15px; display: flex; gap: 10px;">
         <input type="date" id="dataRota" style="flex: 1;">
-        <button onclick="adicionarAoRoteiro()" style="background: #2b6cb0; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">+ Add</button>
+        <button onclick="adicionarAoRoteiro()"
+                style="background: #2b6cb0; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">
+          + Add
+        </button>
       </div>
-      
+
       <div id="containerRoteiro">
         <select id="selectFamiliaRota" class="form-group" style="margin-bottom: 10px;">
           <option value="">Selecione uma família...</option>
         </select>
-        <ul class="activities" id="listaRoteiroDiario">
-          </ul>
+
+        <!-- Botão ocultar/mostrar realizadas -->
+        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px;">
+          <button class="btn-toggle-realizadas" id="btnToggleRealizadas" onclick="toggleRealizadas()">
+            👁️ Ocultar realizadas
+          </button>
+          <span class="badge-realizadas-ocultas" id="badgeRealizadasOcultas" style="display:none;"></span>
+        </div>
+
+        <ul class="activities" id="listaRoteiroDiario" style="padding:0;list-style:none;margin:0;"></ul>
       </div>
     </div>
 
-    <div class="box">
-      <h3>🏥 Escala e Observações</h3>
+    <!-- ── COLUNA DIREITA: Escala — sticky ── -->
+    <div class="escala-sticky">
+      <div class="box">
+        <h3>🏥 Escala e Observações</h3>
 
-      <!-- Calendário do mês -->
-      <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">📆 Calendário do mês <span style="font-weight:400;color:#a0aec0;font-size:11px;">(clique para alternar)</span></p>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;" id="calEscala"></div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;">
-        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E1F5EE;color:#0F6E56;">📍 Campo</span>
-        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E6F1FB;color:#185FA5;">🏥 UBS/Recepção</span>
-        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#EEEDFE;color:#3C3489;">👥 Reunião</span>
-        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FAEEDA;color:#854F0B;">🚪 Fora da Unidade</span>
-        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FCEBEB;color:#A32D2D;">⚠️ Falta</span>
-        <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#F1EFE8;color:#5F5E5A;">🌙 Folga</span>
+        <!-- Calendário do mês -->
+        <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">
+          📆 Calendário do mês
+          <span style="font-weight:400;color:#a0aec0;font-size:11px;">(clique para alternar)</span>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;" id="calEscala"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;">
+          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E1F5EE;color:#0F6E56;">📍 Campo</span>
+          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E6F1FB;color:#185FA5;">🏥 UBS/Recepção</span>
+          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#EEEDFE;color:#3C3489;">👥 Reunião</span>
+          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FAEEDA;color:#854F0B;">🚪 Fora da Unidade</span>
+          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FCEBEB;color:#A32D2D;">⚠️ Falta</span>
+          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#F1EFE8;color:#5F5E5A;">🌙 Folga</span>
+        </div>
+
+        <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
+
+        <!-- Observações -->
+        <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">📋 Observações do dia</p>
+        <select id="obsTipo"
+                style="width:100%;margin-bottom:8px;padding:7px 10px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;color:#2d3748;"
+                onchange="salvarAgenda()">
+          <option value="reuniao">Reunião de equipe</option>
+          <option value="atividade">Atividade especial</option>
+          <option value="treinamento">Treinamento</option>
+          <option value="fora">Fora da unidade</option>
+          <option value="outro">Outro</option>
+        </select>
+        <textarea id="obsAgenda" rows="3"
+                  placeholder="Ex: Terça-feira - Reunião de Equipe na UBS..."
+                  onchange="salvarAgenda()"
+                  style="width:100%;resize:none;"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+          <button onclick="adicionarObsAgenda()"
+                  style="background:#2b6cb0;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;">
+            + Adicionar
+          </button>
+        </div>
+        <div id="listaObsAgenda" style="margin-top:10px;"></div>
+
+        <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
+
+        <!-- Resumo do mês -->
+        <h4 style="margin-bottom:10px;">Resumo do Mês</h4>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E1F5EE;border-radius:8px;">
+            <span style="font-size:13px;color:#0F6E56;font-weight:600;">📍 Dias de campo</span>
+            <span style="font-size:18px;font-weight:600;color:#085041;" id="resumoCampo">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E6F1FB;border-radius:8px;">
+            <span style="font-size:13px;color:#185FA5;font-weight:600;">🏥 Dias na UBS</span>
+            <span style="font-size:18px;font-weight:600;color:#0C447C;" id="resumoUBS">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#EEEDFE;border-radius:8px;">
+            <span style="font-size:13px;color:#3C3489;font-weight:600;">👥 Reuniões</span>
+            <span style="font-size:18px;font-weight:600;color:#26215C;" id="resumoReuniao">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#FAEEDA;border-radius:8px;">
+            <span style="font-size:13px;color:#854F0B;font-weight:600;">🚪 Fora da unidade</span>
+            <span style="font-size:18px;font-weight:600;color:#633806;" id="resumoFora">0</span>
+          </div>
+        </div>
       </div>
+    </div><!-- /escala-sticky -->
 
-      <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
-
-      <!-- Observações -->
-      <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">📋 Observações do dia</p>
-      <select id="obsTipo" style="width:100%;margin-bottom:8px;padding:7px 10px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;color:#2d3748;" onchange="salvarAgenda()">
-        <option value="reuniao">Reunião de equipe</option>
-        <option value="atividade">Atividade especial</option>
-        <option value="treinamento">Treinamento</option>
-        <option value="fora">Fora da unidade</option>
-        <option value="outro">Outro</option>
-      </select>
-      <textarea id="obsAgenda" rows="3" placeholder="Ex: Terça-feira - Reunião de Equipe na UBS..." onchange="salvarAgenda()" style="width:100%;resize:none;"></textarea>
-      <div style="display:flex;justify-content:flex-end;margin-top:6px;">
-        <button onclick="adicionarObsAgenda()" style="background:#2b6cb0;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;">+ Adicionar</button>
-      </div>
-      <div id="listaObsAgenda" style="margin-top:10px;"></div>
-
-      <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
-
-      <!-- Resumo do mês -->
-      <h4 style="margin-bottom:10px;">Resumo do Mês</h4>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E1F5EE;border-radius:8px;">
-          <span style="font-size:13px;color:#0F6E56;font-weight:600;">📍 Dias de campo</span>
-          <span style="font-size:18px;font-weight:600;color:#085041;" id="resumoCampo">0</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E6F1FB;border-radius:8px;">
-          <span style="font-size:13px;color:#185FA5;font-weight:600;">🏥 Dias na UBS</span>
-          <span style="font-size:18px;font-weight:600;color:#0C447C;" id="resumoUBS">0</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#EEEDFE;border-radius:8px;">
-          <span style="font-size:13px;color:#3C3489;font-weight:600;">👥 Reuniões</span>
-          <span style="font-size:18px;font-weight:600;color:#26215C;" id="resumoReuniao">0</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#FAEEDA;border-radius:8px;">
-          <span style="font-size:13px;color:#854F0B;font-weight:600;">🚪 Fora da unidade</span>
-          <span style="font-size:18px;font-weight:600;color:#633806;" id="resumoFora">0</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  </div><!-- /agenda-grid -->
 </main>
 
 <script src="script.js"></script>
 <script>
-  // Inicia a página de forma segura quando tudo estiver carregado
-  window.addEventListener('load', function() {
-      popularSelectFamilias();
-      atualizarAgenda();
-      renderizarRoteiro();
-      
-      // Recupera os dados salvos
-      const salvos = JSON.parse(localStorage.getItem("dadosAgenda"));
-      if (salvos) {
-          if (document.getElementById('inputRecepcao') && salvos.recepcao) document.getElementById('inputRecepcao').value = salvos.recepcao;
-          if (salvos.estadoCal) estadoCal = salvos.estadoCal;
-          if (salvos.notasObs) { notasObs = salvos.notasObs; renderNotasObs(); }
-      }
-      buildCalEscala();
+  // ─────────────────────────────────────────────
+  //  Estado: visitas realizadas visíveis ou não
+  // ─────────────────────────────────────────────
+  let realizadasVisiveis = true;
+
+  function toggleRealizadas() {
+    realizadasVisiveis = !realizadasVisiveis;
+    const btn   = document.getElementById('btnToggleRealizadas');
+    const badge = document.getElementById('badgeRealizadasOcultas');
+
+    if (realizadasVisiveis) {
+      btn.textContent = '👁️ Ocultar realizadas';
+      btn.classList.remove('oculto');
+      badge.style.display = 'none';
+    } else {
+      btn.textContent = '👁️ Mostrar realizadas';
+      btn.classList.add('oculto');
+    }
+    renderizarRoteiro();
+  }
+
+  // ─────────────────────────────────────────────
+  //  Init
+  // ─────────────────────────────────────────────
+  window.addEventListener('load', function () {
+    popularSelectFamilias();
+    atualizarAgenda();
+    renderizarRoteiro();
+
+    const salvos = JSON.parse(localStorage.getItem("dadosAgenda"));
+    if (salvos) {
+      if (document.getElementById('inputRecepcao') && salvos.recepcao)
+        document.getElementById('inputRecepcao').value = salvos.recepcao;
+      if (salvos.estadoCal) estadoCal = salvos.estadoCal;
+      if (salvos.notasObs) { notasObs = salvos.notasObs; renderNotasObs(); }
+    }
+    buildCalEscala();
   });
 
   function popularSelectFamilias() {
-      const select = document.getElementById('selectFamiliaRota');
-      if (!select) return;
-      
-      // Verifica se a variável familias (do script.js) existe e tem dados
-      if (typeof familias !== 'undefined' && familias.length > 0) {
-          familias.sort((a,b) => a.numeroFamilia - b.numeroFamilia).forEach(f => {
-              const opt = document.createElement('option');
-              opt.value = f.id;
-              opt.textContent = `F. ${f.numeroFamilia} - ${f.responsavel}`;
-              select.appendChild(opt);
-          });
-      }
+    const select = document.getElementById('selectFamiliaRota');
+    if (!select) return;
+    if (typeof familias !== 'undefined' && familias.length > 0) {
+      familias.sort((a, b) => a.numeroFamilia - b.numeroFamilia).forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f.id;
+        opt.textContent = `F. ${f.numeroFamilia} - ${f.responsavel}`;
+        select.appendChild(opt);
+      });
+    }
   }
 
   function calcularDiasUteis() {
-      const hoje = new Date();
-      const ano = hoje.getFullYear();
-      const mes = hoje.getMonth();
-      const ultimoDia = new Date(ano, mes + 1, 0).getDate();
-      let uteis = 0;
-
-      for (let i = 1; i <= ultimoDia; i++) {
-          const dia = new Date(ano, mes, i).getDay();
-          if (dia !== 0 && dia !== 6) uteis++; // Exclui Sábado e Domingo
-      }
-      return uteis;
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = hoje.getMonth();
+    const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+    let uteis = 0;
+    for (let i = 1; i <= ultimoDia; i++) {
+      const dia = new Date(ano, mes, i).getDay();
+      if (dia !== 0 && dia !== 6) uteis++;
+    }
+    return uteis;
   }
 
   function atualizarAgenda() {
-      const uteis = calcularDiasUteis();
-      const inputRec = document.getElementById('inputRecepcao');
-      const recepcao = inputRec ? (parseInt(inputRec.value) || 0) : 0;
-      const campo = Math.max(0, uteis - recepcao);
-      
-      let metaVisitas = 80; // Valor por defeito
-      if (typeof familias !== 'undefined') {
-          const config = JSON.parse(localStorage.getItem("metasConfig2")) || { metaVisitasPct: 80 };
-          const totalFamilias = familias.length;
-          metaVisitas = Math.ceil(totalFamilias * (config.metaVisitasPct / 100)) || 80;
-      }
-      
-      const diaria = campo > 0 ? (metaVisitas / campo).toFixed(1) : metaVisitas;
+    const uteis = calcularDiasUteis();
+    const inputRec = document.getElementById('inputRecepcao');
+    const recepcao = inputRec ? (parseInt(inputRec.value) || 0) : 0;
+    const campo = Math.max(0, uteis - recepcao);
 
-      if(document.getElementById('cardDiasUteis')) document.getElementById('cardDiasUteis').textContent = uteis;
-      if(document.getElementById('cardDiasCampo')) document.getElementById('cardDiasCampo').textContent = campo;
-      if(document.getElementById('cardMetaDiaria')) document.getElementById('cardMetaDiaria').textContent = diaria;
-      
-      salvarAgenda();
+    let metaVisitas = 80;
+    if (typeof familias !== 'undefined') {
+      const config = JSON.parse(localStorage.getItem("metasConfig2")) || { metaVisitasPct: 80 };
+      const totalFamilias = familias.length;
+      metaVisitas = Math.ceil(totalFamilias * (config.metaVisitasPct / 100)) || 80;
+    }
+    const diaria = campo > 0 ? (metaVisitas / campo).toFixed(1) : metaVisitas;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('cardDiasUteis',  uteis);
+    set('cardDiasCampo',  campo);
+    set('cardMetaDiaria', diaria);
+    salvarAgenda();
   }
 
   function adicionarAoRoteiro() {
-      const famId = document.getElementById('selectFamiliaRota').value;
-      const data = document.getElementById('dataRota').value;
-      if (!famId || !data) {
-          alert("Por favor, selecione a família e a data!");
-          return;
-      }
+    const famId = document.getElementById('selectFamiliaRota').value;
+    const data  = document.getElementById('dataRota').value;
+    if (!famId || !data) { alert("Por favor, selecione a família e a data!"); return; }
 
-      const fam = familias.find(f => f.id == famId);
-      if (!fam) return;
+    const fam = familias.find(f => f.id == famId);
+    if (!fam) return;
 
-      const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
-      
-      roteiro.push({
-          id: Date.now(),
-          familiaId: famId,
-          responsavel: fam.responsavel,
-          rua: fam.logradouro,
-          data: data,
-          status: '⏳ Planejada'
-      });
-
-      localStorage.setItem("roteiroDigital", JSON.stringify(roteiro));
-      renderizarRoteiro();
+    const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
+    roteiro.push({
+      id: Date.now(),
+      familiaId: famId,
+      responsavel: fam.responsavel,
+      rua: fam.logradouro,
+      data: data,
+      status: '⏳ Planejada'
+    });
+    localStorage.setItem("roteiroDigital", JSON.stringify(roteiro));
+    renderizarRoteiro();
   }
 
   function renderizarRoteiro() {
-      const lista = document.getElementById('listaRoteiroDiario');
-      if (!lista) return;
-      
-      const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
-      lista.innerHTML = "";
+    const lista = document.getElementById('listaRoteiroDiario');
+    if (!lista) return;
 
-      roteiro.sort((a,b) => new Date(a.data) - new Date(b.data)).forEach(item => {
-          const statusClass = item.status.includes('⏳') ? 'status-aguardando' : 'status-concluida';
-          lista.innerHTML += `
-            <li style="display:flex; flex-direction:column; align-items:flex-start; padding:12px 0; border-bottom:1px solid #edf2f7;">
-                <div style="display:flex; justify-content:space-between; width:100%;">
-                    <strong style="color:#2c5282;">${item.responsavel}</strong>
-                    <span class="status-badge ${statusClass}">${item.status}</span>
-                </div>
-                <div style="font-size:12px; color:#718096; width:100%; display:flex; justify-content:space-between; margin-top:6px;">
-                    <span>📍 ${item.rua} · 📅 ${item.data.split('-').reverse().join('/')}</span>
-                    <button onclick="removerDoRoteiro(${item.id})" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-weight:bold;">Excluir</button>
-                </div>
-            </li>`;
-      });
+    const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
+    lista.innerHTML = "";
+
+    // Conta realizadas para o badge
+    const qtdRealizadas = roteiro.filter(i =>
+      i.status && (i.status.includes('✅') || i.status.toLowerCase().includes('realizada'))
+    ).length;
+
+    const badge = document.getElementById('badgeRealizadasOcultas');
+    if (!realizadasVisiveis && qtdRealizadas > 0) {
+      badge.textContent = `${qtdRealizadas} oculta${qtdRealizadas > 1 ? 's' : ''}`;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+
+    // Mostra o botão só se houver pelo menos uma realizada
+    const btnToggle = document.getElementById('btnToggleRealizadas');
+    if (btnToggle) btnToggle.style.display = qtdRealizadas > 0 ? 'inline-flex' : 'none';
+
+    roteiro.sort((a, b) => new Date(a.data) - new Date(b.data)).forEach(item => {
+      const isRealizada = item.status && (
+        item.status.includes('✅') || item.status.toLowerCase().includes('realizada')
+      );
+      const statusClass = isRealizada ? 'status-concluida' : 'status-aguardando';
+
+      // Oculta item se for realizada e o toggle estiver fechado
+      const ocultarEste = isRealizada && !realizadasVisiveis;
+
+      lista.innerHTML += `
+        <li class="roteiro-item${ocultarEste ? ' realizada-oculta' : ''}">
+          <div style="display:flex; justify-content:space-between; width:100%;">
+            <strong style="color:#2c5282;">${item.responsavel}</strong>
+            <span class="status-badge ${statusClass}">${item.status}</span>
+          </div>
+          <div style="font-size:12px; color:#718096; width:100%; display:flex; justify-content:space-between; margin-top:6px;">
+            <span>📍 ${item.rua} · 📅 ${item.data.split('-').reverse().join('/')}</span>
+            <button onclick="removerDoRoteiro(${item.id})"
+                    style="background:none; border:none; color:#e53e3e; cursor:pointer; font-weight:bold;">
+              Excluir
+            </button>
+          </div>
+        </li>`;
+    });
+
+    // Mensagem quando tudo está realizado e oculto
+    if (!realizadasVisiveis && qtdRealizadas === roteiro.length && roteiro.length > 0) {
+      lista.innerHTML += `
+        <li style="padding:20px 0;text-align:center;color:#718096;font-size:13px;list-style:none;">
+          ✅ Todas as visitas do roteiro foram realizadas!
+        </li>`;
+    }
   }
 
   function removerDoRoteiro(id) {
-      let roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
-      roteiro = roteiro.filter(i => i.id !== id);
-      localStorage.setItem("roteiroDigital", JSON.stringify(roteiro));
-      renderizarRoteiro();
+    let roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
+    roteiro = roteiro.filter(i => i.id !== id);
+    localStorage.setItem("roteiroDigital", JSON.stringify(roteiro));
+    renderizarRoteiro();
   }
 
   function salvarAgenda() {
-      const inputRec = document.getElementById('inputRecepcao');
-      if (!inputRec) return;
-      const dados = {
-          recepcao: inputRec.value,
-          estadoCal: estadoCal,
-          notasObs: notasObs
-      };
-      localStorage.setItem("dadosAgenda", JSON.stringify(dados));
+    const inputRec = document.getElementById('inputRecepcao');
+    if (!inputRec) return;
+    localStorage.setItem("dadosAgenda", JSON.stringify({
+      recepcao: inputRec.value,
+      estadoCal: estadoCal,
+      notasObs: notasObs
+    }));
   }
 
   // ── Escala: calendário clicável ──────────────────────────────
   const nomesDias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const tipoSeqCal = { '':'campo','campo':'ubs','ubs':'reuniao','reuniao':'fora','fora':'falta','falta':'folga','folga':'' };
   let estadoCal = {};
-  let notasObs = [];
+  let notasObs  = [];
 
   function getDiasUteisMes() {
-      const hoje = new Date();
-      const ano = hoje.getFullYear(), mes = hoje.getMonth();
-      const ultimo = new Date(ano, mes+1, 0).getDate();
-      const dias = [];
-      for (let d = 1; d <= ultimo; d++) {
-          const dow = new Date(ano, mes, d).getDay();
-          if (dow !== 0 && dow !== 6) dias.push({ d, dow });
-      }
-      return dias;
+    const hoje = new Date();
+    const ano = hoje.getFullYear(), mes = hoje.getMonth();
+    const ultimo = new Date(ano, mes + 1, 0).getDate();
+    const dias = [];
+    for (let d = 1; d <= ultimo; d++) {
+      const dow = new Date(ano, mes, d).getDay();
+      if (dow !== 0 && dow !== 6) dias.push({ d, dow });
+    }
+    return dias;
   }
 
   function buildCalEscala() {
-      const cal = document.getElementById('calEscala');
-      if (!cal) return;
-      cal.innerHTML = '';
-      getDiasUteisMes().forEach(({ d, dow }) => {
-          const chip = document.createElement('div');
-          chip.className = 'day-chip' + (estadoCal[d] ? ' ' + estadoCal[d] : '');
-          chip.id = 'escChip-' + d;
-          chip.innerHTML = '<span class="dn">' + nomesDias[dow] + '</span><span>' + d + '</span>';
-          chip.title = 'Clique para alternar tipo';
-          chip.onclick = () => toggleCalDia(d);
-          cal.appendChild(chip);
-      });
-      atualizarResumoEscala();
+    const cal = document.getElementById('calEscala');
+    if (!cal) return;
+    cal.innerHTML = '';
+    getDiasUteisMes().forEach(({ d, dow }) => {
+      const chip = document.createElement('div');
+      chip.className = 'day-chip' + (estadoCal[d] ? ' ' + estadoCal[d] : '');
+      chip.id = 'escChip-' + d;
+      chip.innerHTML = '<span class="dn">' + nomesDias[dow] + '</span><span>' + d + '</span>';
+      chip.title = 'Clique para alternar tipo';
+      chip.onclick = () => toggleCalDia(d);
+      cal.appendChild(chip);
+    });
+    atualizarResumoEscala();
   }
 
   function toggleCalDia(d) {
-      const atual = estadoCal[d] || '';
-      const prox = tipoSeqCal[atual];
-      estadoCal[d] = prox;
-      const chip = document.getElementById('escChip-' + d);
-      if (chip) chip.className = 'day-chip' + (prox ? ' ' + prox : '');
-      atualizarResumoEscala();
-      salvarAgenda();
+    const atual = estadoCal[d] || '';
+    estadoCal[d] = tipoSeqCal[atual];
+    const chip = document.getElementById('escChip-' + d);
+    if (chip) chip.className = 'day-chip' + (estadoCal[d] ? ' ' + estadoCal[d] : '');
+    atualizarResumoEscala();
+    salvarAgenda();
   }
 
   function atualizarResumoEscala() {
-      let campo = 0, ubs = 0, reuniao = 0, fora = 0;
-      Object.values(estadoCal).forEach(v => {
-          if (v === 'campo') campo++;
-          else if (v === 'ubs') ubs++;
-          else if (v === 'reuniao') reuniao++;
-          else if (v === 'fora') fora++;
-      });
-      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-      set('resumoCampo', campo);
-      set('resumoUBS', ubs);
-      set('resumoReuniao', reuniao);
-      set('resumoFora', fora);
+    let campo = 0, ubs = 0, reuniao = 0, fora = 0;
+    Object.values(estadoCal).forEach(v => {
+      if (v === 'campo') campo++;
+      else if (v === 'ubs') ubs++;
+      else if (v === 'reuniao') reuniao++;
+      else if (v === 'fora') fora++;
+    });
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('resumoCampo',   campo);
+    set('resumoUBS',     ubs);
+    set('resumoReuniao', reuniao);
+    set('resumoFora',    fora);
   }
 
   const corNota = { reuniao:'#7F77DD', atividade:'#1D9E75', treinamento:'#378ADD', fora:'#EF9F27', outro:'#888780' };
 
   function adicionarObsAgenda() {
-      const tipo = document.getElementById('obsTipo').value;
-      const texto = document.getElementById('obsAgenda').value.trim();
-      if (!texto) return;
-      notasObs.push({ tipo, texto });
-      renderNotasObs();
-      document.getElementById('obsAgenda').value = '';
-      salvarAgenda();
+    const tipo  = document.getElementById('obsTipo').value;
+    const texto = document.getElementById('obsAgenda').value.trim();
+    if (!texto) return;
+    notasObs.push({ tipo, texto });
+    renderNotasObs();
+    document.getElementById('obsAgenda').value = '';
+    salvarAgenda();
   }
 
   function removerNotaObs(i) {
-      notasObs.splice(i, 1);
-      renderNotasObs();
-      salvarAgenda();
+    notasObs.splice(i, 1);
+    renderNotasObs();
+    salvarAgenda();
   }
 
   function renderNotasObs() {
-      const lista = document.getElementById('listaObsAgenda');
-      if (!lista) return;
-      lista.innerHTML = '';
-      notasObs.forEach((n, i) => {
-          const div = document.createElement('div');
-          div.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #edf2f7;';
-          div.innerHTML =
-            '<div style="width:8px;height:8px;border-radius:50%;background:' + (corNota[n.tipo]||'#888') + ';margin-top:5px;flex-shrink:0;"></div>' +
-            '<span style="font-size:12px;color:#4a5568;flex:1;">' + n.texto + '</span>' +
-            '<button onclick="removerNotaObs(' + i + ')" style="background:none;border:none;cursor:pointer;color:#a0aec0;font-size:14px;padding:0;line-height:1;" title="Remover">\xd7</button>';
-          lista.appendChild(div);
-      });
+    const lista = document.getElementById('listaObsAgenda');
+    if (!lista) return;
+    lista.innerHTML = '';
+    notasObs.forEach((n, i) => {
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #edf2f7;';
+      div.innerHTML =
+        '<div style="width:8px;height:8px;border-radius:50%;background:' + (corNota[n.tipo] || '#888') + ';margin-top:5px;flex-shrink:0;"></div>' +
+        '<span style="font-size:12px;color:#4a5568;flex:1;">' + n.texto + '</span>' +
+        '<button onclick="removerNotaObs(' + i + ')" style="background:none;border:none;cursor:pointer;color:#a0aec0;font-size:14px;padding:0;line-height:1;" title="Remover">\xd7</button>';
+      lista.appendChild(div);
+    });
   }
-
 </script>
 </body>
 </html>
