@@ -19,61 +19,18 @@
     .progresso-dia .prog-barra { height:100%; border-radius:999px; background:#3182ce; transition:width 0.6s ease, background 0.4s ease; }
     .progresso-dia .prog-num { font-size:28px; font-weight:800; color:#1a365d; letter-spacing:-0.03em; white-space:nowrap; }
 
-    /* ── Controles de visualização ── */
-    .controles-percurso {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .btn-modo {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: 20px;
-      border: 1.5px solid #e2e8f0;
-      background: white;
-      font-size: 13px;
-      font-weight: 600;
-      color: #4a5568;
-      cursor: pointer;
-      transition: all 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-modo.ativo { background: #2b6cb0; color: white; border-color: #2b6cb0; }
-    .btn-modo:hover:not(.ativo) { background: #edf2f7; }
+    .controles-percurso { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+    .btn-modo { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:20px; border:1.5px solid #e2e8f0; background:white; font-size:13px; font-weight:600; color:#4a5568; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+    .btn-modo.ativo { background:#2b6cb0; color:white; border-color:#2b6cb0; }
+    .btn-modo:hover:not(.ativo) { background:#edf2f7; }
 
-    /* ── Cabeçalho de rua (modo agrupado) ── */
-    .rua-grupo { margin-bottom: 20px; }
-    .rua-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #2b6cb0;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 8px 8px 0 0;
-      font-weight: 700;
-      font-size: 14px;
-    }
-    .rua-header .rua-badge {
-      background: rgba(255,255,255,0.2);
-      border-radius: 999px;
-      padding: 2px 10px;
-      font-size: 12px;
-    }
-    .rua-cards { border: 1px solid #bee3f8; border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; }
-    .rua-cards .visita-card { border-radius: 0; margin-bottom: 0; border-left-width: 4px; box-shadow: none; border-bottom: 1px solid #edf2f7; }
-    .rua-cards .visita-card:last-child { border-bottom: none; }
-
-    /* ── Resumo por rua ── */
-    .rua-resumo {
-      font-size: 12px;
-      opacity: 0.75;
-      margin-left: auto;
-    }
+    .rua-grupo { margin-bottom:20px; }
+    .rua-header { display:flex; align-items:center; gap:10px; background:#2b6cb0; color:white; padding:10px 16px; border-radius:8px 8px 0 0; font-weight:700; font-size:14px; }
+    .rua-header .rua-badge { background:rgba(255,255,255,0.2); border-radius:999px; padding:2px 10px; font-size:12px; }
+    .rua-cards { border:1px solid #bee3f8; border-top:none; border-radius:0 0 8px 8px; overflow:hidden; }
+    .rua-cards .visita-card { border-radius:0; margin-bottom:0; border-left-width:4px; box-shadow:none; border-bottom:1px solid #edf2f7; }
+    .rua-cards .visita-card:last-child { border-bottom:none; }
+    .rua-resumo { font-size:12px; opacity:0.75; margin-left:auto; }
 
     .visita-card { background:white; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.06); margin-bottom:12px; border-left:5px solid #3182ce; overflow:hidden; transition:box-shadow 0.2s; }
     .visita-card:hover { box-shadow:0 8px 24px rgba(0,0,0,0.10); }
@@ -101,6 +58,47 @@
     .estado-vazio { text-align:center; padding:40px 20px; background:white; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.06); }
     .estado-vazio .emoji { font-size:48px; margin-bottom:12px; }
     .estado-vazio p { color:#718096; margin-bottom:18px; font-size:15px; }
+
+    /* ── Canvas de assinatura ── */
+    #assinaturaCanvas {
+      width: 100%;
+      height: 130px;
+      border: 2px dashed #cbd5e0;
+      border-radius: 10px;
+      background: #f7fafc;
+      cursor: crosshair;
+      touch-action: none;
+      display: block;
+    }
+    #assinaturaCanvas.tem-traço {
+      border-color: #48bb78;
+      border-style: solid;
+      background: #fff;
+    }
+    .assinatura-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4a5568;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .assinatura-aviso {
+      font-size: 11px;
+      color: #a0aec0;
+      text-align: center;
+      margin-top: 4px;
+    }
+    .btn-limpar-ass {
+      background: none;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: #718096;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-limpar-ass:hover { background: #fff5f5; color: #e53e3e; border-color: #fc8181; }
   </style>
 </head>
 <body style="padding-bottom:90px;">
@@ -114,14 +112,12 @@
              style="width:100%;padding:10px;border-radius:6px;border:1.5px solid #cbd5e0;font-size:16px;background:white;height:44px;">
     </header>
 
-    <!-- Controles de modo de visualização -->
     <div class="controles-percurso" id="controlesPercurso" style="display:none;">
       <button class="btn-modo ativo" id="btnModoLista" onclick="setModo('lista')">📋 Lista</button>
       <button class="btn-modo" id="btnModoRua" onclick="setModo('rua')">🏘️ Agrupar por Rua</button>
       <span style="font-size:13px;color:#718096;margin-left:4px;" id="lblModo">Visitas organizadas em ordem de adição</span>
     </div>
 
-    <!-- Barra de progresso -->
     <div id="progressoDia" style="display:none;" class="progresso-dia">
       <div class="prog-texto">
         <div class="prog-titulo">Progresso do dia</div>
@@ -132,10 +128,7 @@
       <div class="prog-num" id="progNum">0/0</div>
     </div>
 
-    <!-- Botão rota completa Maps -->
     <div id="containerRotaCompleta"></div>
-
-    <!-- Lista de visitas -->
     <div id="listaPercurso"></div>
 
   </main>
@@ -149,8 +142,86 @@
 
   <script src="script.js"></script>
   <script>
-    let modoVisualizacao = 'lista'; // 'lista' ou 'rua'
+    let modoVisualizacao = 'lista';
     let visitasHojeCached = [];
+
+    // ── Canvas de assinatura ──────────────────────────────────
+    let assCanvas = null, assCtx = null, assDesenhando = false, assTemTraco = false;
+
+    function initCanvas() {
+      assCanvas = document.getElementById('assinaturaCanvas');
+      if (!assCanvas) return;
+      assCtx = assCanvas.getContext('2d');
+
+      // Ajusta resolução para telas de alta densidade (Retina/HiDPI)
+      const rect = assCanvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      assCanvas.width  = rect.width  * dpr;
+      assCanvas.height = rect.height * dpr;
+      assCtx.scale(dpr, dpr);
+      assCtx.strokeStyle = '#1a365d';
+      assCtx.lineWidth   = 2.2;
+      assCtx.lineCap     = 'round';
+      assCtx.lineJoin    = 'round';
+      assTemTraco = false;
+
+      // Mouse
+      assCanvas.addEventListener('mousedown',  assIniciar);
+      assCanvas.addEventListener('mousemove',  assDesenhar);
+      assCanvas.addEventListener('mouseup',    assParar);
+      assCanvas.addEventListener('mouseleave', assParar);
+      // Touch
+      assCanvas.addEventListener('touchstart',  assTouchIniciar,  { passive: false });
+      assCanvas.addEventListener('touchmove',   assTouchDesenhar, { passive: false });
+      assCanvas.addEventListener('touchend',    assParar);
+    }
+
+    function posCanvas(e) {
+      const rect = assCanvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
+    function assIniciar(e) {
+      assDesenhando = true;
+      const p = posCanvas(e);
+      assCtx.beginPath();
+      assCtx.moveTo(p.x, p.y);
+    }
+    function assDesenhar(e) {
+      if (!assDesenhando) return;
+      const p = posCanvas(e);
+      assCtx.lineTo(p.x, p.y);
+      assCtx.stroke();
+      if (!assTemTraco) {
+        assTemTraco = true;
+        assCanvas.classList.add('tem-traço');
+      }
+    }
+    function assParar() { assDesenhando = false; }
+
+    function assTouchIniciar(e) {
+      e.preventDefault();
+      const t = e.touches[0];
+      assIniciar({ clientX: t.clientX, clientY: t.clientY });
+    }
+    function assTouchDesenhar(e) {
+      e.preventDefault();
+      const t = e.touches[0];
+      assDesenhar({ clientX: t.clientX, clientY: t.clientY });
+    }
+
+    function limparAssinatura() {
+      if (!assCtx || !assCanvas) return;
+      assCtx.clearRect(0, 0, assCanvas.width, assCanvas.height);
+      assTemTraco = false;
+      assCanvas.classList.remove('tem-traço');
+    }
+
+    function obterAssinatura() {
+      if (!assCanvas || !assTemTraco) return null;
+      return assCanvas.toDataURL('image/png');
+    }
+    // ─────────────────────────────────────────────────────────
 
     function setModo(modo) {
       modoVisualizacao = modo;
@@ -220,35 +291,27 @@
         </div>`;
     }
 
-    // ── Renderiza no modo lista ──
     function renderizarModoLista(visitas) {
       return visitas.map((item, idx) => cardHtml(item, idx)).join('');
     }
 
-    // ── Renderiza no modo agrupado por rua ──
     function renderizarModoRua(visitas) {
-      // Agrupa por logradouro (normaliza texto)
       const grupos = {};
       visitas.forEach((item, idx) => {
         const rua = (item.rua || 'Endereço não informado').trim();
-        // Extrai só o nome da rua (sem número)
         const nomeRua = rua.replace(/,?\s*\d+.*$/, '').trim() || rua;
         if (!grupos[nomeRua]) grupos[nomeRua] = [];
         grupos[nomeRua].push({ item, idx });
       });
-
       const ruasOrdenadas = Object.keys(grupos).sort();
-
       return ruasOrdenadas.map(rua => {
         const itens = grupos[rua];
         const feitas = itens.filter(({item}) => item.status && (item.status.includes('✅') || item.status.includes('Realizada'))).length;
         const enderecos = itens.map(({item}) => item.rua).filter(Boolean);
-
         let botaoRota = '';
         if (enderecos.length >= 2) {
           botaoRota = `<a href="${urlRotaCompleta(enderecos)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#ebf8ff;text-decoration:none;background:rgba(255,255,255,0.15);padding:3px 8px;border-radius:4px;">🗺️ Rota da rua</a>`;
         }
-
         return `
           <div class="rua-grupo">
             <div class="rua-header">
@@ -307,10 +370,8 @@
         return;
       }
 
-      // Mostra controles de modo
       if (ctrlDiv) ctrlDiv.style.display = 'flex';
 
-      // Barra de progresso
       const realizadas = visitasHoje.filter(i => i.status && (i.status.includes('✅') || i.status.includes('Realizada'))).length;
       const total      = visitasHoje.length;
       const pct        = Math.round((realizadas / total) * 100);
@@ -321,7 +382,6 @@
       document.getElementById('progBarra').style.background = corBarra;
       document.getElementById('progNum').textContent        = `${realizadas}/${total}`;
 
-      // Botão rota completa (modo lista)
       const enderecos = visitasHoje.map(i => i.rua).filter(Boolean);
       if (enderecos.length >= 2 && modoVisualizacao === 'lista') {
         rotaDiv.innerHTML = `
@@ -340,21 +400,24 @@
       window.location.href = `visitas.html?familiaId=${familiaId}`;
     }
 
-    // ── Modal de Visita Rápida ──
+    // ── Modal de Visita Rápida ────────────────────────────────
     function abrirModalVisitaRapida(familiaId, itemId) {
       const fam = (JSON.parse(localStorage.getItem('familias'))||[]).find(f=>f.id==familiaId);
       const nomeFam = fam ? `${fam.responsavel}` : 'Família';
       document.getElementById('modalVRNome').textContent = nomeFam;
       document.getElementById('modalVRFamiliaId').value = familiaId;
       document.getElementById('modalVRItemId').value = itemId;
-      // Data de hoje
       const h = new Date(); h.setMinutes(h.getMinutes()-h.getTimezoneOffset());
       document.getElementById('modalVRData').value = h.toISOString().split('T')[0];
       document.getElementById('modalVisitaRapida').style.display = 'flex';
+
+      // Inicia canvas DEPOIS que o modal está visível (precisa de dimensões reais)
+      requestAnimationFrame(() => { initCanvas(); });
     }
 
     function fecharModalVisitaRapida() {
       document.getElementById('modalVisitaRapida').style.display = 'none';
+      limparAssinatura();
     }
 
     function confirmarVisitaRapida() {
@@ -363,6 +426,7 @@
       const desfecho  = document.getElementById('modalVRDesfecho').value;
       const obs       = document.getElementById('modalVRObs').value;
       const data      = document.getElementById('modalVRData').value;
+      const assinatura = obterAssinatura(); // null se não assinou
 
       const fam = (JSON.parse(localStorage.getItem('familias'))||[]).find(f=>f.id==familiaId);
       const novaVisita = {
@@ -376,13 +440,12 @@
         desfecho,
         info: obs || '',
         foto: null,
-        assinatura: null
+        assinatura: assinatura  // salva a imagem PNG em base64
       };
       const visitas = JSON.parse(localStorage.getItem('visitas')||'[]');
       visitas.push(novaVisita);
       localStorage.setItem('visitas', JSON.stringify(visitas));
 
-      // Atualiza status no roteiro
       const roteiro = JSON.parse(localStorage.getItem('roteiroDigital')||'[]');
       const idx = roteiro.findIndex(r => r.id == itemId);
       if (idx >= 0) {
@@ -405,9 +468,13 @@
 
     window.addEventListener('load', carregarPercurso);
   </script>
+
   <!-- ════ MODAL DE VISITA RÁPIDA ════ -->
-  <div id="modalVisitaRapida" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:flex-end;justify-content:center;padding:0;">
+  <div id="modalVisitaRapida"
+       style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:flex-end;justify-content:center;padding:0;overflow-y:auto;">
     <div style="background:white;border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:24px 20px 32px;box-shadow:0 -8px 32px rgba(0,0,0,0.15);">
+
+      <!-- Cabeçalho -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div>
           <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Registrar visita rápida</div>
@@ -415,12 +482,17 @@
         </div>
         <button onclick="fecharModalVisitaRapida()" style="background:#edf2f7;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
       </div>
+
       <input type="hidden" id="modalVRFamiliaId">
       <input type="hidden" id="modalVRItemId">
+
+      <!-- Data -->
       <div style="margin-bottom:12px;">
         <label style="font-size:12px;font-weight:700;color:#4a5568;display:block;margin-bottom:4px;">📅 Data</label>
         <input type="date" id="modalVRData" style="width:100%;padding:10px;border:1.5px solid #cbd5e0;border-radius:8px;font-size:15px;">
       </div>
+
+      <!-- Desfecho -->
       <div style="margin-bottom:12px;">
         <label style="font-size:12px;font-weight:700;color:#4a5568;display:block;margin-bottom:4px;">📋 Desfecho</label>
         <select id="modalVRDesfecho" style="width:100%;padding:10px;border:1.5px solid #cbd5e0;border-radius:8px;font-size:15px;">
@@ -429,14 +501,37 @@
           <option value="Visita Recusada">❌ Visita Recusada</option>
         </select>
       </div>
-      <div style="margin-bottom:20px;">
+
+      <!-- Observação -->
+      <div style="margin-bottom:16px;">
         <label style="font-size:12px;font-weight:700;color:#4a5568;display:block;margin-bottom:4px;">📝 Observação (opcional)</label>
-        <textarea id="modalVRObs" rows="2" placeholder="Ex: Verificou pressão arterial, orientado sobre medicação..." style="width:100%;padding:10px;border:1.5px solid #cbd5e0;border-radius:8px;font-size:14px;resize:none;box-sizing:border-box;"></textarea>
+        <textarea id="modalVRObs" rows="2"
+          placeholder="Ex: Verificou pressão arterial, orientado sobre medicação..."
+          style="width:100%;padding:10px;border:1.5px solid #cbd5e0;border-radius:8px;font-size:14px;resize:none;box-sizing:border-box;"></textarea>
       </div>
+
+      <!-- ── ASSINATURA ── -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <label class="assinatura-label">✍️ Assinatura do morador (opcional)</label>
+          <button class="btn-limpar-ass" onclick="limparAssinatura()">🗑️ Limpar</button>
+        </div>
+        <canvas id="assinaturaCanvas"></canvas>
+        <p class="assinatura-aviso">Assine com o dedo ou mouse no campo acima</p>
+      </div>
+
+      <!-- Botões -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button onclick="fecharModalVisitaRapida()" style="padding:14px;border:1.5px solid #e2e8f0;background:white;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;color:#4a5568;">Cancelar</button>
-        <button onclick="confirmarVisitaRapida()" style="padding:14px;background:#38a169;color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;">✅ Confirmar</button>
+        <button onclick="fecharModalVisitaRapida()"
+          style="padding:14px;border:1.5px solid #e2e8f0;background:white;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;color:#4a5568;">
+          Cancelar
+        </button>
+        <button onclick="confirmarVisitaRapida()"
+          style="padding:14px;background:#38a169;color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;">
+          ✅ Confirmar
+        </button>
       </div>
+
     </div>
   </div>
 
