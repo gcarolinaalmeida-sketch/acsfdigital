@@ -8,31 +8,27 @@
   <title>Planejamento - ACS Digital</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* ── Grid principal ── */
     .agenda-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
-      align-items: start; /* permite sticky funcionar */
+      align-items: start;
     }
     @media (max-width: 768px) {
       .agenda-grid { grid-template-columns: 1fr; }
     }
 
-    /* ── Coluna Escala: sticky no desktop ── */
     .escala-sticky {
       position: sticky;
-      top: 16px;          /* distância do topo da viewport ao rolar */
+      top: 16px;
       max-height: calc(100vh - 32px);
       overflow-y: auto;
-      /* scroll interno suave sem barra visível */
       scrollbar-width: thin;
       scrollbar-color: #cbd5e0 transparent;
     }
     .escala-sticky::-webkit-scrollbar { width: 4px; }
     .escala-sticky::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
 
-    /* No mobile, sticky não faz sentido — desabilita */
     @media (max-width: 768px) {
       .escala-sticky {
         position: static;
@@ -41,7 +37,6 @@
       }
     }
 
-    /* ── Badges de status ── */
     .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
     .status-aguardando { background: #feebc8; color: #744210; }
     .status-concluida  { background: #c6f6d5; color: #22543d; }
@@ -58,8 +53,9 @@
     .day-chip.fora    { background:#FAEEDA;border-color:#EF9F27;color:#854F0B; }
     .day-chip.falta   { background:#FCEBEB;border-color:#F09595;color:#A32D2D; }
     .day-chip.folga   { background:#F1EFE8;border-color:#B4B2A9;color:#5F5E5A; }
+    /* NOVO: Feriado */
+    .day-chip.feriado { background:#FEF3C7;border-color:#F59E0B;color:#92400E; }
 
-    /* ── Botão toggle visitas realizadas ── */
     .btn-toggle-realizadas {
       display: inline-flex;
       align-items: center;
@@ -83,7 +79,6 @@
     }
     .btn-toggle-realizadas.oculto:hover { background: #fed7d7; }
 
-    /* ── Item do roteiro realizado (para animação de hide) ── */
     .roteiro-item {
       display: flex;
       flex-direction: column;
@@ -97,7 +92,6 @@
       display: none;
     }
 
-    /* ── Contador de realizadas ocultas ── */
     .badge-realizadas-ocultas {
       display: inline-flex;
       align-items: center;
@@ -114,7 +108,6 @@
 </head>
 <body>
 
-<!-- HAMBÚRGUER MOBILE -->
 <button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
 
@@ -233,7 +226,6 @@
           <option value="">Selecione uma família...</option>
         </select>
 
-        <!-- Botão ocultar/mostrar realizadas -->
         <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px;">
           <button class="btn-toggle-realizadas" id="btnToggleRealizadas" onclick="toggleRealizadas()">
             👁️ Ocultar realizadas
@@ -250,12 +242,13 @@
       <div class="box">
         <h3>🏥 Escala e Observações</h3>
 
-        <!-- Calendário do mês -->
         <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">
           📆 Calendário do mês
           <span style="font-weight:400;color:#a0aec0;font-size:11px;">(clique para alternar)</span>
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:5px;" id="calEscala"></div>
+
+        <!-- Legenda — agora inclui Feriado -->
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;">
           <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E1F5EE;color:#0F6E56;">📍 Campo</span>
           <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E6F1FB;color:#185FA5;">🏥 UBS/Recepção</span>
@@ -263,11 +256,12 @@
           <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FAEEDA;color:#854F0B;">🚪 Fora da Unidade</span>
           <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FCEBEB;color:#A32D2D;">⚠️ Falta</span>
           <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#F1EFE8;color:#5F5E5A;">🌙 Folga</span>
+          <!-- NOVO -->
+          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FEF3C7;color:#92400E;">🎉 Feriado</span>
         </div>
 
         <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
 
-        <!-- Observações -->
         <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">📋 Observações do dia</p>
         <select id="obsTipo"
                 style="width:100%;margin-bottom:8px;padding:7px 10px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;color:#2d3748;"
@@ -292,7 +286,6 @@
 
         <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
 
-        <!-- Resumo do mês -->
         <h4 style="margin-bottom:10px;">Resumo do Mês</h4>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E1F5EE;border-radius:8px;">
@@ -311,18 +304,20 @@
             <span style="font-size:13px;color:#854F0B;font-weight:600;">🚪 Fora da unidade</span>
             <span style="font-size:18px;font-weight:600;color:#633806;" id="resumoFora">0</span>
           </div>
+          <!-- NOVO: Feriado no resumo -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#FEF3C7;border-radius:8px;">
+            <span style="font-size:13px;color:#92400E;font-weight:600;">🎉 Feriados</span>
+            <span style="font-size:18px;font-weight:600;color:#78350F;" id="resumoFeriado">0</span>
+          </div>
         </div>
       </div>
-    </div><!-- /escala-sticky -->
+    </div>
 
-  </div><!-- /agenda-grid -->
+  </div>
 </main>
 
 <script src="script.js"></script>
 <script>
-  // ─────────────────────────────────────────────
-  //  Estado: visitas realizadas visíveis ou não
-  // ─────────────────────────────────────────────
   let realizadasVisiveis = true;
 
   function toggleRealizadas() {
@@ -342,21 +337,48 @@
   }
 
   // ─────────────────────────────────────────────
-  //  Init
+  //  CORREÇÃO: estadoCal e notasObs declarados
+  //  ANTES do window.load para evitar referência
+  //  antecipada em salvarAgenda()
+  // ─────────────────────────────────────────────
+  const nomesDias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+  // CORREÇÃO: feriado adicionado na sequência de cliques
+  const tipoSeqCal = {
+    '':        'campo',
+    'campo':   'ubs',
+    'ubs':     'reuniao',
+    'reuniao': 'fora',
+    'fora':    'falta',
+    'falta':   'folga',
+    'folga':   'feriado',   // ← NOVO
+    'feriado': ''           // ← volta ao neutro
+  };
+
+  let estadoCal = {};
+  let notasObs  = [];
+
+  // ─────────────────────────────────────────────
+  //  CORREÇÃO PRINCIPAL: carrega localStorage
+  //  ANTES de buildCalEscala()
   // ─────────────────────────────────────────────
   window.addEventListener('load', function () {
-    popularSelectFamilias();
-    atualizarAgenda();
-    renderizarRoteiro();
-
+    // 1. Restaura dados salvos PRIMEIRO
     const salvos = JSON.parse(localStorage.getItem("dadosAgenda"));
     if (salvos) {
       if (document.getElementById('inputRecepcao') && salvos.recepcao)
         document.getElementById('inputRecepcao').value = salvos.recepcao;
-      if (salvos.estadoCal) estadoCal = salvos.estadoCal;
-      if (salvos.notasObs) { notasObs = salvos.notasObs; renderNotasObs(); }
+      if (salvos.estadoCal) estadoCal = salvos.estadoCal;       // ← restaura antes do build
+      if (salvos.notasObs)  { notasObs = salvos.notasObs; renderNotasObs(); }
     }
+
+    // 2. Só então constrói o calendário (já com estadoCal populado)
     buildCalEscala();
+
+    // 3. Resto
+    popularSelectFamilias();
+    atualizarAgenda();
+    renderizarRoteiro();
   });
 
   function popularSelectFamilias() {
@@ -434,7 +456,6 @@
     const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
     lista.innerHTML = "";
 
-    // Conta realizadas para o badge
     const qtdRealizadas = roteiro.filter(i =>
       i.status && (i.status.includes('✅') || i.status.toLowerCase().includes('realizada'))
     ).length;
@@ -447,7 +468,6 @@
       badge.style.display = 'none';
     }
 
-    // Mostra o botão só se houver pelo menos uma realizada
     const btnToggle = document.getElementById('btnToggleRealizadas');
     if (btnToggle) btnToggle.style.display = qtdRealizadas > 0 ? 'inline-flex' : 'none';
 
@@ -456,8 +476,6 @@
         item.status.includes('✅') || item.status.toLowerCase().includes('realizada')
       );
       const statusClass = isRealizada ? 'status-concluida' : 'status-aguardando';
-
-      // Oculta item se for realizada e o toggle estiver fechado
       const ocultarEste = isRealizada && !realizadasVisiveis;
 
       lista.innerHTML += `
@@ -476,7 +494,6 @@
         </li>`;
     });
 
-    // Mensagem quando tudo está realizado e oculto
     if (!realizadasVisiveis && qtdRealizadas === roteiro.length && roteiro.length > 0) {
       lista.innerHTML += `
         <li style="padding:20px 0;text-align:center;color:#718096;font-size:13px;list-style:none;">
@@ -501,12 +518,6 @@
       notasObs: notasObs
     }));
   }
-
-  // ── Escala: calendário clicável ──────────────────────────────
-  const nomesDias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const tipoSeqCal = { '':'campo','campo':'ubs','ubs':'reuniao','reuniao':'fora','fora':'falta','falta':'folga','folga':'' };
-  let estadoCal = {};
-  let notasObs  = [];
 
   function getDiasUteisMes() {
     const hoje = new Date();
@@ -546,18 +557,20 @@
   }
 
   function atualizarResumoEscala() {
-    let campo = 0, ubs = 0, reuniao = 0, fora = 0;
+    let campo = 0, ubs = 0, reuniao = 0, fora = 0, feriado = 0;
     Object.values(estadoCal).forEach(v => {
-      if (v === 'campo') campo++;
-      else if (v === 'ubs') ubs++;
+      if (v === 'campo')   campo++;
+      else if (v === 'ubs')     ubs++;
       else if (v === 'reuniao') reuniao++;
-      else if (v === 'fora') fora++;
+      else if (v === 'fora')    fora++;
+      else if (v === 'feriado') feriado++;   // ← NOVO
     });
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('resumoCampo',   campo);
-    set('resumoUBS',     ubs);
-    set('resumoReuniao', reuniao);
-    set('resumoFora',    fora);
+    set('resumoCampo',    campo);
+    set('resumoUBS',      ubs);
+    set('resumoReuniao',  reuniao);
+    set('resumoFora',     fora);
+    set('resumoFeriado',  feriado);  // ← NOVO
   }
 
   const corNota = { reuniao:'#7F77DD', atividade:'#1D9E75', treinamento:'#378ADD', fora:'#EF9F27', outro:'#888780' };
