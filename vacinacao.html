@@ -7,6 +7,7 @@
   <title>Vacinação - ACS Digital</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    /* ── Cards individuais ── */
     .vac-card { background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:16px; margin-bottom:12px; border-left:4px solid #e2e8f0; }
     .vac-card.ok      { border-left-color:#38a169; }
     .vac-card.atrasada{ border-left-color:#e53e3e; }
@@ -21,6 +22,263 @@
     .filtro-grupo { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
     .filtro-btn { padding:7px 14px; border:1.5px solid #e2e8f0; border-radius:20px; background:white; font-size:13px; cursor:pointer; transition:0.15s; }
     .filtro-btn.ativo { background:#2b6cb0; color:white; border-color:#2b6cb0; }
+
+    /* ── Abas ── */
+    .abas {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .aba-btn {
+      flex: 1;
+      padding: 13px 10px;
+      border: none;
+      background: white;
+      font-size: 14px;
+      font-weight: 600;
+      color: #718096;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      border-bottom: 3px solid transparent;
+      font-family: inherit;
+    }
+    .aba-btn.ativa {
+      background: #ebf8ff;
+      color: #2b6cb0;
+      border-bottom-color: #2b6cb0;
+    }
+    .aba-btn:hover:not(.ativa) { background: #f7fafc; }
+
+    /* ── Modo lote ── */
+    .lote-cidadao {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 10px;
+      overflow: hidden;
+      border-left: 4px solid #ed8936;
+      transition: border-color 0.2s;
+    }
+    .lote-cidadao.concluido { border-left-color: #38a169; }
+
+    .lote-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      gap: 10px;
+      flex-wrap: wrap;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lote-header:hover { background: #f8fafc; }
+
+    .lote-nome {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2c5282;
+      flex: 1;
+    }
+    .lote-info {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 2px;
+    }
+    .lote-badge-pend {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .lote-seta {
+      font-size: 16px;
+      color: #a0aec0;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .lote-cidadao.aberto .lote-seta { transform: rotate(90deg); }
+
+    .lote-vacinas {
+      display: none;
+      padding: 0 16px 14px;
+      border-top: 1px solid #edf2f7;
+    }
+    .lote-cidadao.aberto .lote-vacinas { display: block; }
+
+    /* ── Grid de vacinas no lote ── */
+    .lote-vacinas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .lote-vac-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      background: #f8fafc;
+      transition: border-color 0.15s, background 0.15s;
+      cursor: pointer;
+    }
+    .lote-vac-item.feita {
+      border-color: #9ae6b4;
+      background: #f0fff4;
+    }
+    .lote-vac-item.feita .lote-vac-nome { color: #22543d; }
+
+    .lote-vac-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+      transition: all 0.15s;
+      background: white;
+    }
+    .lote-vac-item.feita .lote-vac-check {
+      border-color: #38a169;
+      background: #38a169;
+      color: white;
+    }
+
+    .lote-vac-nome {
+      font-size: 13px;
+      font-weight: 600;
+      color: #4a5568;
+      flex: 1;
+      line-height: 1.3;
+    }
+    .lote-vac-idade {
+      font-size: 11px;
+      color: #a0aec0;
+      margin-top: 1px;
+    }
+
+    /* Data de aplicação inline */
+    .lote-vac-data {
+      font-size: 11px;
+      color: #38a169;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Botão marcar todas */
+    .btn-marcar-todas {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #2b6cb0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-marcar-todas:hover { background: #2c5282; }
+
+    .btn-desmarcar-todas {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      color: #e53e3e;
+      border: 1.5px solid #fed7d7;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      margin-left: 8px;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-desmarcar-todas:hover { background: #fff5f5; }
+
+    /* Progress bar lote */
+    .lote-progress {
+      height: 4px;
+      background: #edf2f7;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .lote-progress-fill {
+      height: 100%;
+      background: #38a169;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    /* Contador lote no topo */
+    .lote-resumo-topo {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .lote-stat {
+      background: white;
+      border-radius: 8px;
+      padding: 10px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .lote-stat .num { font-size: 20px; font-weight: 800; }
+    .lote-stat.verde .num { color: #22543d; }
+    .lote-stat.laranja .num { color: #c05621; }
+
+    /* Modal de data */
+    #modalDataVac {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 9999;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    #modalDataVac.aberto { display: flex; }
+    .modal-data-inner {
+      background: white;
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px 20px 32px;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+    }
+
+    /* Filtro lote */
+    .lote-filtros {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      align-items: center;
+    }
   </style>
 </head>
 <body style="padding-bottom:80px;">
@@ -60,7 +318,6 @@
       <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
       <div class="nav-submenu" id="sub_planejamento">
         <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
-        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
         <button onclick="window.location.href='percurso.html'">🚶 Percurso</button>
         <button onclick="window.location.href='mapa.html'">🗺️ Mapa</button>
       </div>
@@ -85,34 +342,89 @@
     <h1>💉 Controle de Vacinação</h1>
   </header>
 
+  <!-- Resumo -->
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px;" id="resumoVac"></div>
 
-  <div class="box" style="margin-bottom:14px;">
-    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-      <input type="text" id="buscaVac" placeholder="🔍 Buscar cidadão..." oninput="renderizarVacinacao()" style="flex:1;min-width:180px;">
-    </div>
-    <div class="filtro-grupo" id="filtroVacGrupo">
-      <button class="filtro-btn ativo" onclick="setFiltroVac('todos',this)">Todos</button>
-      <button class="filtro-btn" onclick="setFiltroVac('crianca',this)">👶 Crianças</button>
-      <button class="filtro-btn" onclick="setFiltroVac('gestante',this)">🤰 Gestantes</button>
-      <button class="filtro-btn" onclick="setFiltroVac('idoso',this)">👴 Idosos</button>
-      <button class="filtro-btn" onclick="setFiltroVac('pendente',this)">⚠️ Com pendência</button>
-    </div>
+  <!-- Abas -->
+  <div class="abas">
+    <button class="aba-btn ativa" id="abaIndividual" onclick="setAba('individual')">👤 Individual</button>
+    <button class="aba-btn" id="abaLote" onclick="setAba('lote')">⚡ Lote (rápido)</button>
   </div>
 
-  <div id="listaVacinacao"></div>
+  <!-- ════ ABA INDIVIDUAL ════ -->
+  <div id="conteudoIndividual">
+    <div class="box" style="margin-bottom:14px;">
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <input type="text" id="buscaVac" placeholder="🔍 Buscar cidadão..." oninput="renderizarVacinacao()" style="flex:1;min-width:180px;">
+      </div>
+      <div class="filtro-grupo" id="filtroVacGrupo">
+        <button class="filtro-btn ativo" onclick="setFiltroVac('todos',this)">Todos</button>
+        <button class="filtro-btn" onclick="setFiltroVac('crianca',this)">👶 Crianças</button>
+        <button class="filtro-btn" onclick="setFiltroVac('gestante',this)">🤰 Gestantes</button>
+        <button class="filtro-btn" onclick="setFiltroVac('idoso',this)">👴 Idosos</button>
+        <button class="filtro-btn" onclick="setFiltroVac('pendente',this)">⚠️ Com pendência</button>
+      </div>
+    </div>
+    <div id="listaVacinacao"></div>
+  </div>
 
-  <nav class="bottom-nav no-print">
-    <a href="index.html" class="nav-item">🏠<span>Início</span></a>
-    <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
-    <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
-    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
-  </nav>
+  <!-- ════ ABA LOTE ════ -->
+  <div id="conteudoLote" style="display:none;">
+    <div class="box" style="margin-bottom:14px;">
+      <p style="font-size:13px;color:#4a5568;margin-bottom:12px;">
+        Toque em um cidadão para expandir e marcar as vacinas rapidamente. A data de hoje é preenchida automaticamente — você pode alterar se necessário.
+      </p>
+      <div class="lote-filtros">
+        <input type="text" id="buscaLote" placeholder="🔍 Buscar cidadão..." oninput="renderizarLote()" style="flex:1;min-width:180px;">
+        <select id="filtroLoteGrupo" onchange="renderizarLote()" style="padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;background:white;min-height:44px;">
+          <option value="pendente">⚠️ Só pendentes</option>
+          <option value="crianca">👶 Crianças</option>
+          <option value="gestante">🤰 Gestantes</option>
+          <option value="idoso">👴 Idosos</option>
+          <option value="todos">Todos</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="lote-resumo-topo" id="loteResumoTopo"></div>
+    <div id="listaLote"></div>
+  </div>
+
 </main>
+
+<!-- Modal de data de aplicação -->
+<div id="modalDataVac">
+  <div class="modal-data-inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Data de aplicação</div>
+        <div style="font-size:16px;font-weight:800;color:#1a365d;" id="modalVacNome">—</div>
+      </div>
+      <button onclick="fecharModalData()" style="background:#edf2f7;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <input type="hidden" id="modalVacMembroId">
+    <input type="hidden" id="modalVacVacina">
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;font-weight:700;color:#4a5568;display:block;margin-bottom:6px;">📅 Data</label>
+      <input type="date" id="modalVacData" style="width:100%;padding:10px;border:1.5px solid #cbd5e0;border-radius:8px;font-size:15px;">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button onclick="fecharModalData()" style="padding:14px;border:1.5px solid #e2e8f0;background:white;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;color:#4a5568;">Cancelar</button>
+      <button onclick="confirmarModalData()" style="padding:14px;background:#38a169;color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;">✅ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav no-print">
+  <a href="index.html" class="nav-item">🏠<span>Início</span></a>
+  <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
+  <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
+  <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
+</nav>
 
 <script src="script.js"></script>
 <script>
-  // Esquema de vacinação por faixa etária (simplificado PNI Brasil)
+  // ── Esquema PNI ──
   const VACINAS_CRIANCA = [
     { nome:"BCG", idade:"Ao nascer" },
     { nome:"Hepatite B", idade:"Ao nascer" },
@@ -141,12 +453,16 @@
   ];
 
   let filtroVacAtivo = 'todos';
+  let abaAtiva = 'individual';
 
-  function setFiltroVac(filtro, btn) {
-    filtroVacAtivo = filtro;
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
-    btn.classList.add('ativo');
-    renderizarVacinacao();
+  // ── Utilitários ──
+  function getVacinasPorMembro(m) {
+    const hoje = new Date();
+    const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
+    if (m.gestante === "Sim") return VACINAS_GESTANTE;
+    if (idade < 15) return VACINAS_CRIANCA;
+    if (idade >= 60) return VACINAS_IDOSO;
+    return [];
   }
 
   function getVacinacaoCidadao(m) {
@@ -157,30 +473,39 @@
   function salvarVacina(membroId, vacina, valor) {
     const todas = JSON.parse(localStorage.getItem("vacinacao")) || {};
     if (!todas[membroId]) todas[membroId] = {};
-    todas[membroId][vacina] = valor;
+    if (valor === '' || valor === null) {
+      delete todas[membroId][vacina];
+    } else {
+      todas[membroId][vacina] = valor;
+    }
     localStorage.setItem("vacinacao", JSON.stringify(todas));
   }
 
-  function renderizarVacinacao() {
+  function hojeISO() {
+    const h = new Date();
+    h.setMinutes(h.getMinutes() - h.getTimezoneOffset());
+    return h.toISOString().split('T')[0];
+  }
+
+  function formatarData(iso) {
+    if (!iso) return '';
+    const [a,m,d] = iso.split('-');
+    return `${d}/${m}/${a}`;
+  }
+
+  // ── Abas ──
+  function setAba(aba) {
+    abaAtiva = aba;
+    document.getElementById('abaIndividual').classList.toggle('ativa', aba === 'individual');
+    document.getElementById('abaLote').classList.toggle('ativa', aba === 'lote');
+    document.getElementById('conteudoIndividual').style.display = aba === 'individual' ? 'block' : 'none';
+    document.getElementById('conteudoLote').style.display = aba === 'lote' ? 'block' : 'none';
+    if (aba === 'lote') renderizarLote();
+  }
+
+  // ── Resumo geral ──
+  function renderizarResumo() {
     const hoje = new Date();
-    const busca = (document.getElementById("buscaVac")?.value || "").toLowerCase();
-    const container = document.getElementById("listaVacinacao");
-
-    let lista = membros.filter(m => {
-      if (busca && !(m.nome||"").toLowerCase().includes(busca)) return false;
-      const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
-      if (filtroVacAtivo === 'crianca') return idade < 15;
-      if (filtroVacAtivo === 'gestante') return m.gestante === "Sim";
-      if (filtroVacAtivo === 'idoso') return idade >= 60;
-      if (filtroVacAtivo === 'pendente') {
-        const vac = getVacinacaoCidadao(m);
-        const vacLista = getVacinasPorMembro(m);
-        return vacLista.some(v => !vac[v.nome]);
-      }
-      return true;
-    });
-
-    // Resumo
     let totalOk = 0, totalPend = 0;
     membros.forEach(m => {
       const vac = getVacinacaoCidadao(m);
@@ -202,6 +527,37 @@
         <div style="font-size:26px;font-weight:700;color:#2c5282;">${membros.length}</div>
         <div style="font-size:12px;color:#718096;">Total cidadãos</div>
       </div>`;
+  }
+
+  // ════════════════════════════════
+  //  ABA INDIVIDUAL
+  // ════════════════════════════════
+  function setFiltroVac(filtro, btn) {
+    filtroVacAtivo = filtro;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    renderizarVacinacao();
+  }
+
+  function renderizarVacinacao() {
+    const hoje = new Date();
+    const busca = (document.getElementById("buscaVac")?.value || "").toLowerCase();
+    const container = document.getElementById("listaVacinacao");
+
+    let lista = membros.filter(m => {
+      if (busca && !(m.nome||"").toLowerCase().includes(busca)) return false;
+      const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
+      if (filtroVacAtivo === 'crianca')  return idade < 15;
+      if (filtroVacAtivo === 'gestante') return m.gestante === "Sim";
+      if (filtroVacAtivo === 'idoso')    return idade >= 60;
+      if (filtroVacAtivo === 'pendente') {
+        const vac = getVacinacaoCidadao(m);
+        return getVacinasPorMembro(m).some(v => !vac[v.nome]);
+      }
+      return true;
+    });
+
+    renderizarResumo();
 
     if (lista.length === 0) {
       container.innerHTML = `<div class="box" style="text-align:center;padding:30px;color:#718096;">Nenhum cidadão encontrado.</div>`;
@@ -219,7 +575,7 @@
 
       const vacinasHtml = vacLista.map(v => {
         const feita = !!vac[v.nome];
-        const dataVac = vac[v.nome] || "";
+        const dataVac = vac[v.nome] ? formatarData(vac[v.nome]) : "";
         return `
         <div class="vacina-linha">
           <div>
@@ -229,8 +585,8 @@
           <div style="display:flex;align-items:center;gap:8px;">
             ${feita
               ? `<span class="badge-vac badge-ok">✅ ${dataVac}</span>
-                 <button onclick="salvarVacina(${m.id},'${v.nome}','');renderizarVacinacao()" style="background:none;border:none;color:#e53e3e;cursor:pointer;font-size:12px;">✖</button>`
-              : `<input type="date" onchange="salvarVacina(${m.id},'${v.nome}',this.value);renderizarVacinacao()" style="padding:4px 8px;border:1px solid #cbd5e0;border-radius:4px;font-size:12px;width:130px;" placeholder="Data aplicação">
+                 <button onclick="salvarVacina(${m.id},'${v.nome}','');renderizarVacinacao();renderizarResumo();" style="background:none;border:none;color:#e53e3e;cursor:pointer;font-size:12px;">✖</button>`
+              : `<input type="date" onchange="salvarVacina(${m.id},'${v.nome}',this.value);renderizarVacinacao();renderizarResumo();" style="padding:4px 8px;border:1px solid #cbd5e0;border-radius:4px;font-size:12px;width:130px;">
                  <span class="badge-vac badge-pendente">Pendente</span>`
             }
           </div>
@@ -255,16 +611,184 @@
     }).join('');
   }
 
-  function getVacinasPorMembro(m) {
+  // ════════════════════════════════
+  //  ABA LOTE
+  // ════════════════════════════════
+  function renderizarLote() {
     const hoje = new Date();
-    const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
-    if (m.gestante === "Sim") return VACINAS_GESTANTE;
-    if (idade < 15) return VACINAS_CRIANCA;
-    if (idade >= 60) return VACINAS_IDOSO;
-    return [];
+    const busca = (document.getElementById("buscaLote")?.value || "").toLowerCase();
+    const filtroGrupo = document.getElementById("filtroLoteGrupo")?.value || "pendente";
+    const container = document.getElementById("listaLote");
+    const resumoTopo = document.getElementById("loteResumoTopo");
+
+    let lista = membros.filter(m => {
+      if (busca && !(m.nome||"").toLowerCase().includes(busca)) return false;
+      const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
+      const vacLista = getVacinasPorMembro(m);
+      if (vacLista.length === 0) return false; // sem vacinas aplicáveis, pula
+
+      if (filtroGrupo === 'crianca')  return idade < 15;
+      if (filtroGrupo === 'gestante') return m.gestante === "Sim";
+      if (filtroGrupo === 'idoso')    return idade >= 60;
+      if (filtroGrupo === 'pendente') {
+        const vac = getVacinacaoCidadao(m);
+        return vacLista.some(v => !vac[v.nome]);
+      }
+      return true;
+    });
+
+    // Ordena: mais pendentes primeiro
+    lista.sort((a, b) => {
+      const vacA = getVacinacaoCidadao(a);
+      const vacB = getVacinacaoCidadao(b);
+      const pA = getVacinasPorMembro(a).filter(v => !vacA[v.nome]).length;
+      const pB = getVacinasPorMembro(b).filter(v => !vacB[v.nome]).length;
+      return pB - pA;
+    });
+
+    // Resumo topo lote
+    let totalPendLote = 0, totalVacinasPend = 0;
+    lista.forEach(m => {
+      const vac = getVacinacaoCidadao(m);
+      const p = getVacinasPorMembro(m).filter(v => !vac[v.nome]).length;
+      if (p > 0) { totalPendLote++; totalVacinasPend += p; }
+    });
+    resumoTopo.innerHTML = `
+      <div class="lote-stat laranja"><span class="num">${totalPendLote}</span> cidadão(s) com pendência</div>
+      <div class="lote-stat laranja"><span class="num">${totalVacinasPend}</span> vacina(s) a registrar</div>`;
+
+    if (lista.length === 0) {
+      container.innerHTML = `<div class="box" style="text-align:center;padding:30px;color:#718096;">✅ Nenhuma pendência encontrada!</div>`;
+      return;
+    }
+
+    container.innerHTML = lista.map(m => {
+      const vac = getVacinacaoCidadao(m);
+      const vacLista = getVacinasPorMembro(m);
+      const fam = familias.find(f => f.id == m.familia_id);
+      const hoje2 = new Date();
+      const idade = m.nascimento ? Math.floor((hoje2 - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : null;
+      const idadeStr = idade !== null ? `${idade} anos` : "—";
+      const pendentes = vacLista.filter(v => !vac[v.nome]).length;
+      const total = vacLista.length;
+      const pct = total > 0 ? Math.round(((total - pendentes) / total) * 100) : 100;
+      const concluido = pendentes === 0;
+
+      const vacinasGrid = vacLista.map(v => {
+        const feita = !!vac[v.nome];
+        const dataVac = vac[v.nome] || '';
+        return `
+          <div class="lote-vac-item ${feita ? 'feita' : ''}" id="loteItem_${m.id}_${v.nome.replace(/[^a-zA-Z0-9]/g,'_')}"
+               onclick="toggleVacinaLote(${m.id}, '${v.nome.replace(/'/g,"\\'")}', ${feita})">
+            <div class="lote-vac-check">${feita ? '✓' : ''}</div>
+            <div>
+              <div class="lote-vac-nome">${v.nome}</div>
+              <div class="lote-vac-idade">${v.idade}</div>
+              ${feita ? `<div class="lote-vac-data">📅 ${formatarData(dataVac)}</div>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+
+      return `
+      <div class="lote-cidadao ${concluido ? 'concluido' : ''}" id="loteCid_${m.id}">
+        <div class="lote-header" onclick="toggleLoteCidadao(${m.id})">
+          <div style="flex:1;min-width:0;">
+            <div class="lote-nome">👤 ${m.nome}</div>
+            <div class="lote-info">${idadeStr}${m.gestante==='Sim'?' · 🤰 Gestante':''}${fam ? ` · Família ${fam.numeroFamilia}` : ''}</div>
+            <div class="lote-progress" style="margin-top:6px;width:120px;">
+              <div class="lote-progress-fill" style="width:${pct}%;"></div>
+            </div>
+          </div>
+          <span class="lote-badge-pend" style="background:${concluido?'#c6f6d5':'#feebc8'};color:${concluido?'#22543d':'#744210'};">
+            ${concluido ? '✅ Em dia' : `${pendentes}/${total} pendente(s)`}
+          </span>
+          <span class="lote-seta">›</span>
+        </div>
+        <div class="lote-vacinas">
+          <div class="lote-vacinas-grid">${vacinasGrid}</div>
+          <div>
+            <button class="btn-marcar-todas" onclick="marcarTodasLote(${m.id})">✅ Marcar todas como hoje</button>
+            <button class="btn-desmarcar-todas" onclick="desmarcarTodasLote(${m.id})">✖ Desmarcar todas</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
-  window.addEventListener('load', renderizarVacinacao);
+  function toggleLoteCidadao(membroId) {
+    const el = document.getElementById(`loteCid_${membroId}`);
+    if (el) el.classList.toggle('aberto');
+  }
+
+  function toggleVacinaLote(membroId, vacina, jaFeita) {
+    if (jaFeita) {
+      // Desmarcar
+      salvarVacina(membroId, vacina, '');
+    } else {
+      // Marcar com data de hoje
+      salvarVacina(membroId, vacina, hojeISO());
+    }
+    renderizarLote();
+    renderizarResumo();
+    // Reabre o card do cidadão
+    setTimeout(() => {
+      const el = document.getElementById(`loteCid_${membroId}`);
+      if (el && !el.classList.contains('aberto')) el.classList.add('aberto');
+    }, 50);
+  }
+
+  function marcarTodasLote(membroId) {
+    const m = membros.find(x => x.id == membroId);
+    if (!m) return;
+    const vacLista = getVacinasPorMembro(m);
+    const vac = getVacinacaoCidadao(m);
+    vacLista.forEach(v => {
+      if (!vac[v.nome]) salvarVacina(membroId, v.nome, hojeISO());
+    });
+    renderizarLote();
+    renderizarResumo();
+    showToast(`✅ Vacinas de ${m.nome} marcadas!`, 'verde');
+  }
+
+  function desmarcarTodasLote(membroId) {
+    const m = membros.find(x => x.id == membroId);
+    if (!m) return;
+    if (!confirm(`Desmarcar todas as vacinas de ${m.nome}?`)) return;
+    const vacLista = getVacinasPorMembro(m);
+    vacLista.forEach(v => salvarVacina(membroId, v.nome, ''));
+    renderizarLote();
+    renderizarResumo();
+    showToast(`Vacinas de ${m.nome} desmarcadas.`, 'normal');
+  }
+
+  // ── Modal de data ──
+  function abrirModalData(membroId, vacina) {
+    document.getElementById('modalVacMembroId').value = membroId;
+    document.getElementById('modalVacVacina').value = vacina;
+    document.getElementById('modalVacNome').textContent = vacina;
+    document.getElementById('modalVacData').value = hojeISO();
+    document.getElementById('modalDataVac').classList.add('aberto');
+  }
+
+  function fecharModalData() {
+    document.getElementById('modalDataVac').classList.remove('aberto');
+  }
+
+  function confirmarModalData() {
+    const membroId = parseInt(document.getElementById('modalVacMembroId').value);
+    const vacina   = document.getElementById('modalVacVacina').value;
+    const data     = document.getElementById('modalVacData').value;
+    if (!data) { alert('Informe a data!'); return; }
+    salvarVacina(membroId, vacina, data);
+    fecharModalData();
+    renderizarLote();
+    renderizarResumo();
+  }
+
+  window.addEventListener('load', () => {
+    renderizarResumo();
+    renderizarVacinacao();
+  });
 </script>
 </body>
 </html>
