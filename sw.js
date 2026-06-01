@@ -1,6 +1,5 @@
-const CACHE_NAME = 'acs-digital-v3';
+const CACHE_NAME = 'acs-digital-v5';
 
-// Lista completa de ficheiros para funcionar offline
 const FILES_TO_CACHE = [
   './',
   './index.html',
@@ -11,66 +10,83 @@ const FILES_TO_CACHE = [
   './visitas.html',
   './visitas_lista.html',
   './pendencias.html',
-  './comprovantes.html',
   './relatorios.html',
-  './relatorios_mensal.html',
   './metas.html',
   './agenda.html',
-  './calendario.html',
   './percurso.html',
   './mapa.html',
   './configuracoes.html',
   './importador.html',
-  './notificacoes.html',
   './vacinacao.html',
   './bolsa_familia.html',
   './saude_cidadao.html',
   './pin.html',
   './style.css',
   './script.js',
-  './manifest.json',
-  'https://cdn-icons-png.flaticon.com/512/2966/2966327.png'
+  './manifest.json'
 ];
 
-// Instala e faz cache de todos os ficheiros
+// ── INSTALL: cache um por um, não falha se um arquivo não existir ──
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
+      return Promise.allSettled(
+        FILES_TO_CACHE.map(url =>
+          cache.add(url).catch(err => {
+            console.warn('[SW] Não conseguiu cachear:', url, err);
+          })
+        )
+      );
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Ativa e limpa versões antigas
+// ── ACTIVATE: remove caches antigos ──
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(keyList.map((key) => {
-        if (key !== CACHE_NAME) {
-          return caches.delete(key);
-        }
-      }));
-    })
+    caches.keys().then((keyList) =>
+      Promise.all(
+        keyList.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log('[SW] Removendo cache antigo:', key);
+            return caches.delete(key);
+          }
+        })
+      )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Estratégia: Network first, fallback para cache
+// ── FETCH: Cache first para arquivos locais, Network first para externos ──
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Ignora requisições não-GET e chrome-extension
+  if (event.request.method !== 'GET') return;
+  if (url.protocol === 'chrome-extension:') return;
+
+  // Para arquivos externos (CDN, APIs), tenta rede e ignora erro
+  if (url.origin !== self.location.origin) {
+    event.respondWith(
+      fetch(event.request).catch(() => new Response('', { status: 408 }))
+    );
+    return;
+  }
+
+  // Para arquivos locais: Cache first, atualiza em background
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Atualiza o cache com a versão mais recente
-        if (response && response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+    caches.match(event.request).then((cachedResponse) => {
+      // Busca atualização em background (stale-while-revalidate)
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }
-        return response;
-      })
-      .catch(() => {
-        // Sem internet: usa o cache
-        return caches.match(event.request);
-      })
+        return networkResponse;
+      }).catch(() => null);
+
+      // Retorna cache imediatamente se existir, senão aguarda rede
+      return cachedResponse || fetchPromise;
+    })
   );
 });
