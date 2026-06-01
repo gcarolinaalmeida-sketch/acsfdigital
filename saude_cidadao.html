@@ -3,233 +3,377 @@
 <head>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ACS Digital">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Saúde do Cidadão</title>
+<title>Visão Geral de Saúde - ACS Digital</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* ── CABEÇALHO DO CIDADÃO ── */
-  .cidadao-header {
-    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
-    color: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .cidadao-avatar {
-    width: 64px; height: 64px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px; flex-shrink: 0;
-    border: 3px solid rgba(255,255,255,0.4);
-  }
-  .cidadao-info { flex: 1; }
-  .cidadao-info h2 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
-  .cidadao-info .sub { font-size: 13px; opacity: 0.85; display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
-  .cidadao-info .sub span { display: flex; align-items: center; gap: 4px; }
-  .badge-status {
-    padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700;
-    display: inline-block; margin-top: 8px;
-  }
-  .badge-ativo   { background: #c6f6d5; color: #276749; }
-  .badge-inativo { background: #fed7d7; color: #9b2c2c; }
+/* ══════════════════════════════════════
+   CABEÇALHO DO CIDADÃO
+══════════════════════════════════════ */
+.cid-header {
+  background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
+  color: white;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 20px rgba(26,54,93,0.25);
+}
+.cid-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; flex-shrink: 0;
+  border: 3px solid rgba(255,255,255,0.4);
+}
+.cid-info { flex: 1; min-width: 0; }
+.cid-info h2 { font-size: 18px; font-weight: 800; margin: 0 0 4px; line-height: 1.2; }
+.cid-meta { font-size: 12px; opacity: 0.8; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px; }
+.cid-meta span { display: flex; align-items: center; gap: 3px; }
+.cid-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.cid-tag {
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px;
+  background: rgba(255,255,255,0.2); color: white;
+}
+.cid-tag.doenca { background: rgba(229,62,62,0.7); }
+.cid-tag.gestante { background: rgba(213,63,140,0.7); }
 
-  /* ── TABS ── */
-  .tabs {
-    display: flex; gap: 4px; margin-bottom: 20px;
-    overflow-x: auto; padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    padding: 8px 14px; border-radius: 8px; border: none;
-    background: #edf2f7; color: #4a5568; font-size: 13px; font-weight: 600;
-    cursor: pointer; white-space: nowrap; transition: all 0.2s;
-  }
-  .tab-btn.ativo { background: #2b6cb0; color: white; }
+/* Risco familiar gauge */
+.risco-box {
+  background: rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  text-align: center;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+.risco-label { font-size: 10px; opacity: 0.75; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.risco-gauge {
+  width: 56px; height: 28px;
+  margin: 0 auto 4px;
+  position: relative;
+  overflow: hidden;
+}
+.risco-gauge svg { width: 56px; height: 28px; }
+.risco-valor { font-size: 13px; font-weight: 800; }
+.risco-baixo  { color: #68d391; }
+.risco-medio  { color: #f6ad55; }
+.risco-alto   { color: #fc8181; }
 
-  /* ── CARDS DE SINAIS VITAIS ── */
-  .sinais-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;
-    margin-bottom: 20px;
-  }
-  .sinal-card {
-    background: white; border-radius: 10px; padding: 14px;
-    border: 1px solid #e2e8f0; text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .sinal-card .icone { font-size: 22px; margin-bottom: 6px; }
-  .sinal-card .valor { font-size: 20px; font-weight: 800; color: #1a365d; }
-  .sinal-card .label { font-size: 11px; color: #718096; margin-top: 2px; }
-  .sinal-card .data  { font-size: 10px; color: #a0aec0; margin-top: 4px; }
-  .sinal-card.alerta { border-color: #fc8181; background: #fff5f5; }
-  .sinal-card.alerta .valor { color: #c53030; }
-  .sinal-card.ok { border-color: #9ae6b4; background: #f0fff4; }
-  .sinal-card.ok .valor { color: #276749; }
+/* ══════════════════════════════════════
+   CARDS DE SINAIS VITAIS (topo)
+══════════════════════════════════════ */
+.sinais-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.sinal-mini {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-top: 3px solid #e2e8f0;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.sinal-mini:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+.sinal-mini.alerta { border-top-color: #e53e3e; background: #fff5f5; }
+.sinal-mini.ok     { border-top-color: #38a169; background: #f0fff4; }
+.sinal-mini.neutro { border-top-color: #3182ce; }
+.sinal-mini .sm-icone { font-size: 18px; margin-bottom: 4px; }
+.sinal-mini .sm-valor { font-size: 17px; font-weight: 800; color: #1a365d; line-height: 1; }
+.sinal-mini.alerta .sm-valor { color: #c53030; }
+.sinal-mini.ok .sm-valor { color: #276749; }
+.sinal-mini .sm-label { font-size: 10px; color: #718096; margin-top: 3px; font-weight: 600; }
+.sinal-mini .sm-data  { font-size: 9px; color: #a0aec0; margin-top: 2px; }
 
-  /* ── ALERTAS DE RECEITA ── */
-  .alerta-receita {
-    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
-    display: flex; align-items: flex-start; gap: 12px;
-    border-left: 5px solid;
-  }
-  .alerta-receita.urgente { background: #fff5f5; border-color: #e53e3e; }
-  .alerta-receita.atencao { background: #fffbeb; border-color: #ed8936; }
-  .alerta-receita.ok      { background: #f0fff4; border-color: #38a169; }
-  .alerta-receita .icone-alerta { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
-  .alerta-receita .corpo { flex: 1; }
-  .alerta-receita .titulo { font-weight: 700; font-size: 14px; }
-  .alerta-receita.urgente .titulo { color: #c53030; }
-  .alerta-receita.atencao .titulo { color: #744210; }
-  .alerta-receita.ok      .titulo { color: #276749; }
-  .alerta-receita .detalhe { font-size: 13px; color: #718096; margin-top: 3px; }
-  .alerta-receita .prazo { font-size: 12px; font-weight: 600; margin-top: 5px; }
-  .alerta-receita.urgente .prazo { color: #e53e3e; }
-  .alerta-receita.atencao .prazo { color: #ed8936; }
+/* ══════════════════════════════════════
+   GRID PRINCIPAL (2 colunas)
+══════════════════════════════════════ */
+.saude-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+@media (max-width: 700px) { .saude-grid { grid-template-columns: 1fr; } }
 
-  /* ── LISTA DE MEDICAMENTOS ── */
-  .med-item {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 0; border-bottom: 1px solid #edf2f7;
-  }
-  .med-item:last-child { border-bottom: none; }
-  .med-icone {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: #ebf8ff; display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-  }
-  .med-info { flex: 1; }
-  .med-nome { font-weight: 700; font-size: 14px; color: #1a365d; }
-  .med-dose { font-size: 13px; color: #4a5568; margin-top: 2px; }
-  .med-obs  { font-size: 12px; color: #718096; margin-top: 3px; }
-  .tag-receita {
-    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
-    white-space: nowrap; align-self: flex-start; margin-top: 2px;
-  }
-  .tag-controlada  { background: #fed7d7; color: #9b2c2c; }
-  .tag-continuo    { background: #e9d8fd; color: #553c9a; }
-  .tag-comum       { background: #e2e8f0; color: #4a5568; }
+/* ══════════════════════════════════════
+   SEÇÃO BOX
+══════════════════════════════════════ */
+.s-box {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.s-box h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2c5282;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 8px;
+}
+.s-box.span2 { grid-column: span 2; }
+@media (max-width: 700px) { .s-box.span2 { grid-column: span 1; } }
 
-  /* ── EXAMES / CONSULTAS ── */
-  .exame-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 0; border-bottom: 1px solid #edf2f7;
-  }
-  .exame-item:last-child { border-bottom: none; }
-  .exame-data {
-    background: #2b6cb0; color: white; border-radius: 8px;
-    padding: 6px 10px; text-align: center; min-width: 52px; flex-shrink: 0;
-  }
-  .exame-data .dia  { font-size: 18px; font-weight: 800; line-height: 1; }
-  .exame-data .mes  { font-size: 10px; text-transform: uppercase; opacity: 0.8; }
-  .exame-desc { flex: 1; }
-  .exame-nome { font-weight: 600; font-size: 14px; color: #1a365d; }
-  .exame-local { font-size: 12px; color: #718096; margin-top: 2px; }
-  .exame-resultado { font-size: 12px; color: #38a169; font-weight: 600; margin-top: 2px; }
+/* ══════════════════════════════════════
+   CONDIÇÕES E VULNERABILIDADES
+══════════════════════════════════════ */
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-c {
+  font-size: 12px; font-weight: 600; padding: 5px 11px;
+  border-radius: 99px; border: 1px solid;
+  cursor: default;
+}
+.tag-cronica  { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+.tag-risco    { background: #fffbeb; border-color: #f6ad55; color: #744210; }
+.tag-social   { background: #e9d8fd; border-color: #b794f4; color: #553c9a; }
+.tag-normal   { background: #f0fff4; border-color: #9ae6b4; color: #276749; }
 
-  /* ── CONDIÇÕES CLÍNICAS ── */
-  .condicoes-grid {
-    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
-  }
-  .tag-condicao {
-    padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 600;
-    border: 1px solid;
-  }
-  .tag-cronica   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
-  .tag-risco     { background: #fffbeb; border-color: #f6ad55; color: #744210; }
-  .tag-social    { background: #e9d8fd; border-color: #b794f4; color: #553c9a; }
-  .tag-normal    { background: #f0fff4; border-color: #9ae6b4; color: #276749; }
+/* ══════════════════════════════════════
+   MEDICAMENTOS
+══════════════════════════════════════ */
+.med-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid #edf2f7;
+  font-size: 13px;
+}
+.med-row:last-child { border-bottom: none; }
+.med-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #3182ce; flex-shrink: 0; margin-top: 5px;
+}
+.med-dot.continuo   { background: #805ad5; }
+.med-dot.controlada { background: #e53e3e; }
+.med-nome-txt { font-weight: 700; color: #1a365d; }
+.med-dose-txt { font-size: 12px; color: #718096; }
+.med-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+  white-space: nowrap; margin-left: auto; flex-shrink: 0; align-self: flex-start;
+  margin-top: 1px;
+}
+.mb-controlada { background: #fed7d7; color: #9b2c2c; }
+.mb-continuo   { background: #e9d8fd; color: #553c9a; }
+.mb-comum      { background: #e2e8f0; color: #4a5568; }
+.mb-sem        { background: #edf2f7; color: #718096; }
+.mb-irregular  { background: #feebc8; color: #744210; }
 
-  /* ── PUERICULTURA ── */
-  .puericultura-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 0; border-bottom: 1px solid #edf2f7;
-  }
-  .puericultura-item:last-child { border-bottom: none; }
-  .pueri-status {
-    width: 28px; height: 28px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; flex-shrink: 0;
-  }
-  .pueri-ok      { background: #c6f6d5; }
-  .pueri-pendente{ background: #fed7d7; }
-  .pueri-info    { flex: 1; }
-  .pueri-nome    { font-weight: 600; font-size: 13px; color: #1a365d; }
-  .pueri-data    { font-size: 12px; color: #718096; }
+/* ══════════════════════════════════════
+   TIMELINE
+══════════════════════════════════════ */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px; top: 8px; bottom: 8px;
+  width: 2px; background: #e2e8f0;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 14px;
+}
+.tl-item:last-child { margin-bottom: 0; }
+.tl-dot {
+  position: absolute;
+  left: -16px; top: 4px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #e2e8f0;
+}
+.tl-dot.visita   { background: #3182ce; box-shadow: 0 0 0 2px #bee3f8; }
+.tl-dot.sinal    { background: #38a169; box-shadow: 0 0 0 2px #9ae6b4; }
+.tl-dot.alerta   { background: #e53e3e; box-shadow: 0 0 0 2px #fc8181; }
+.tl-dot.exame    { background: #805ad5; box-shadow: 0 0 0 2px #d6bcfa; }
+.tl-dot.medicamento { background: #d69e2e; box-shadow: 0 0 0 2px #faf089; }
+.tl-data  { font-size: 11px; color: #a0aec0; font-weight: 600; }
+.tl-texto { font-size: 13px; color: #2d3748; font-weight: 600; margin-top: 1px; }
+.tl-obs   { font-size: 12px; color: #718096; margin-top: 2px; }
 
-  /* ── SEÇÃO ── */
-  .secao { display: none; }
-  .secao.ativa { display: block; }
+/* ══════════════════════════════════════
+   ALERTAS
+══════════════════════════════════════ */
+.alerta-box {
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+  display: flex; align-items: flex-start; gap: 10px;
+  border-left: 4px solid;
+  font-size: 13px;
+}
+.alerta-box.urgente { background: #fff5f5; border-color: #e53e3e; }
+.alerta-box.atencao { background: #fffbeb; border-color: #ed8936; }
+.alerta-box .ab-titulo { font-weight: 700; }
+.alerta-box.urgente .ab-titulo { color: #c53030; }
+.alerta-box.atencao .ab-titulo { color: #744210; }
+.alerta-box .ab-sub { color: #718096; margin-top: 2px; font-size: 12px; }
 
-  /* ── BOTÃO ADICIONAR ── */
-  .btn-add {
-    width: 100%; padding: 10px; border-radius: 8px;
-    border: 2px dashed #cbd5e0; background: transparent;
-    color: #718096; font-size: 13px; cursor: pointer;
-    margin-top: 10px; transition: all 0.2s;
-  }
-  .btn-add:hover { border-color: #2b6cb0; color: #2b6cb0; background: #ebf8ff; }
+/* ══════════════════════════════════════
+   BOTÕES DE AÇÃO NO RODAPÉ
+══════════════════════════════════════ */
+.acoes-rodape {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  padding: 10px 16px max(12px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+}
+.btn-acao {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px;
+  padding: 8px 6px;
+  border: none; border-radius: 10px;
+  font-size: 11px; font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 54px;
+}
+.btn-acao:active { transform: scale(0.96); }
+.btn-acao .ba-icone { font-size: 20px; line-height: 1; }
+.ba-visita   { background: #ebf8ff; color: #2b6cb0; }
+.ba-ligar    { background: #f0fff4; color: #276749; }
+.ba-pendencia{ background: #fffbeb; color: #744210; }
+.ba-editar   { background: #faf5ff; color: #553c9a; }
 
-  /* ── MODAL ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5); z-index: 9999;
-    align-items: center; justify-content: center; padding: 16px;
-  }
-  .modal-overlay.aberto { display: flex; }
-  .modal {
-    background: white; border-radius: 14px; padding: 24px;
-    width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
-  }
-  .modal h3 { margin: 0 0 18px; color: #1a365d; font-size: 17px; }
-  .modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .modal .form-row.full { grid-template-columns: 1fr; }
-  .modal label { font-size: 12px; font-weight: 600; color: #4a5568; display: block; margin-bottom: 4px; }
-  .modal input, .modal select, .modal textarea {
-    width: 100%; padding: 9px 12px; border: 1px solid #cbd5e0;
-    border-radius: 6px; font-size: 13px; box-sizing: border-box;
-  }
-  .modal textarea { resize: vertical; min-height: 60px; }
-  .modal-btns { display: flex; gap: 8px; margin-top: 18px; }
-  .modal-btns button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn-confirmar { background: #2b6cb0; color: white; }
-  .btn-cancelar  { background: #edf2f7; color: #4a5568; }
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
+.tabs-saude {
+  display: flex; gap: 4px; margin-bottom: 16px;
+  overflow-x: auto; padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.tabs-saude::-webkit-scrollbar { display: none; }
+.tsb {
+  padding: 8px 14px; border-radius: 8px; border: none;
+  background: #edf2f7; color: #4a5568; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.tsb.ativo { background: #2b6cb0; color: white; }
 
-  /* ── HISTÓRICO DE VISITAS MINI ── */
-  .visita-mini {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 0; border-bottom: 1px solid #edf2f7; font-size: 13px;
-  }
-  .visita-mini:last-child { border-bottom: none; }
-  .visita-mini .dot { width: 8px; height: 8px; border-radius: 50%; background: #38a169; flex-shrink: 0; }
-  .visita-mini .vdata { color: #718096; min-width: 80px; }
-  .visita-mini .vtipo { color: #1a365d; font-weight: 600; flex: 1; }
-  .visita-mini .vobs  { color: #718096; font-size: 12px; }
+.secao-saude { display: none; }
+.secao-saude.ativa { display: block; }
 
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center; padding: 30px 20px; color: #a0aec0;
-  }
-  .empty-state .emoji { font-size: 36px; margin-bottom: 8px; }
-  .empty-state p { font-size: 14px; }
+/* ══════════════════════════════════════
+   MODAIS
+══════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55); z-index: 9999;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.aberto { display: flex; }
+.modal-inner {
+  background: white; border-radius: 16px 16px 0 0;
+  width: 100%; max-width: 520px;
+  padding: 22px 20px 32px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+}
+.modal-inner h3 { font-size: 17px; color: #1a365d; margin: 0 0 16px; }
+.mf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.mf-full { grid-template-columns: 1fr; }
+.mf-label { font-size: 12px; font-weight: 700; color: #4a5568; display: block; margin-bottom: 4px; }
+.mf-btns { display: flex; gap: 8px; margin-top: 18px; }
+.mf-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.btn-cf { background: #2b6cb0; color: white; }
+.btn-ca { background: #edf2f7; color: #4a5568; }
+
+/* ══════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════ */
+.es { text-align: center; padding: 24px 16px; color: #a0aec0; }
+.es .ei { font-size: 32px; margin-bottom: 8px; }
+.es p { font-size: 13px; }
+
+/* ══════════════════════════════════════
+   BTN ADD
+══════════════════════════════════════ */
+.btn-add-s {
+  width: 100%; padding: 9px; border-radius: 8px;
+  border: 2px dashed #cbd5e0; background: transparent;
+  color: #718096; font-size: 13px; cursor: pointer;
+  margin-top: 10px; font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-add-s:hover { border-color: #2b6cb0; color: #2b6cb0; background: #ebf8ff; }
+
+/* Última visita banner */
+.ultima-visita-banner {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  flex-wrap: wrap;
+}
+.uv-dias {
+  font-size: 12px; font-weight: 700; padding: 4px 12px;
+  border-radius: 99px; white-space: nowrap; flex-shrink: 0;
+}
+
+/* Exames */
+.exame-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid #edf2f7;
+}
+.exame-row:last-child { border-bottom: none; }
+.ex-data-box {
+  background: #2b6cb0; color: white; border-radius: 8px;
+  padding: 5px 9px; text-align: center; min-width: 48px; flex-shrink: 0;
+}
+.ex-data-box .exd { font-size: 17px; font-weight: 800; line-height: 1; }
+.ex-data-box .exm { font-size: 9px; text-transform: uppercase; opacity: 0.8; }
+.ex-desc { flex: 1; }
+.ex-nome { font-weight: 600; font-size: 13px; color: #1a365d; }
+.ex-local { font-size: 11px; color: #718096; margin-top: 2px; }
+.ex-res { font-size: 11px; color: #38a169; font-weight: 600; margin-top: 2px; }
+
+/* Puericultura */
+.pueri-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid #edf2f7;
+}
+.pueri-row:last-child { border-bottom: none; }
+.pueri-ic {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
 </style>
 </head>
-<body>
+<body style="padding-bottom: 90px;">
 
+<!-- ══════ MODAIS ══════ -->
+
+<!-- Modal Sinal Vital -->
 <div class="modal-overlay" id="modalSinal">
-  <div class="modal">
+  <div class="modal-inner">
     <h3>📊 Registrar Sinal Vital</h3>
-    <div class="form-row">
-      <div>
-        <label>Tipo</label>
-        <select id="sinalTipo">
+    <div class="mf-row">
+      <div><label class="mf-label">Tipo</label>
+        <select id="sinalTipo" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
           <option value="pressao">Pressão Arterial</option>
           <option value="glicemia">Glicemia</option>
           <option value="peso">Peso (kg)</option>
@@ -238,385 +382,453 @@
           <option value="temperatura">Temperatura (°C)</option>
         </select>
       </div>
-      <div>
-        <label>Valor</label>
-        <input type="text" id="sinalValor" placeholder="Ex: 120/80">
+      <div><label class="mf-label">Valor</label>
+        <input type="text" id="sinalValor" placeholder="Ex: 120/80" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
     </div>
-    <div class="form-row">
-      <div>
-        <label>Data</label>
-        <input type="date" id="sinalData">
+    <div class="mf-row">
+      <div><label class="mf-label">Data</label>
+        <input type="date" id="sinalData" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
-      <div>
-        <label>Observação</label>
-        <input type="text" id="sinalObs" placeholder="Opcional">
+      <div><label class="mf-label">Observação</label>
+        <input type="text" id="sinalObs" placeholder="Opcional" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancelar" onclick="fecharModal('modalSinal')">Cancelar</button>
-      <button class="btn-confirmar" onclick="salvarSinal()">💾 Salvar</button>
+    <div class="mf-btns">
+      <button class="btn-ca" onclick="fecharModal('modalSinal')">Cancelar</button>
+      <button class="btn-cf" onclick="salvarSinal()">💾 Salvar</button>
     </div>
   </div>
 </div>
 
+<!-- Modal Medicamento -->
 <div class="modal-overlay" id="modalMed">
-  <div class="modal">
+  <div class="modal-inner">
     <h3>💊 Adicionar Medicamento</h3>
-    <div class="form-row full">
-      <div>
-        <label>Nome do Medicamento</label>
-        <input type="text" id="medNome" placeholder="Ex: Losartana 50mg">
+    <div class="mf-row mf-full">
+      <div><label class="mf-label">Nome do Medicamento</label>
+        <input type="text" id="medNome" placeholder="Ex: Losartana 50mg" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
     </div>
-    <div class="form-row">
-      <div>
-        <label>Dose / Frequência</label>
-        <input type="text" id="medDose" placeholder="Ex: 1 comp. 2x/dia">
+    <div class="mf-row">
+      <div><label class="mf-label">Dose / Frequência</label>
+        <input type="text" id="medDose" placeholder="Ex: 1 comp. 2x/dia" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
-      <div>
-        <label>Tipo</label>
-        <select id="medTipo">
+      <div><label class="mf-label">Tipo</label>
+        <select id="medTipo" onchange="toggleReceita()" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
           <option value="comum">Comum</option>
           <option value="continuo">Uso Contínuo</option>
           <option value="controlada">Receita Controlada</option>
+          <option value="sem">Sem Medicação</option>
+          <option value="irregular">Uso Irregular</option>
         </select>
       </div>
     </div>
-    <div class="form-row" id="rowReceita" style="display:none;">
-      <div>
-        <label>Data da última receita</label>
-        <input type="date" id="medDataReceita">
+    <div class="mf-row" id="rowReceita" style="display:none;">
+      <div><label class="mf-label">Data da última receita</label>
+        <input type="date" id="medDataReceita" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
-      <div>
-        <label>Validade (dias)</label>
-        <select id="medValidade">
+      <div><label class="mf-label">Validade (dias)</label>
+        <select id="medValidade" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
           <option value="30">30 dias</option>
           <option value="60">60 dias</option>
-          <option value="180">6 meses (180 dias)</option>
+          <option value="180">6 meses</option>
         </select>
       </div>
     </div>
-    <div class="form-row full">
-      <div>
-        <label>Observações</label>
-        <textarea id="medObs" placeholder="Ex: Tomar em jejum, verificar pressão antes..."></textarea>
+    <div class="mf-row mf-full">
+      <div><label class="mf-label">Observações</label>
+        <textarea id="medObs" placeholder="Ex: Tomar em jejum..." rows="2" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;resize:none;"></textarea>
       </div>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancelar" onclick="fecharModal('modalMed')">Cancelar</button>
-      <button class="btn-confirmar" onclick="salvarMedicamento()">💾 Salvar</button>
+    <div class="mf-btns">
+      <button class="btn-ca" onclick="fecharModal('modalMed')">Cancelar</button>
+      <button class="btn-cf" onclick="salvarMedicamento()">💾 Salvar</button>
     </div>
   </div>
 </div>
 
+<!-- Modal Exame -->
 <div class="modal-overlay" id="modalExame">
-  <div class="modal">
+  <div class="modal-inner">
     <h3>🔬 Registrar Exame / Consulta</h3>
-    <div class="form-row">
-      <div>
-        <label>Tipo</label>
-        <select id="exameCategoria">
+    <div class="mf-row">
+      <div><label class="mf-label">Tipo</label>
+        <select id="exameCategoria" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
           <option value="exame">Exame Laboratorial</option>
           <option value="imagem">Exame de Imagem</option>
-          <option value="consulta">Consulta na UBS</option>
-          <option value="especialidade">Consulta Especialidade</option>
+          <option value="consulta">Consulta UBS</option>
+          <option value="especialidade">Especialidade</option>
         </select>
       </div>
-      <div>
-        <label>Data</label>
-        <input type="date" id="exameData">
+      <div><label class="mf-label">Data</label>
+        <input type="date" id="exameData" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
     </div>
-    <div class="form-row full">
-      <div>
-        <label>Descrição</label>
-        <input type="text" id="exameNome" placeholder="Ex: Hemograma completo, ECG, Consulta cardiologista...">
+    <div class="mf-row mf-full">
+      <div><label class="mf-label">Descrição</label>
+        <input type="text" id="exameNome" placeholder="Ex: Hemograma completo" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
     </div>
-    <div class="form-row">
-      <div>
-        <label>Local / Unidade</label>
-        <input type="text" id="exameLocal" placeholder="Ex: UBS Guarda-Mor">
+    <div class="mf-row">
+      <div><label class="mf-label">Local</label>
+        <input type="text" id="exameLocal" placeholder="Ex: UBS Central" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
-      <div>
-        <label>Resultado (resumo)</label>
-        <input type="text" id="exameResultado" placeholder="Ex: Normal, Alterado...">
+      <div><label class="mf-label">Resultado</label>
+        <input type="text" id="exameResultado" placeholder="Normal, Alterado..." style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
     </div>
-    <div class="form-row full">
-      <div>
-        <label>Observações</label>
-        <textarea id="exameObs" placeholder="Detalhes relevantes..."></textarea>
+    <div class="mf-row mf-full">
+      <div><label class="mf-label">Observações</label>
+        <textarea id="exameObs" rows="2" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;resize:none;"></textarea>
       </div>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancelar" onclick="fecharModal('modalExame')">Cancelar</button>
-      <button class="btn-confirmar" onclick="salvarExame()">💾 Salvar</button>
+    <div class="mf-btns">
+      <button class="btn-ca" onclick="fecharModal('modalExame')">Cancelar</button>
+      <button class="btn-cf" onclick="salvarExame()">💾 Salvar</button>
     </div>
   </div>
 </div>
 
+<!-- Modal Puericultura -->
 <div class="modal-overlay" id="modalPueri">
-  <div class="modal">
-    <h3>👶 Registrar Consulta de Puericultura</h3>
-    <div class="form-row">
-      <div>
-        <label>Consulta (nº ou tipo)</label>
-        <input type="text" id="pueriConsulta" placeholder="Ex: 1ª consulta, 6 meses...">
+  <div class="modal-inner">
+    <h3>👶 Consulta de Puericultura</h3>
+    <div class="mf-row">
+      <div><label class="mf-label">Consulta</label>
+        <input type="text" id="pueriConsulta" placeholder="Ex: 1ª consulta, 6 meses..." style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
-      <div>
-        <label>Data</label>
-        <input type="date" id="pueriData">
+      <div><label class="mf-label">Data</label>
+        <input type="date" id="pueriData" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
       </div>
     </div>
-    <div class="form-row full">
-      <div>
-        <label>Observações</label>
-        <textarea id="pueriObs" placeholder="Desenvolvimento, vacinas em dia, encaminhamentos..."></textarea>
+    <div class="mf-row mf-full">
+      <div><label class="mf-label">Observações</label>
+        <textarea id="pueriObs" rows="2" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;resize:none;"></textarea>
       </div>
     </div>
-    <div class="modal-btns">
-      <button class="btn-cancelar" onclick="fecharModal('modalPueri')">Cancelar</button>
-      <button class="btn-confirmar" onclick="salvarPuericultura()">💾 Salvar</button>
+    <div class="mf-btns">
+      <button class="btn-ca" onclick="fecharModal('modalPueri')">Cancelar</button>
+      <button class="btn-cf" onclick="salvarPuericultura()">💾 Salvar</button>
     </div>
   </div>
 </div>
 
+<!-- Modal Timeline -->
+<div class="modal-overlay" id="modalTimeline">
+  <div class="modal-inner">
+    <h3>📝 Adicionar Evento na Timeline</h3>
+    <div class="mf-row">
+      <div><label class="mf-label">Tipo</label>
+        <select id="tlTipo" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
+          <option value="visita">🏠 Visita</option>
+          <option value="sinal">📊 Sinal Vital</option>
+          <option value="alerta">⚠️ Alerta</option>
+          <option value="exame">🔬 Exame</option>
+          <option value="medicamento">💊 Medicamento</option>
+        </select>
+      </div>
+      <div><label class="mf-label">Data</label>
+        <input type="date" id="tlData" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
+      </div>
+    </div>
+    <div class="mf-row mf-full">
+      <div><label class="mf-label">Descrição</label>
+        <input type="text" id="tlTexto" placeholder="Ex: Paciente relatou tontura" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;">
+      </div>
+    </div>
+    <div class="mf-row mf-full">
+      <div><label class="mf-label">Observação adicional</label>
+        <textarea id="tlObs" rows="2" style="width:100%;padding:9px;border:1.5px solid #cbd5e0;border-radius:6px;font-size:13px;resize:none;"></textarea>
+      </div>
+    </div>
+    <div class="mf-btns">
+      <button class="btn-ca" onclick="fecharModal('modalTimeline')">Cancelar</button>
+      <button class="btn-cf" onclick="salvarTimeline()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ CONTEÚDO PRINCIPAL ══════ -->
 <div class="main" style="margin-left:0; width:100%;">
-  <div class="page-actions">
-    <h1>Saúde do Cidadão</h1>
-    <div class="page-actions-btns">
-      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
-      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
+
+  <!-- Barra de volta -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+    <button onclick="window.history.back()" style="background:#edf2f7;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">← Voltar</button>
+    <h1 style="font-size:16px;color:#1a365d;font-weight:700;margin:0;">Visão Geral de Saúde</h1>
+  </div>
+
+  <!-- Cabeçalho cidadão -->
+  <div class="cid-header">
+    <div class="cid-avatar" id="cidAvatar">👤</div>
+    <div class="cid-info">
+      <h2 id="cidNome">Carregando...</h2>
+      <div class="cid-meta">
+        <span>🎂 <span id="cidIdade">—</span></span>
+        <span>💳 <span id="cidCNS">—</span></span>
+        <span>📋 <span id="cidProntuario">—</span></span>
+        <span>🏠 <span id="cidFamilia">—</span></span>
+      </div>
+      <div class="cid-tags" id="cidTags"></div>
+    </div>
+    <!-- Risco Familiar -->
+    <div class="risco-box">
+      <div class="risco-label">Risco Familiar</div>
+      <div class="risco-gauge">
+        <svg viewBox="0 0 56 28">
+          <path d="M4,28 A24,24 0 0,1 52,28" fill="none" stroke="#edf2f7" stroke-width="6" stroke-linecap="round"/>
+          <path id="riscoArc" d="M4,28 A24,24 0 0,1 52,28" fill="none" stroke="#f6ad55" stroke-width="6" stroke-linecap="round" stroke-dasharray="75.4" stroke-dashoffset="37.7"/>
+        </svg>
+      </div>
+      <div class="risco-valor risco-medio" id="riscoValor">Médio</div>
     </div>
   </div>
 
-  <div class="cidadao-header" id="cidadaoHeader">
-    <div class="cidadao-avatar" id="cidadaoAvatar">👤</div>
-    <div class="cidadao-info">
-      <h2 id="cidadaoNome">Carregando...</h2>
-      <div class="sub">
-        <span>📍 <span id="cidadaoMicroarea">03</span></span>
-        <span>🎂 <span id="cidadaoIdade">—</span></span>
-        <span>💳 <span id="cidadaoCNS">—</span></span>
-      </div>
-      <div style="margin-top:8px;">
-        <span class="badge-status badge-ativo" id="cidadaoStatusBadge">● Cadastro Ativo</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="box" id="boxUltimaVisita" style="margin-bottom:16px; padding:14px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-    <span style="font-size:24px;">📅</span>
+  <!-- Banner última visita -->
+  <div class="ultima-visita-banner" id="uvBanner">
+    <span style="font-size:22px;">📅</span>
     <div style="flex:1;">
-      <div style="font-size:13px; color:#718096; font-weight:600;">ÚLTIMA VISITA</div>
-      <div style="font-size:16px; font-weight:700; color:#1a365d;" id="ultimaVisitaData">Nenhuma visita registrada</div>
-      <div style="font-size:13px; color:#718096;" id="ultimaVisitaObs"></div>
+      <div style="font-size:11px;color:#718096;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Última Visita</div>
+      <div style="font-size:15px;font-weight:700;color:#1a365d;" id="uvData">Nenhuma visita registrada</div>
+      <div style="font-size:12px;color:#718096;" id="uvObs"></div>
     </div>
-    <div id="ultimaVisitaDias" style="font-size:13px; font-weight:700; padding:6px 12px; border-radius:99px; background:#edf2f7; color:#4a5568;"></div>
+    <div class="uv-dias" id="uvDias"></div>
   </div>
 
+  <!-- Alertas de receita -->
   <div id="alertasReceita"></div>
 
-  <div class="tabs">
-    <button class="tab-btn ativo" onclick="mostrarTab('sinais')">📊 Sinais Vitais</button>
-    <button class="tab-btn" onclick="mostrarTab('medicamentos')">💊 Medicamentos</button>
-    <button class="tab-btn" onclick="mostrarTab('exames')">🔬 Exames</button>
-    <button class="tab-btn" onclick="mostrarTab('condicoes')">🏥 Condições</button>
-    <button class="tab-btn" id="tabPueri" onclick="mostrarTab('puericultura')" style="display:none;">👶 Puericultura</button>
+  <!-- Sinais vitais rápidos -->
+  <div class="sinais-row" id="sinaisRow"></div>
+
+  <!-- TABS -->
+  <div class="tabs-saude">
+    <button class="tsb ativo" onclick="mostrarTab('visao',this)">🏥 Visão Geral</button>
+    <button class="tsb" onclick="mostrarTab('sinais',this)">📊 Sinais Vitais</button>
+    <button class="tsb" onclick="mostrarTab('medicamentos',this)">💊 Medicamentos</button>
+    <button class="tsb" onclick="mostrarTab('exames',this)">🔬 Exames</button>
+    <button class="tsb" onclick="mostrarTab('timeline',this)">📋 Timeline</button>
+    <button class="tsb" id="tabPueri" onclick="mostrarTab('puericultura',this)" style="display:none;">👶 Puericultura</button>
   </div>
 
-  <div class="secao ativa" id="tab-sinais">
-    <div class="box">
-      <h3 style="margin-bottom:14px;">📊 Últimos Sinais Vitais</h3>
-      <div class="sinais-grid" id="sinaisGrid">
-        <div class="empty-state" style="grid-column:1/-1;">
-          <div class="emoji">📋</div>
-          <p>Nenhum sinal registrado ainda.</p>
+  <!-- ══ TAB VISÃO GERAL ══ -->
+  <div class="secao-saude ativa" id="tab-visao">
+    <div class="saude-grid">
+      <!-- Condições Clínicas -->
+      <div class="s-box">
+        <h4>🏥 Condições Clínicas</h4>
+        <div class="tags-wrap" id="condicoesVisao">
+          <div class="es"><div class="ei">🏥</div><p>Nenhuma condição</p></div>
         </div>
+        <button class="btn-add-s" onclick="adicionarCondicao()">+ Adicionar condição</button>
       </div>
-      <button class="btn-add" onclick="abrirModal('modalSinal')">+ Registrar sinal vital</button>
-    </div>
 
-    <div class="box" style="margin-top:16px;">
-      <h3 style="margin-bottom:12px;">📋 Histórico de Visitas</h3>
-      <div id="historicoVisitasMini">
-        <div class="empty-state">
-          <div class="emoji">🚶</div>
-          <p>Nenhuma visita encontrada para este cidadão.</p>
+      <!-- Vulnerabilidades -->
+      <div class="s-box">
+        <h4>⚠️ Vulnerabilidades Sociais</h4>
+        <div class="tags-wrap" id="vulnsVisao">
+          <div class="es"><div class="ei">⚠️</div><p>Nenhuma vulnerabilidade</p></div>
         </div>
+        <button class="btn-add-s" onclick="adicionarVulnerabilidade()">+ Adicionar vulnerabilidade</button>
       </div>
-    </div>
-  </div>
 
-  <div class="secao" id="tab-medicamentos">
-    <div class="box">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-        <h3 style="margin:0;">💊 Medicamentos em Uso</h3>
-        <div style="display:flex; gap:8px;">
-          <span style="font-size:11px; background:#fed7d7; color:#9b2c2c; padding:3px 8px; border-radius:99px; font-weight:700;">Controlada</span>
-          <span style="font-size:11px; background:#e9d8fd; color:#553c9a; padding:3px 8px; border-radius:99px; font-weight:700;">Contínuo</span>
-        </div>
+      <!-- Medicamentos resumo -->
+      <div class="s-box">
+        <h4>💊 Medicações de Uso Contínuo</h4>
+        <div id="medsVisao"><div class="es"><div class="ei">💊</div><p>Nenhum medicamento</p></div></div>
+        <button class="btn-add-s" onclick="abrirModal('modalMed')">+ Adicionar medicamento</button>
       </div>
-      <div id="listaMedicamentos">
-        <div class="empty-state">
-          <div class="emoji">💊</div>
-          <p>Nenhum medicamento cadastrado.</p>
-        </div>
-      </div>
-      <button class="btn-add" onclick="abrirModal('modalMed')">+ Adicionar medicamento</button>
-    </div>
-  </div>
 
-  <div class="secao" id="tab-exames">
-    <div class="box">
-      <h3 style="margin-bottom:14px;">🔬 Exames e Consultas</h3>
-      <div id="listaExames">
-        <div class="empty-state">
-          <div class="emoji">🔬</div>
-          <p>Nenhum exame ou consulta registrado.</p>
-        </div>
+      <!-- Próximos exames -->
+      <div class="s-box">
+        <h4>🔬 Últimos Exames / Consultas</h4>
+        <div id="examesVisao"><div class="es"><div class="ei">🔬</div><p>Nenhum exame</p></div></div>
+        <button class="btn-add-s" onclick="abrirModal('modalExame')">+ Registrar exame</button>
       </div>
-      <button class="btn-add" onclick="abrirModal('modalExame')">+ Registrar exame / consulta</button>
     </div>
   </div>
 
-  <div class="secao" id="tab-condicoes">
-    <div class="box">
-      <h3 style="margin-bottom:12px;">🏥 Condições Clínicas e Vulnerabilidade</h3>
-      <div id="listaCondicoes">
-        <div class="empty-state">
-          <div class="emoji">🏥</div>
-          <p>Nenhuma condição registrada.</p>
-        </div>
-      </div>
-      <div class="condicoes-grid" id="condicoesGrid" style="display:none;"></div>
-      <button class="btn-add" onclick="adicionarCondicao()">+ Adicionar condição</button>
+  <!-- ══ TAB SINAIS VITAIS ══ -->
+  <div class="secao-saude" id="tab-sinais">
+    <div class="s-box">
+      <h4>📊 Últimos Sinais Vitais</h4>
+      <div class="sinais-row" id="sinaisGrid" style="margin-bottom:0;"></div>
+      <button class="btn-add-s" onclick="abrirModal('modalSinal')">+ Registrar sinal vital</button>
     </div>
-
-    <div class="box" style="margin-top:16px;">
-      <h3 style="margin-bottom:12px;">⚠️ Vulnerabilidade Social</h3>
-      <div id="vulnerabilidadeGrid" class="condicoes-grid">
-        <div class="empty-state" style="width:100%;">
-          <div class="emoji">⚠️</div>
-          <p>Nenhuma vulnerabilidade registrada.</p>
-        </div>
-      </div>
-      <button class="btn-add" onclick="adicionarVulnerabilidade()">+ Adicionar vulnerabilidade</button>
+    <div class="s-box" style="margin-top:14px;">
+      <h4>📋 Histórico de Visitas</h4>
+      <div id="historicoVisitas"><div class="es"><div class="ei">🚶</div><p>Nenhuma visita</p></div></div>
     </div>
   </div>
 
-  <div class="secao" id="tab-puericultura">
-    <div class="box">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 style="margin:0;">👶 Consultas de Puericultura</h3>
-        <span id="idadeCriancaBadge" style="font-size:12px; background:#ebf8ff; color:#2b6cb0; padding:4px 10px; border-radius:99px; font-weight:700;"></span>
-      </div>
-
-      <div style="margin-bottom:16px;">
-        <div style="font-size:13px; font-weight:700; color:#4a5568; margin-bottom:8px;">Consultas recomendadas pelo MS:</div>
-        <div id="calendarioPuericultura"></div>
-      </div>
-
-      <h4 style="color:#1a365d; margin-bottom:10px;">📋 Consultas Registradas</h4>
-      <div id="listaPuericultura">
-        <div class="empty-state">
-          <div class="emoji">👶</div>
-          <p>Nenhuma consulta de puericultura registrada.</p>
+  <!-- ══ TAB MEDICAMENTOS ══ -->
+  <div class="secao-saude" id="tab-medicamentos">
+    <div class="s-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h4 style="margin:0;border:none;padding:0;">💊 Medicamentos em Uso</h4>
+        <div style="display:flex;gap:6px;">
+          <span class="mb-controlada" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;">Controlada</span>
+          <span class="mb-continuo"   style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;">Contínuo</span>
         </div>
       </div>
-      <button class="btn-add" onclick="abrirModal('modalPueri')">+ Registrar consulta de puericultura</button>
+      <div id="listaMeds"><div class="es"><div class="ei">💊</div><p>Nenhum medicamento</p></div></div>
+      <button class="btn-add-s" onclick="abrirModal('modalMed')">+ Adicionar medicamento</button>
     </div>
   </div>
 
-</div><script src="script.js"></script>
+  <!-- ══ TAB EXAMES ══ -->
+  <div class="secao-saude" id="tab-exames">
+    <div class="s-box">
+      <h4>🔬 Exames e Consultas</h4>
+      <div id="listaExames"><div class="es"><div class="ei">🔬</div><p>Nenhum exame</p></div></div>
+      <button class="btn-add-s" onclick="abrirModal('modalExame')">+ Registrar exame / consulta</button>
+    </div>
+  </div>
+
+  <!-- ══ TAB TIMELINE ══ -->
+  <div class="secao-saude" id="tab-timeline">
+    <div class="s-box">
+      <h4>📋 Histórico de Evolução (Timeline)</h4>
+      <div class="timeline" id="timelineEl">
+        <div class="es"><div class="ei">📋</div><p>Nenhum evento registrado</p></div>
+      </div>
+      <button class="btn-add-s" onclick="abrirModal('modalTimeline')">+ Adicionar evento</button>
+    </div>
+  </div>
+
+  <!-- ══ TAB PUERICULTURA ══ -->
+  <div class="secao-saude" id="tab-puericultura">
+    <div class="s-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h4 style="margin:0;border:none;padding:0;">👶 Consultas de Puericultura</h4>
+        <span id="idadeCriancaBadge" style="font-size:12px;background:#ebf8ff;color:#2b6cb0;padding:4px 10px;border-radius:99px;font-weight:700;"></span>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#4a5568;margin-bottom:8px;">Calendário MS:</div>
+      <div id="calPueri"></div>
+      <h4 style="margin:14px 0 10px;color:#1a365d;font-size:13px;">📋 Consultas Registradas</h4>
+      <div id="listaPueri"><div class="es"><div class="ei">👶</div><p>Nenhuma consulta</p></div></div>
+      <button class="btn-add-s" onclick="abrirModal('modalPueri')">+ Registrar consulta</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Botões de ação no rodapé -->
+<div class="acoes-rodape">
+  <button class="btn-acao ba-visita" onclick="irParaVisita()">
+    <span class="ba-icone">📝</span>Registrar Retorno
+  </button>
+  <button class="btn-acao ba-ligar" onclick="ligarParaFamilia()">
+    <span class="ba-icone">📞</span>Ligar
+  </button>
+  <button class="btn-acao ba-pendencia" onclick="window.location.href='pendencias.html'">
+    <span class="ba-icone">⚠️</span>Pendências
+  </button>
+  <button class="btn-acao ba-editar" onclick="editarCidadao()">
+    <span class="ba-icone">✏️</span>Editar
+  </button>
+</div>
+
+<script src="script.js"></script>
 <script>
 // ════════════════════════════════════════════
-//  INICIALIZAÇÃO
+//  ESTADO GLOBAL
 // ════════════════════════════════════════════
 let cidadaoAtual = null;
 let familiaAtual = null;
-const KEY_SAUDE = 'saudeCidadao_';
+const KEY = 'saudeCidadao_';
 
+function getKey(tipo) {
+  const id = cidadaoAtual?.id || cidadaoAtual?.cns || Date.now();
+  return KEY + id + '_' + tipo;
+}
+function getDados(tipo)       { return JSON.parse(localStorage.getItem(getKey(tipo)) || '[]'); }
+function setDados(tipo, data) { localStorage.setItem(getKey(tipo), JSON.stringify(data)); }
+function hojeISO() {
+  const h = new Date(); h.setMinutes(h.getMinutes() - h.getTimezoneOffset());
+  return h.toISOString().split('T')[0];
+}
+function fmtData(iso) {
+  if (!iso) return '—';
+  const [a,m,d] = iso.split('-');
+  return `${d}/${m}/${a}`;
+}
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  // Pega o ID que o script.js novo salvou ao clicar no botão "Saúde"
   const membroId = localStorage.getItem('membroSaudeAtual');
+  if (!membroId) { document.getElementById('cidNome').textContent = 'Cidadão não selecionado'; return; }
 
-  if (!membroId) {
-    document.getElementById('cidadaoNome').textContent = 'Cidadão não selecionado';
-    return;
-  }
-
-  // Busca nas listas do novo banco de dados (localStorage)
   const todosMembros = JSON.parse(localStorage.getItem('membros') || '[]');
   cidadaoAtual = todosMembros.find(m => String(m.id) === String(membroId));
+  if (!cidadaoAtual) { document.getElementById('cidNome').textContent = 'Não encontrado'; return; }
 
-  if (!cidadaoAtual) {
-    document.getElementById('cidadaoNome').textContent = 'Cidadão não encontrado';
-    return;
-  }
+  const fams = JSON.parse(localStorage.getItem('familias') || '[]');
+  familiaAtual = fams.find(f => String(f.id) === String(cidadaoAtual.familia_id));
 
-  // Identifica a família
-  const familias = JSON.parse(localStorage.getItem('familias') || '[]');
-  familiaAtual = familias.find(f => String(f.id) === String(cidadaoAtual.familia_id));
-
-  // Inicia a tela
   renderizarCabecalho();
   renderizarUltimaVisita();
+  renderizarSinaisRapidos();
+  renderizarVisaoGeral();
   renderizarSinais();
   renderizarMedicamentos();
   renderizarExames();
-  renderizarCondicoes();
+  renderizarTimeline();
   verificarPuericultura();
   gerarAlertasReceita();
 });
-
-// ════════════════════════════════════════════
-//  CONTROLE DE DADOS
-// ════════════════════════════════════════════
-function getKey(tipo) {
-  const idUnico = cidadaoAtual?.id || cidadaoAtual?.cns || cidadaoAtual?.cpf;
-  return KEY_SAUDE + idUnico + '_' + tipo;
-}
-
-function getDados(tipo) {
-  return JSON.parse(localStorage.getItem(getKey(tipo)) || '[]');
-}
-
-function setDados(tipo, dados) {
-  localStorage.setItem(getKey(tipo), JSON.stringify(dados));
-}
 
 // ════════════════════════════════════════════
 //  CABEÇALHO
 // ════════════════════════════════════════════
 function renderizarCabecalho() {
   const c = cidadaoAtual;
-  document.getElementById('cidadaoNome').textContent = c.nome || '—';
-
-  const avatar = document.getElementById('cidadaoAvatar');
-  avatar.textContent = (c.sexo === 'Feminino') ? '👩' : '👨';
-
-  // Forçando a Microárea 03 (Correção do JS que substituía por '—')
-  const microarea = localStorage.getItem('configMicroarea') || '03';
-  document.getElementById('cidadaoMicroarea').textContent = 'Microárea ' + microarea;
+  document.getElementById('cidNome').textContent = c.nome || '—';
+  document.getElementById('cidAvatar').textContent = c.sexo === 'Feminino' ? '👩' : '👨';
 
   if (c.nascimento) {
-    const nasc  = new Date(c.nascimento);
-    const hoje  = new Date();
-    const anos  = Math.floor((hoje - nasc) / (365.25 * 24 * 60 * 60 * 1000));
-    const meses = Math.floor((hoje - nasc) / (30.44 * 24 * 60 * 60 * 1000));
-    document.getElementById('cidadaoIdade').textContent = anos < 2 ? meses + ' meses' : anos + ' anos';
+    const nasc = new Date(c.nascimento);
+    const hoje = new Date();
+    const anos = Math.floor((hoje - nasc) / (365.25*24*60*60*1000));
+    const meses = Math.floor((hoje - nasc) / (30.44*24*60*60*1000));
+    document.getElementById('cidIdade').textContent = anos < 2 ? meses + ' meses' : anos + ' anos';
   }
 
-  document.getElementById('cidadaoCNS').textContent = c.cns || 'Sem CNS';
+  document.getElementById('cidCNS').textContent       = c.cns || 'Sem CNS';
+  document.getElementById('cidProntuario').textContent = c.prontuario || familiaAtual?.numeroProntuario || '—';
+  document.getElementById('cidFamilia').textContent    = familiaAtual ? `Família ${familiaAtual.numeroFamilia}` : '—';
 
-  const badge = document.getElementById('cidadaoStatusBadge');
-  if (c.situacao === 'Inativo' || c.ativo === false) {
-    badge.className = 'badge-status badge-inativo';
-    badge.textContent = '● Cadastro Inativo';
+  // Tags de doenças
+  const tagsEl = document.getElementById('cidTags');
+  tagsEl.innerHTML = '';
+  if (c.doencas_lista) {
+    c.doencas_lista.split(',').filter(d => d.trim()).forEach(d => {
+      const s = document.createElement('span');
+      s.className = 'cid-tag doenca';
+      s.textContent = d.trim();
+      tagsEl.appendChild(s);
+    });
   }
+  if (c.gestante === 'Sim') {
+    const s = document.createElement('span');
+    s.className = 'cid-tag gestante';
+    s.textContent = '🤰 Gestante';
+    tagsEl.appendChild(s);
+  }
+
+  // Risco familiar
+  const riscoMap = { 'Alto': { cor: '#fc8181', classe: 'risco-alto', offset: 0 },
+                     'Médio': { cor: '#f6ad55', classe: 'risco-medio', offset: 37.7 },
+                     'Baixo': { cor: '#68d391', classe: 'risco-normal', offset: 60 } };
+  const risco = familiaAtual?.risco || 'Médio';
+  const rc = riscoMap[risco] || riscoMap['Médio'];
+  document.getElementById('riscoArc').style.stroke = rc.cor;
+  document.getElementById('riscoArc').style.strokeDashoffset = rc.offset;
+  const rv = document.getElementById('riscoValor');
+  rv.textContent = risco;
+  rv.className = 'risco-valor ' + rc.classe;
 }
 
 // ════════════════════════════════════════════
@@ -624,113 +836,130 @@ function renderizarCabecalho() {
 // ════════════════════════════════════════════
 function renderizarUltimaVisita() {
   const visitas = JSON.parse(localStorage.getItem('visitas') || '[]');
-  const famId   = familiaAtual?.id || familiaAtual?.numero;
+  const famId   = familiaAtual?.id;
+  const vFam    = visitas.filter(v => v.familiaId == famId).sort((a,b) => new Date(b.data)-new Date(a.data));
 
-  const visitasFam = visitas
-    .filter(v => v.familiaId == famId || v.familia == famId)
-    .sort((a, b) => new Date(b.data) - new Date(a.data));
+  const hv = document.getElementById('historicoVisitas');
+  hv.innerHTML = '';
 
-  if (visitasFam.length === 0) return;
+  if (vFam.length === 0) return;
 
-  const ultima = visitasFam[0];
+  const ultima = vFam[0];
   const dataUltima = new Date(ultima.data);
-  const hoje   = new Date();
-  const dias   = Math.floor((hoje - dataUltima) / (24 * 60 * 60 * 1000));
+  const hoje = new Date();
+  const dias = Math.floor((hoje - dataUltima) / (24*60*60*1000));
 
-  document.getElementById('ultimaVisitaData').textContent =
-    dataUltima.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-  document.getElementById('ultimaVisitaObs').textContent = ultima.tipo || ultima.obs || '';
+  document.getElementById('uvData').textContent = dataUltima.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('uvObs').textContent  = ultima.motivos || ultima.desfecho || '';
 
-  const diasEl = document.getElementById('ultimaVisitaDias');
+  const diasEl = document.getElementById('uvDias');
   diasEl.textContent = dias === 0 ? 'Hoje' : `Há ${dias} dia(s)`;
-  if (dias > 30) { diasEl.style.background = '#fff5f5'; diasEl.style.color = '#c53030'; }
-  else if (dias > 15) { diasEl.style.background = '#fffbeb'; diasEl.style.color = '#744210'; }
-  else { diasEl.style.background = '#f0fff4'; diasEl.style.color = '#276749'; }
+  const cor = dias > 30 ? '#fff5f5' : dias > 15 ? '#fffbeb' : '#f0fff4';
+  const corTxt = dias > 30 ? '#c53030' : dias > 15 ? '#744210' : '#276749';
+  diasEl.style.cssText = `background:${cor};color:${corTxt};font-size:12px;font-weight:700;padding:4px 12px;border-radius:99px;`;
 
-  const container = document.getElementById('historicoVisitasMini');
-  container.innerHTML = '';
-  visitasFam.slice(0, 5).forEach(v => {
+  // Histórico mini
+  vFam.slice(0,6).forEach(v => {
     const d = new Date(v.data);
-    const el = document.createElement('div');
-    el.className = 'visita-mini';
-    el.innerHTML = `
-      <div class="dot"></div>
-      <div class="vdata">${d.toLocaleDateString('pt-BR')}</div>
-      <div class="vtipo">${v.tipo || 'Visita domiciliar'}</div>
-      <div class="vobs">${v.obs || ''}</div>`;
-    container.appendChild(el);
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #edf2f7;font-size:13px;';
+    const corDot = v.desfecho === 'Visita Realizada' ? '#38a169' : '#e53e3e';
+    div.innerHTML = `
+      <div style="width:8px;height:8px;border-radius:50%;background:${corDot};flex-shrink:0;"></div>
+      <div style="color:#718096;min-width:80px;">${d.toLocaleDateString('pt-BR')}</div>
+      <div style="color:#1a365d;font-weight:600;flex:1;">${v.desfecho || 'Visita domiciliar'}</div>
+      <div style="color:#718096;font-size:12px;">${v.motivos ? v.motivos.split(',')[0] : ''}</div>`;
+    hv.appendChild(div);
   });
+
+  // Adiciona visitas também na timeline automaticamente
+  const tlExistente = getDados('timeline');
+  vFam.slice(0, 5).forEach(v => {
+    const jaExiste = tlExistente.some(t => t.auto && t.data === v.data && t.tipo === 'visita');
+    if (!jaExiste) {
+      tlExistente.push({ tipo: 'visita', data: v.data, texto: v.desfecho || 'Visita domiciliar', obs: v.motivos || '', auto: true });
+    }
+  });
+  setDados('timeline', tlExistente);
+  renderizarTimeline();
 }
 
 // ════════════════════════════════════════════
-//  SINAIS VITAIS
+//  SINAIS VITAIS RÁPIDOS (no topo)
 // ════════════════════════════════════════════
-const CONFIG_SINAIS = {
-  pressao:     { icone: '❤️', label: 'Pressão Arterial', unidade: 'mmHg' },
-  glicemia:    { icone: '🩸', label: 'Glicemia',         unidade: 'mg/dL' },
-  peso:        { icone: '⚖️', label: 'Peso',             unidade: 'kg'    },
-  altura:      { icone: '📏', label: 'Altura',           unidade: 'cm'    },
-  imc:         { icone: '📊', label: 'IMC',              unidade: ''      },
-  saturacao:   { icone: '🫁', label: 'Saturação O₂',    unidade: '%'     },
-  temperatura: { icone: '🌡️', label: 'Temperatura',     unidade: '°C'    },
+const CFG_SINAIS = {
+  pressao:     { icone:'❤️',  label:'PA',          unidade:'mmHg' },
+  glicemia:    { icone:'🩸',  label:'Glicemia',    unidade:'mg/dL' },
+  peso:        { icone:'⚖️',  label:'Peso',        unidade:'kg' },
+  altura:      { icone:'📏',  label:'Altura',      unidade:'cm' },
+  imc:         { icone:'📊',  label:'IMC',         unidade:'' },
+  saturacao:   { icone:'🫁',  label:'Saturação',   unidade:'%' },
+  temperatura: { icone:'🌡️', label:'Temp.',       unidade:'°C' },
 };
 
-function renderizarSinais() {
-  const sinais  = getDados('sinais');
-  const grid    = document.getElementById('sinaisGrid');
-  grid.innerHTML = '';
-
-  if (sinais.length === 0) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="emoji">📋</div><p>Nenhum sinal registrado ainda.</p></div>`;
-    return;
-  }
-
+function getUltimosSinais() {
+  const sinais = getDados('sinais');
   const ultimos = {};
   sinais.forEach(s => {
-    if (!ultimos[s.tipo] || new Date(s.data) > new Date(ultimos[s.tipo].data)) {
-      ultimos[s.tipo] = s;
-    }
+    if (!ultimos[s.tipo] || new Date(s.data) > new Date(ultimos[s.tipo].data)) ultimos[s.tipo] = s;
   });
-
-  const peso   = parseFloat(ultimos['peso']?.valor);
-  const altura = parseFloat(ultimos['altura']?.valor);
-  if (peso && altura) {
-    const altM = altura / 100;
-    const imc  = (peso / (altM * altM)).toFixed(1);
-    ultimos['imc'] = { tipo: 'imc', valor: imc, data: ultimos['peso'].data };
+  const peso = parseFloat(ultimos['peso']?.valor);
+  const alt  = parseFloat(ultimos['altura']?.valor);
+  if (peso && alt) {
+    const imc = (peso / ((alt/100)**2)).toFixed(1);
+    ultimos['imc'] = { tipo:'imc', valor: imc, data: ultimos['peso'].data };
   }
+  return ultimos;
+}
 
+function classeSinal(s) {
+  if (s.tipo === 'pressao') { const v = parseInt(s.valor?.split('/')?.[0]); return v >= 140 ? 'alerta' : v < 120 ? 'ok' : 'neutro'; }
+  if (s.tipo === 'glicemia') { const v = parseFloat(s.valor); return (v > 126 || v < 70) ? 'alerta' : 'ok'; }
+  if (s.tipo === 'imc') { const v = parseFloat(s.valor); return (v >= 25 || v < 18.5) ? 'alerta' : 'ok'; }
+  if (s.tipo === 'saturacao') { return parseFloat(s.valor) < 95 ? 'alerta' : 'ok'; }
+  return 'neutro';
+}
+
+function renderizarSinaisRapidos() {
+  const ultimos = getUltimosSinais();
+  const row = document.getElementById('sinaisRow');
+  row.innerHTML = '';
+  if (Object.keys(ultimos).length === 0) { row.style.display = 'none'; return; }
+  row.style.display = 'grid';
   Object.values(ultimos).forEach(s => {
-    const cfg  = CONFIG_SINAIS[s.tipo] || { icone: '📊', label: s.tipo, unidade: '' };
-    const card = document.createElement('div');
-    card.className = 'sinal-card';
+    const cfg = CFG_SINAIS[s.tipo] || { icone:'📊', label: s.tipo, unidade:'' };
+    const cls = classeSinal(s);
+    const div = document.createElement('div');
+    div.className = `sinal-mini ${cls}`;
+    div.onclick = () => mostrarTabBtn('sinais');
+    div.innerHTML = `
+      <div class="sm-icone">${cfg.icone}</div>
+      <div class="sm-valor">${s.valor}<span style="font-size:10px;font-weight:400;"> ${cfg.unidade}</span></div>
+      <div class="sm-label">${cfg.label}</div>
+      <div class="sm-data">${fmtData(s.data)}</div>`;
+    row.appendChild(div);
+  });
+}
 
-    let classe = '';
-    if (s.tipo === 'pressao') {
-      const sistolica = parseInt(s.valor?.split('/')?.[0]);
-      if (sistolica >= 140) classe = 'alerta';
-      else if (sistolica < 120) classe = 'ok';
-    } else if (s.tipo === 'glicemia') {
-      const v = parseFloat(s.valor);
-      if (v > 126 || v < 70) classe = 'alerta';
-      else classe = 'ok';
-    } else if (s.tipo === 'imc') {
-      const v = parseFloat(s.valor);
-      if (v >= 25 || v < 18.5) classe = 'alerta';
-      else classe = 'ok';
-    } else if (s.tipo === 'saturacao') {
-      if (parseFloat(s.valor) < 95) classe = 'alerta';
-      else classe = 'ok';
-    }
-    if (classe) card.classList.add(classe);
-
-    const d = new Date(s.data).toLocaleDateString('pt-BR');
-    card.innerHTML = `
-      <div class="icone">${cfg.icone}</div>
-      <div class="valor">${s.valor} <span style="font-size:12px;font-weight:400;">${cfg.unidade}</span></div>
-      <div class="label">${cfg.label}</div>
-      <div class="data">${d}</div>`;
-    grid.appendChild(card);
+function renderizarSinais() {
+  const ultimos = getUltimosSinais();
+  const grid = document.getElementById('sinaisGrid');
+  grid.innerHTML = '';
+  if (Object.keys(ultimos).length === 0) {
+    grid.innerHTML = '<div class="es" style="grid-column:1/-1"><div class="ei">📋</div><p>Nenhum sinal registrado</p></div>';
+    return;
+  }
+  Object.values(ultimos).forEach(s => {
+    const cfg = CFG_SINAIS[s.tipo] || { icone:'📊', label: s.tipo, unidade:'' };
+    const cls = classeSinal(s);
+    const div = document.createElement('div');
+    div.className = `sinal-mini ${cls}`;
+    div.innerHTML = `
+      <div class="sm-icone">${cfg.icone}</div>
+      <div class="sm-valor">${s.valor}<span style="font-size:10px;font-weight:400;"> ${cfg.unidade}</span></div>
+      <div class="sm-label">${cfg.label}</div>
+      <div class="sm-data">${fmtData(s.data)}</div>`;
+    grid.appendChild(div);
   });
 }
 
@@ -739,76 +968,210 @@ function salvarSinal() {
   const valor = document.getElementById('sinalValor').value.trim();
   const data  = document.getElementById('sinalData').value;
   const obs   = document.getElementById('sinalObs').value.trim();
-
   if (!valor || !data) { alert('Preencha o valor e a data.'); return; }
-
   const sinais = getDados('sinais');
-  sinais.push({ tipo, valor, data, obs, registradoEm: new Date().toISOString() });
+  sinais.push({ tipo, valor, data, obs });
   setDados('sinais', sinais);
-
+  // Adiciona na timeline
+  adicionarEventoTimeline({ tipo: 'sinal', data, texto: `${CFG_SINAIS[tipo]?.label || tipo}: ${valor} ${CFG_SINAIS[tipo]?.unidade || ''}`, obs, auto: true });
   fecharModal('modalSinal');
+  renderizarSinaisRapidos();
   renderizarSinais();
 }
 
 // ════════════════════════════════════════════
-//  MEDICAMENTOS
+//  ALERTAS DE RECEITA
 // ════════════════════════════════════════════
-function renderizarMedicamentos() {
+function gerarAlertasReceita() {
   const meds = getDados('medicamentos');
-  const lista = document.getElementById('listaMedicamentos');
-  lista.innerHTML = '';
-
-  if (meds.length === 0) {
-    lista.innerHTML = `<div class="empty-state"><div class="emoji">💊</div><p>Nenhum medicamento cadastrado.</p></div>`;
-    return;
-  }
-
-  meds.forEach((m, idx) => {
-    const item = document.createElement('div');
-    item.className = 'med-item';
-
-    const tagClass = m.tipo === 'controlada' ? 'tag-controlada' :
-                     m.tipo === 'continuo'   ? 'tag-continuo' : 'tag-comum';
-    const tagLabel = m.tipo === 'controlada' ? '⚠️ Controlada' :
-                     m.tipo === 'continuo'   ? '🔄 Uso Contínuo' : 'Comum';
-
-    item.innerHTML = `
-      <div class="med-icone">💊</div>
-      <div class="med-info">
-        <div class="med-nome">${m.nome}</div>
-        <div class="med-dose">${m.dose || ''}</div>
-        ${m.obs ? `<div class="med-obs">${m.obs}</div>` : ''}
-        ${m.dataReceita ? `<div class="med-obs">📅 Receita: ${new Date(m.dataReceita).toLocaleDateString('pt-BR')} · Válida ${m.validade} dias</div>` : ''}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
-        <span class="tag-receita ${tagClass}">${tagLabel}</span>
-        <button onclick="removerMed(${idx})" style="background:none;border:none;color:#e53e3e;font-size:12px;cursor:pointer;margin-top:4px;">✖ Remover</button>
+  const container = document.getElementById('alertasReceita');
+  container.innerHTML = '';
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  meds.forEach(m => {
+    if (!m.dataReceita || !m.validade) return;
+    const dataVenc = new Date(m.dataReceita + 'T12:00:00');
+    dataVenc.setDate(dataVenc.getDate() + m.validade);
+    dataVenc.setHours(0,0,0,0);
+    const dias = Math.floor((dataVenc - hoje) / (24*60*60*1000));
+    if (dias > 20) return;
+    const urgente = dias <= 10;
+    const div = document.createElement('div');
+    div.className = `alerta-box ${urgente ? 'urgente' : 'atencao'}`;
+    div.innerHTML = `
+      <span style="font-size:20px;">${dias < 0 ? '🚨' : urgente ? '⚠️' : '📋'}</span>
+      <div>
+        <div class="ab-titulo">${dias < 0 ? 'Receita VENCIDA' : `Receita vence em ${dias} dia(s)`}: ${m.nome}</div>
+        <div class="ab-sub">Vence em ${fmtData(dataVenc.toISOString().split('T')[0])} · ${m.dose || ''}</div>
       </div>`;
-    lista.appendChild(item);
+    container.appendChild(div);
   });
 }
 
-document.getElementById('medTipo')?.addEventListener('change', function() {
-  document.getElementById('rowReceita').style.display =
-    (this.value === 'controlada' || this.value === 'continuo') ? 'grid' : 'none';
-});
+// ════════════════════════════════════════════
+//  VISÃO GERAL
+// ════════════════════════════════════════════
+const CONDICOES_PRE = [
+  { label:'❤️ Hipertensão', classe:'tag-cronica' },
+  { label:'🩸 Diabetes',    classe:'tag-cronica' },
+  { label:'🫁 Asma/DPOC',   classe:'tag-cronica' },
+  { label:'🧠 Saúde Mental',classe:'tag-risco'   },
+  { label:'🤰 Gestante',    classe:'tag-risco'   },
+  { label:'👴 Idoso (60+)', classe:'tag-risco'   },
+  { label:'♿ Deficiência', classe:'tag-social'  },
+  { label:'🏠 Acamado',     classe:'tag-cronica' },
+  { label:'💊 Tuberculose', classe:'tag-cronica' },
+  { label:'🦟 Hanseníase',  classe:'tag-cronica' },
+];
+const VULNS_PRE = [
+  '🍽️ Insegurança alimentar','🏚️ Moradia precária',
+  '👁️ Sem saneamento','📚 Baixa escolaridade',
+  '💼 Desemprego','👊 Violência doméstica',
+  '🧒 Criança em risco','🧓 Idoso sozinho','🤝 Vulnerabilidade Social','⚠️ Risco Social',
+];
+
+function renderizarVisaoGeral() {
+  // Condições
+  const conds = getDados('condicoes');
+  const condEl = document.getElementById('condicoesVisao');
+  if (conds.length > 0) {
+    condEl.innerHTML = '';
+    // Condições do cadastro do membro
+    if (cidadaoAtual?.doencas_lista) {
+      cidadaoAtual.doencas_lista.split(',').filter(d => d.trim()).forEach(d => {
+        const s = document.createElement('span');
+        s.className = 'tag-c tag-cronica';
+        s.textContent = d.trim();
+        condEl.appendChild(s);
+      });
+    }
+    conds.forEach(c => {
+      const s = document.createElement('span');
+      s.className = `tag-c ${c.classe || 'tag-cronica'}`;
+      s.textContent = c.label;
+      condEl.appendChild(s);
+    });
+  } else if (cidadaoAtual?.doencas_lista) {
+    condEl.innerHTML = '';
+    cidadaoAtual.doencas_lista.split(',').filter(d => d.trim()).forEach(d => {
+      const s = document.createElement('span');
+      s.className = 'tag-c tag-cronica';
+      s.textContent = d.trim();
+      condEl.appendChild(s);
+    });
+  }
+
+  // Vulnerabilidades
+  const vulns = getDados('vulnerabilidades');
+  const vulnEl = document.getElementById('vulnsVisao');
+  if (vulns.length > 0) {
+    vulnEl.innerHTML = '';
+    vulns.forEach(v => {
+      const s = document.createElement('span');
+      s.className = 'tag-c tag-social';
+      s.textContent = v;
+      vulnEl.appendChild(s);
+    });
+  }
+
+  // Medicamentos resumo
+  const meds = getDados('medicamentos');
+  const medsEl = document.getElementById('medsVisao');
+  if (meds.length > 0) {
+    medsEl.innerHTML = '';
+    meds.slice(0, 4).forEach((m, i) => {
+      const div = document.createElement('div');
+      div.className = 'med-row';
+      const dotClass = m.tipo === 'continuo' ? 'continuo' : m.tipo === 'controlada' ? 'controlada' : '';
+      const badgeClass = m.tipo === 'sem' ? 'mb-sem' : m.tipo === 'irregular' ? 'mb-irregular' : m.tipo === 'controlada' ? 'mb-controlada' : m.tipo === 'continuo' ? 'mb-continuo' : 'mb-comum';
+      const badgeLabel = m.tipo === 'sem' ? 'Sem Medicação' : m.tipo === 'irregular' ? 'Uso Irregular' : m.tipo === 'controlada' ? '⚠️ Controlada' : m.tipo === 'continuo' ? '🔄 Contínuo' : 'Comum';
+      div.innerHTML = `
+        <div class="med-dot ${dotClass}"></div>
+        <div style="flex:1;">
+          <div class="med-nome-txt">${m.nome}</div>
+          <div class="med-dose-txt">${m.dose || ''}</div>
+        </div>
+        <span class="med-badge ${badgeClass}">${badgeLabel}</span>
+        <button onclick="removerMed(${i})" style="background:none;border:none;color:#e53e3e;font-size:11px;cursor:pointer;padding:0 0 0 4px;">✖</button>`;
+      medsEl.appendChild(div);
+    });
+    if (meds.length > 4) {
+      medsEl.innerHTML += `<div style="font-size:12px;color:#718096;text-align:center;padding:6px 0;">+${meds.length-4} mais...</div>`;
+    }
+  }
+
+  // Exames resumo
+  const exames = getDados('exames');
+  const exEl = document.getElementById('examesVisao');
+  if (exames.length > 0) {
+    exEl.innerHTML = '';
+    exames.sort((a,b) => new Date(b.data)-new Date(a.data)).slice(0,3).forEach(e => {
+      const d = new Date(e.data);
+      const div = document.createElement('div');
+      div.className = 'exame-row';
+      div.innerHTML = `
+        <div class="ex-data-box">
+          <div class="exd">${d.toLocaleDateString('pt-BR',{day:'2-digit'})}</div>
+          <div class="exm">${d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')}</div>
+        </div>
+        <div class="ex-desc">
+          <div class="ex-nome">${e.nome}</div>
+          ${e.local ? `<div class="ex-local">📍 ${e.local}</div>` : ''}
+          ${e.resultado ? `<div class="ex-res">✅ ${e.resultado}</div>` : ''}
+        </div>`;
+      exEl.appendChild(div);
+    });
+  }
+}
+
+// ════════════════════════════════════════════
+//  MEDICAMENTOS (tab completo)
+// ════════════════════════════════════════════
+function renderizarMedicamentos() {
+  const meds = getDados('medicamentos');
+  const lista = document.getElementById('listaMeds');
+  lista.innerHTML = '';
+  if (meds.length === 0) { lista.innerHTML = '<div class="es"><div class="ei">💊</div><p>Nenhum medicamento</p></div>'; return; }
+  meds.forEach((m, i) => {
+    const div = document.createElement('div');
+    div.className = 'med-row';
+    const dotClass = m.tipo === 'continuo' ? 'continuo' : m.tipo === 'controlada' ? 'controlada' : '';
+    const badgeClass = m.tipo === 'sem' ? 'mb-sem' : m.tipo === 'irregular' ? 'mb-irregular' : m.tipo === 'controlada' ? 'mb-controlada' : m.tipo === 'continuo' ? 'mb-continuo' : 'mb-comum';
+    const badgeLabel = m.tipo === 'sem' ? 'Sem Medicação' : m.tipo === 'irregular' ? 'Uso Irregular' : m.tipo === 'controlada' ? '⚠️ Controlada' : m.tipo === 'continuo' ? '🔄 Contínuo' : 'Comum';
+    div.innerHTML = `
+      <div class="med-dot ${dotClass}"></div>
+      <div style="flex:1;">
+        <div class="med-nome-txt">${m.nome}</div>
+        <div class="med-dose-txt">${m.dose || ''}${m.obs ? ' · ' + m.obs : ''}</div>
+        ${m.dataReceita ? `<div style="font-size:11px;color:#718096;">📅 Receita: ${fmtData(m.dataReceita)} · Válida ${m.validade}d</div>` : ''}
+      </div>
+      <span class="med-badge ${badgeClass}">${badgeLabel}</span>
+      <button onclick="removerMed(${i})" style="background:none;border:none;color:#e53e3e;font-size:12px;cursor:pointer;padding:0 0 0 6px;">✖</button>`;
+    lista.appendChild(div);
+  });
+}
+
+function toggleReceita() {
+  const tipo = document.getElementById('medTipo').value;
+  document.getElementById('rowReceita').style.display = (tipo === 'controlada' || tipo === 'continuo') ? 'grid' : 'none';
+}
 
 function salvarMedicamento() {
-  const nome        = document.getElementById('medNome').value.trim();
-  const dose        = document.getElementById('medDose').value.trim();
-  const tipo        = document.getElementById('medTipo').value;
-  const dataReceita = document.getElementById('medDataReceita').value;
-  const validade    = document.getElementById('medValidade').value;
-  const obs         = document.getElementById('medObs').value.trim();
-
+  const nome = document.getElementById('medNome').value.trim();
   if (!nome) { alert('Informe o nome do medicamento.'); return; }
-
+  const m = {
+    nome, dose: document.getElementById('medDose').value.trim(),
+    tipo: document.getElementById('medTipo').value,
+    dataReceita: document.getElementById('medDataReceita').value,
+    validade: parseInt(document.getElementById('medValidade').value),
+    obs: document.getElementById('medObs').value.trim()
+  };
   const meds = getDados('medicamentos');
-  meds.push({ nome, dose, tipo, dataReceita, validade: parseInt(validade), obs });
+  meds.push(m);
   setDados('medicamentos', meds);
-
+  adicionarEventoTimeline({ tipo: 'medicamento', data: hojeISO(), texto: `Medicamento adicionado: ${nome}`, obs: m.dose, auto: true });
   fecharModal('modalMed');
   renderizarMedicamentos();
+  renderizarVisaoGeral();
   gerarAlertasReceita();
 }
 
@@ -818,288 +1181,173 @@ function removerMed(idx) {
   meds.splice(idx, 1);
   setDados('medicamentos', meds);
   renderizarMedicamentos();
+  renderizarVisaoGeral();
   gerarAlertasReceita();
 }
 
 // ════════════════════════════════════════════
-//  ALERTAS DE RECEITA (Ajustado para 10 dias)
+//  EXAMES
 // ════════════════════════════════════════════
-function gerarAlertasReceita() {
-  const meds      = getDados('medicamentos');
-  const container = document.getElementById('alertasReceita');
-  if (!container) return;
-  container.innerHTML = '';
-
-  // Pega a data de hoje e zera as horas para o cálculo ficar exato
-  const hoje = new Date();
-  hoje.setHours(0,0,0,0);
-
-  meds.forEach(m => {
-    // Se não tiver data de receita cadastrada, pula
-    if (!m.dataReceita || !m.validade) return;
-
-    // Usa T12:00:00 para evitar que o fuso horário atrase a data em 1 dia
-    const dataReceita  = new Date(m.dataReceita + 'T12:00:00');
-    const dataVenc     = new Date(dataReceita);
-    dataVenc.setDate(dataVenc.getDate() + m.validade);
-    dataVenc.setHours(0,0,0,0); // zera horas do vencimento também
-
-    // Calcula a diferença em dias
-    const diasRestantes = Math.floor((dataVenc - hoje) / (24 * 60 * 60 * 1000));
-
-    let classe = '', icone = '', titulo = '', prazo = '';
-
-    if (diasRestantes < 0) {
-      classe = 'urgente'; icone = '🚨';
-      titulo = `Receita VENCIDA: ${m.nome}`;
-      prazo  = `Venceu há ${Math.abs(diasRestantes)} dia(s) — renovação urgente!`;
-    } else if (diasRestantes <= 10) {  // ⚠️ ALERTA DE 10 DIAS AQUI!
-      classe = 'urgente'; icone = '⚠️';
-      titulo = `Atenção: Receita vence em ${diasRestantes} dia(s)!`;
-      prazo  = `Medicamento: ${m.nome} — Vence dia ${dataVenc.toLocaleDateString('pt-BR')}`;
-    } else if (diasRestantes <= 20) {
-      classe = 'atencao'; icone = '📋';
-      titulo = `Aviso preventivo: receita expira em ${diasRestantes} dias`;
-      prazo  = `Medicamento: ${m.nome} — Vence dia ${dataVenc.toLocaleDateString('pt-BR')}`;
-    } else {
-      return; // Se faltar mais de 20 dias, não mostra alerta nenhum
-    }
-
-    const div = document.createElement('div');
-    div.className = `alerta-receita ${classe}`;
-    div.innerHTML = `
-      <div class="icone-alerta">${icone}</div>
-      <div class="corpo">
-        <div class="titulo">${titulo}</div>
-        <div class="detalhe">${m.dose || ''} · ${m.tipo === 'controlada' ? 'Receita Controlada' : 'Uso Contínuo'}</div>
-        <div class="prazo">${prazo}</div>
-      </div>`;
-    container.appendChild(div);
-  });
-}
-
-// ════════════════════════════════════════════
-//  EXAMES E CONSULTAS
-// ════════════════════════════════════════════
-const EXAME_ICONES = {
-  exame:        '🧪', imagem:       '🩻',
-  consulta:     '🏥', especialidade:'👨‍⚕️'
-};
+const EX_ICONE = { exame:'🧪', imagem:'🩻', consulta:'🏥', especialidade:'👨‍⚕️' };
 
 function renderizarExames() {
   const exames = getDados('exames');
-  const lista  = document.getElementById('listaExames');
+  const lista = document.getElementById('listaExames');
   lista.innerHTML = '';
-
-  if (exames.length === 0) {
-    lista.innerHTML = `<div class="empty-state"><div class="emoji">🔬</div><p>Nenhum exame ou consulta registrado.</p></div>`;
-    return;
-  }
-
-  exames.sort((a, b) => new Date(b.data) - new Date(a.data));
-
-  exames.forEach(e => {
-    const d   = new Date(e.data);
-    const dia = d.toLocaleDateString('pt-BR', { day: '2-digit' });
-    const mes = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
-    const item = document.createElement('div');
-    item.className = 'exame-item';
-    item.innerHTML = `
-      <div class="exame-data"><div class="dia">${dia}</div><div class="mes">${mes}</div></div>
-      <div class="exame-desc">
-        <div class="exame-nome">${EXAME_ICONES[e.categoria] || '📋'} ${e.nome}</div>
-        ${e.local ? `<div class="exame-local">📍 ${e.local}</div>` : ''}
-        ${e.resultado ? `<div class="exame-resultado">✅ ${e.resultado}</div>` : ''}
-        ${e.obs ? `<div class="exame-local">${e.obs}</div>` : ''}
+  if (exames.length === 0) { lista.innerHTML = '<div class="es"><div class="ei">🔬</div><p>Nenhum exame</p></div>'; return; }
+  exames.sort((a,b) => new Date(b.data)-new Date(a.data)).forEach(e => {
+    const d = new Date(e.data);
+    const div = document.createElement('div');
+    div.className = 'exame-row';
+    div.innerHTML = `
+      <div class="ex-data-box">
+        <div class="exd">${d.toLocaleDateString('pt-BR',{day:'2-digit'})}</div>
+        <div class="exm">${d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')}</div>
+      </div>
+      <div class="ex-desc">
+        <div class="ex-nome">${EX_ICONE[e.categoria]||'📋'} ${e.nome}</div>
+        ${e.local ? `<div class="ex-local">📍 ${e.local}</div>` : ''}
+        ${e.resultado ? `<div class="ex-res">✅ ${e.resultado}</div>` : ''}
+        ${e.obs ? `<div class="ex-local">${e.obs}</div>` : ''}
       </div>`;
-    lista.appendChild(item);
+    lista.appendChild(div);
   });
 }
 
 function salvarExame() {
-  const categoria  = document.getElementById('exameCategoria').value;
-  const data       = document.getElementById('exameData').value;
-  const nome       = document.getElementById('exameNome').value.trim();
-  const local      = document.getElementById('exameLocal').value.trim();
-  const resultado  = document.getElementById('exameResultado').value.trim();
-  const obs        = document.getElementById('exameObs').value.trim();
-
+  const nome = document.getElementById('exameNome').value.trim();
+  const data = document.getElementById('exameData').value;
   if (!nome || !data) { alert('Informe o nome e a data.'); return; }
-
+  const e = {
+    categoria: document.getElementById('exameCategoria').value,
+    data, nome,
+    local:     document.getElementById('exameLocal').value.trim(),
+    resultado: document.getElementById('exameResultado').value.trim(),
+    obs:       document.getElementById('exameObs').value.trim()
+  };
   const exames = getDados('exames');
-  exames.push({ categoria, data, nome, local, resultado, obs });
+  exames.push(e);
   setDados('exames', exames);
-
+  adicionarEventoTimeline({ tipo: 'exame', data, texto: `${EX_ICONE[e.categoria]||'📋'} ${nome}`, obs: e.resultado, auto: true });
   fecharModal('modalExame');
   renderizarExames();
+  renderizarVisaoGeral();
 }
 
 // ════════════════════════════════════════════
-//  CONDIÇÕES CLÍNICAS
+//  TIMELINE
 // ════════════════════════════════════════════
-const CONDICOES_PREDEFINIDAS = [
-  { label: '❤️ Hipertensão',     classe: 'tag-cronica' },
-  { label: '🩸 Diabetes',        classe: 'tag-cronica' },
-  { label: '🫁 Asma/DPOC',       classe: 'tag-cronica' },
-  { label: '🧠 Saúde Mental',    classe: 'tag-risco'   },
-  { label: '🤰 Gestante',        classe: 'tag-risco'   },
-  { label: '👴 Idoso (60+)',      classe: 'tag-risco'   },
-  { label: '♿ Deficiência',      classe: 'tag-social'  },
-  { label: '🏠 Acamado',         classe: 'tag-cronica' },
-  { label: '💊 Tuberculose',     classe: 'tag-cronica' },
-  { label: '🦟 Hanseníase',      classe: 'tag-cronica' },
-];
+function adicionarEventoTimeline(ev) {
+  const tl = getDados('timeline');
+  tl.unshift(ev);
+  setDados('timeline', tl);
+}
 
-const VULNERABILIDADES = [
-  '🍽️ Insegurança alimentar',
-  '🏚️ Moradia precária',
-  '👁️ Sem acesso a saneamento',
-  '📚 Baixa escolaridade',
-  '💼 Desemprego',
-  '👊 Violência doméstica',
-  '🧒 Criança em situação de risco',
-  '🧓 Idoso sozinho',
-];
-
-function renderizarCondicoes() {
-  const condicoes = getDados('condicoes');
-  const grid = document.getElementById('condicoesGrid');
-  const lista = document.getElementById('listaCondicoes');
-
-  if (condicoes.length === 0) {
-    lista.style.display = 'block';
-    grid.style.display  = 'none';
-    lista.innerHTML = `<div class="empty-state"><div class="emoji">🏥</div><p>Nenhuma condição registrada.</p></div>`;
-    return;
-  }
-
-  lista.style.display = 'none';
-  grid.style.display  = 'flex';
-  grid.innerHTML = '';
-  condicoes.forEach(c => {
-    const tag = document.createElement('span');
-    tag.className = `tag-condicao ${c.classe || 'tag-cronica'}`;
-    tag.textContent = c.label;
-    grid.appendChild(tag);
+function renderizarTimeline() {
+  const tl = getDados('timeline');
+  const el = document.getElementById('timelineEl');
+  el.innerHTML = '';
+  if (tl.length === 0) { el.innerHTML = '<div class="es"><div class="ei">📋</div><p>Nenhum evento</p></div>'; return; }
+  tl.sort((a,b) => new Date(b.data)-new Date(a.data)).forEach(ev => {
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    div.innerHTML = `
+      <div class="tl-dot ${ev.tipo}"></div>
+      <div class="tl-data">${fmtData(ev.data)}</div>
+      <div class="tl-texto">${ev.texto}</div>
+      ${ev.obs ? `<div class="tl-obs">${ev.obs}</div>` : ''}`;
+    el.appendChild(div);
   });
-
-  const vulns = getDados('vulnerabilidades');
-  const vGrid = document.getElementById('vulnerabilidadeGrid');
-  if (vulns.length > 0) {
-    vGrid.innerHTML = '';
-    vulns.forEach(v => {
-      const tag = document.createElement('span');
-      tag.className = 'tag-condicao tag-social';
-      tag.textContent = v;
-      vGrid.appendChild(tag);
-    });
-  }
 }
 
+function salvarTimeline() {
+  const tipo  = document.getElementById('tlTipo').value;
+  const data  = document.getElementById('tlData').value;
+  const texto = document.getElementById('tlTexto').value.trim();
+  const obs   = document.getElementById('tlObs').value.trim();
+  if (!texto || !data) { alert('Preencha a descrição e a data.'); return; }
+  adicionarEventoTimeline({ tipo, data, texto, obs });
+  fecharModal('modalTimeline');
+  renderizarTimeline();
+}
+
+// ════════════════════════════════════════════
+//  CONDIÇÕES E VULNERABILIDADES
+// ════════════════════════════════════════════
 function adicionarCondicao() {
-  const opcoes = CONDICOES_PREDEFINIDAS.map(c => c.label);
-  const escolha = prompt('Digite ou escolha uma condição:\n\n' + opcoes.map((o,i)=>`${i+1}. ${o}`).join('\n'));
+  const opcoes = CONDICOES_PRE.map(c => c.label);
+  const escolha = prompt('Escolha ou digite uma condição:\n\n' + opcoes.map((o,i)=>`${i+1}. ${o}`).join('\n'));
   if (!escolha) return;
-
   const idx = parseInt(escolha) - 1;
-  const cond = (!isNaN(idx) && CONDICOES_PREDEFINIDAS[idx])
-    ? CONDICOES_PREDEFINIDAS[idx]
-    : { label: escolha.trim(), classe: 'tag-cronica' };
-
-  const condicoes = getDados('condicoes');
-  if (!condicoes.find(c => c.label === cond.label)) {
-    condicoes.push(cond);
-    setDados('condicoes', condicoes);
-  }
-  renderizarCondicoes();
+  const cond = (!isNaN(idx) && CONDICOES_PRE[idx]) ? CONDICOES_PRE[idx] : { label: escolha.trim(), classe: 'tag-cronica' };
+  const conds = getDados('condicoes');
+  if (!conds.find(c => c.label === cond.label)) { conds.push(cond); setDados('condicoes', conds); }
+  renderizarVisaoGeral();
 }
 
 function adicionarVulnerabilidade() {
-  const opcoes = VULNERABILIDADES;
-  const escolha = prompt('Digite ou escolha uma vulnerabilidade:\n\n' + opcoes.map((o,i)=>`${i+1}. ${o}`).join('\n'));
+  const escolha = prompt('Escolha ou digite uma vulnerabilidade:\n\n' + VULNS_PRE.map((o,i)=>`${i+1}. ${o}`).join('\n'));
   if (!escolha) return;
-
   const idx = parseInt(escolha) - 1;
-  const vuln = (!isNaN(idx) && VULNERABILIDADES[idx]) ? VULNERABILIDADES[idx] : escolha.trim();
-
+  const vuln = (!isNaN(idx) && VULNS_PRE[idx]) ? VULNS_PRE[idx] : escolha.trim();
   const vulns = getDados('vulnerabilidades');
-  if (!vulns.includes(vuln)) {
-    vulns.push(vuln);
-    setDados('vulnerabilidades', vulns);
-  }
-  renderizarCondicoes();
+  if (!vulns.includes(vuln)) { vulns.push(vuln); setDados('vulnerabilidades', vulns); }
+  renderizarVisaoGeral();
 }
 
 // ════════════════════════════════════════════
 //  PUERICULTURA
 // ════════════════════════════════════════════
-const CALENDARIO_PUERICULTURA = [
-  { label: '1ª semana de vida',   meses: 0.25 },
-  { label: '1 mês',               meses: 1    },
-  { label: '2 meses',             meses: 2    },
-  { label: '4 meses',             meses: 4    },
-  { label: '6 meses',             meses: 6    },
-  { label: '9 meses',             meses: 9    },
-  { label: '12 meses',            meses: 12   },
-  { label: '18 meses',            meses: 18   },
-  { label: '24 meses',            meses: 24   },
+const CAL_PUERI = [
+  { label:'1ª semana', meses:0.25 }, { label:'1 mês', meses:1 },
+  { label:'2 meses', meses:2 },      { label:'4 meses', meses:4 },
+  { label:'6 meses', meses:6 },      { label:'9 meses', meses:9 },
+  { label:'12 meses', meses:12 },    { label:'18 meses', meses:18 },
+  { label:'24 meses', meses:24 },
 ];
 
 function verificarPuericultura() {
   if (!cidadaoAtual?.nascimento) return;
-
   const nasc  = new Date(cidadaoAtual.nascimento);
   const hoje  = new Date();
-  const meses = (hoje - nasc) / (30.44 * 24 * 60 * 60 * 1000);
-
+  const meses = (hoje - nasc) / (30.44*24*60*60*1000);
   if (meses > 60) return;
-
   document.getElementById('tabPueri').style.display = '';
-  document.getElementById('idadeCriancaBadge').textContent =
-    meses < 24 ? `${Math.floor(meses)} meses` : `${Math.floor(meses/12)} anos`;
-
-  const pueriFeitas = getDados('puericultura');
-  const container   = document.getElementById('calendarioPuericultura');
-  container.innerHTML = '';
-
-  CALENDARIO_PUERICULTURA.forEach(c => {
+  document.getElementById('idadeCriancaBadge').textContent = meses < 24 ? `${Math.floor(meses)} meses` : `${Math.floor(meses/12)} anos`;
+  const feitas = getDados('puericultura');
+  const cal = document.getElementById('calPueri');
+  cal.innerHTML = '';
+  CAL_PUERI.forEach(c => {
     if (c.meses > meses + 1) return;
-
-    const feita = pueriFeitas.some(p => p.consulta?.includes(c.label));
-    const item  = document.createElement('div');
-    item.className = 'puericultura-item';
-    item.innerHTML = `
-      <div class="pueri-status ${feita ? 'pueri-ok' : 'pueri-pendente'}">${feita ? '✅' : '⏳'}</div>
-      <div class="pueri-info">
-        <div class="pueri-nome">${c.label}</div>
-        <div class="pueri-data">${feita ? 'Realizada' : '⚠️ Pendente'}</div>
+    const feita = feitas.some(p => p.consulta?.includes(c.label));
+    const div = document.createElement('div');
+    div.className = 'pueri-row';
+    div.innerHTML = `
+      <div class="pueri-ic" style="background:${feita?'#c6f6d5':'#fed7d7'}">${feita?'✅':'⏳'}</div>
+      <div>
+        <div style="font-weight:600;font-size:13px;color:#1a365d;">${c.label}</div>
+        <div style="font-size:12px;color:#718096;">${feita?'Realizada':'⚠️ Pendente'}</div>
       </div>`;
-    container.appendChild(item);
+    cal.appendChild(div);
   });
-
   renderizarPuericultura();
 }
 
 function renderizarPuericultura() {
-  const lista    = getDados('puericultura');
-  const container = document.getElementById('listaPuericultura');
-  container.innerHTML = '';
-
-  if (lista.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="emoji">👶</div><p>Nenhuma consulta registrada.</p></div>`;
-    return;
-  }
-
-  lista.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(p => {
-    const item = document.createElement('div');
-    item.className = 'puericultura-item';
-    item.innerHTML = `
-      <div class="pueri-status pueri-ok">✅</div>
-      <div class="pueri-info">
-        <div class="pueri-nome">${p.consulta}</div>
-        <div class="pueri-data">${new Date(p.data).toLocaleDateString('pt-BR')}${p.obs ? ' · ' + p.obs : ''}</div>
+  const lista = getDados('puericultura');
+  const el = document.getElementById('listaPueri');
+  el.innerHTML = '';
+  if (lista.length === 0) { el.innerHTML = '<div class="es"><div class="ei">👶</div><p>Nenhuma consulta</p></div>'; return; }
+  lista.sort((a,b) => new Date(b.data)-new Date(a.data)).forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'pueri-row';
+    div.innerHTML = `
+      <div class="pueri-ic" style="background:#c6f6d5;">✅</div>
+      <div>
+        <div style="font-weight:600;font-size:13px;color:#1a365d;">${p.consulta}</div>
+        <div style="font-size:12px;color:#718096;">${fmtData(p.data)}${p.obs?' · '+p.obs:''}</div>
       </div>`;
-    container.appendChild(item);
+    el.appendChild(div);
   });
 }
 
@@ -1107,13 +1355,10 @@ function salvarPuericultura() {
   const consulta = document.getElementById('pueriConsulta').value.trim();
   const data     = document.getElementById('pueriData').value;
   const obs      = document.getElementById('pueriObs').value.trim();
-
   if (!consulta || !data) { alert('Informe a consulta e a data.'); return; }
-
   const lista = getDados('puericultura');
   lista.push({ consulta, data, obs });
   setDados('puericultura', lista);
-
   fecharModal('modalPueri');
   verificarPuericultura();
 }
@@ -1121,33 +1366,59 @@ function salvarPuericultura() {
 // ════════════════════════════════════════════
 //  TABS
 // ════════════════════════════════════════════
-function mostrarTab(tab) {
-  document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
+function mostrarTab(tab, btn) {
+  document.querySelectorAll('.secao-saude').forEach(s => s.classList.remove('ativa'));
+  document.querySelectorAll('.tsb').forEach(b => b.classList.remove('ativo'));
   document.getElementById('tab-' + tab).classList.add('ativa');
-  event.target.classList.add('ativo');
+  if (btn) btn.classList.add('ativo');
+  else {
+    document.querySelectorAll('.tsb').forEach(b => {
+      if (b.getAttribute('onclick')?.includes("'" + tab + "'")) b.classList.add('ativo');
+    });
+  }
+}
+function mostrarTabBtn(tab) {
+  document.querySelectorAll('.secao-saude').forEach(s => s.classList.remove('ativa'));
+  document.querySelectorAll('.tsb').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('tab-' + tab).classList.add('ativa');
+  document.querySelectorAll('.tsb').forEach(b => {
+    if (b.getAttribute('onclick')?.includes("'" + tab + "'")) b.classList.add('ativo');
+  });
 }
 
 // ════════════════════════════════════════════
 //  MODAIS
 // ════════════════════════════════════════════
 function abrirModal(id) {
-  const hoje = new Date().toISOString().split('T')[0];
-  const campos = ['sinalData','medDataReceita','exameData','pueriData'];
-  campos.forEach(c => { const el = document.getElementById(c); if (el) el.value = hoje; });
-
+  const hoje = hojeISO();
+  ['sinalData','medDataReceita','exameData','pueriData','tlData'].forEach(c => {
+    const el = document.getElementById(c); if (el) el.value = hoje;
+  });
   document.getElementById(id).classList.add('aberto');
 }
-
-function fecharModal(id) {
-  document.getElementById(id).classList.remove('aberto');
-}
-
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('aberto');
-  });
+function fecharModal(id) { document.getElementById(id).classList.remove('aberto'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('aberto'); });
 });
+
+// ════════════════════════════════════════════
+//  BOTÕES DE AÇÃO
+// ════════════════════════════════════════════
+function irParaVisita() {
+  if (familiaAtual) window.location.href = `visitas.html?familiaId=${familiaAtual.id}`;
+}
+function ligarParaFamilia() {
+  const tel = familiaAtual?.telefone || cidadaoAtual?.celular;
+  if (!tel) { alert('Nenhum telefone cadastrado.'); return; }
+  window.location.href = `tel:${tel.replace(/\D/g,'')}`;
+}
+function editarCidadao() {
+  if (familiaAtual) {
+    localStorage.setItem('editandoFamilia', familiaAtual.id);
+    localStorage.setItem('familiaAtual', familiaAtual.id);
+    window.location.href = 'familias.html';
+  }
+}
 </script>
 </body>
 </html>
