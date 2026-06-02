@@ -5,45 +5,96 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ACS Digital">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
-  <meta charset="UTF-8">
-  <title>Nova Família</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* ── IMC ── */
-    .imc-resultado {
-      display: none;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      border: 1px solid transparent;
-    }
-    .imc-resultado.visivel { display: flex; }
-    .imc-resultado.azul    { background:#ebf8ff; border-color:#bee3f8; color:#2b6cb0; }
-    .imc-resultado.verde   { background:#f0fff4; border-color:#9ae6b4; color:#276749; }
-    .imc-resultado.laranja { background:#fffbeb; border-color:#f6ad55; color:#744210; }
-    .imc-resultado.vermelho{ background:#fff5f5; border-color:#fc8181; color:#742a2a; }
-    .imc-valor { font-size: 22px; font-weight: 800; }
+<meta charset="UTF-8">
+<title>Nova Família</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── IMC ── */
+.imc-resultado {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.imc-resultado.visivel { display: flex; }
+.imc-resultado.azul    { background:#ebf8ff; border-color:#bee3f8; color:#2b6cb0; }
+.imc-resultado.verde   { background:#f0fff4; border-color:#9ae6b4; color:#276749; }
+.imc-resultado.laranja { background:#fffbeb; border-color:#f6ad55; color:#744210; }
+.imc-resultado.vermelho{ background:#fff5f5; border-color:#fc8181; color:#742a2a; }
+.imc-valor { font-size: 22px; font-weight: 800; }
 
-    /* ── Auto-save indicator ── */
-    .autosave-badge {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: #718096;
-      padding: 4px 10px;
-      background: #f0fff4;
-      border: 1px solid #9ae6b4;
-      border-radius: 999px;
-      margin-bottom: 10px;
-    }
-    .autosave-badge.visivel { display: inline-flex; }
-    .autosave-badge.salvando { background:#ebf8ff; border-color:#bee3f8; color:#2b6cb0; }
-  </style>
+/* ── Auto-save indicator ── */
+.autosave-badge {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #718096;
+  padding: 4px 10px;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+.autosave-badge.visivel  { display: inline-flex; }
+.autosave-badge.salvando { background:#ebf8ff; border-color:#bee3f8; color:#2b6cb0; }
+
+/* ── Bolsa Família toggle ── */
+.bolsa-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fffbeb;
+  border: 1px solid #f6ad55;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.bolsa-toggle-wrap.ativo {
+  background: #f0fff4;
+  border-color: #9ae6b4;
+}
+.bolsa-toggle-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #744210;
+}
+.bolsa-toggle-wrap.ativo .bolsa-toggle-label { color: #276749; }
+.bolsa-toggle-label span {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: #a0aec0;
+  margin-top: 2px;
+}
+.toggle-btn {
+  width: 48px; height: 26px;
+  border-radius: 13px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle-btn.on  { background: #38a169; }
+.toggle-btn.off { background: #e2e8f0; }
+.toggle-btn::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  transition: left 0.2s;
+}
+.toggle-btn.on::after  { left: 26px; }
+.toggle-btn.off::after { left: 4px; }
+</style>
 </head>
 <body>
 
@@ -58,28 +109,33 @@
 
   <div class="card">
     <h2>Cadastro Domiciliar</h2>
-
     <form id="formCadastro" class="form-grid">
+
       <div class="form-group">
         <label>Número da Família</label>
         <input type="number" id="numeroFamilia" min="1" required>
       </div>
+
       <div class="form-group">
         <label>Data do Cadastro</label>
         <input type="date" id="dataCadastro" required>
       </div>
+
       <div class="form-group span-2">
         <label>Responsável pela família</label>
         <input type="text" id="responsavel" required>
       </div>
+
       <div class="form-group">
         <label>Telefone</label>
         <input type="tel" id="telefone" placeholder="(00) 00000-0000">
       </div>
+
       <div class="form-group">
         <label>Nº de moradores</label>
         <input type="number" id="moradores">
       </div>
+
       <div class="form-group span-2">
         <label>📋 Número do Prontuário</label>
         <input type="text" id="numeroProntuario" placeholder="Ex: 00234 (número do prontuário na UBS)...">
@@ -117,10 +173,12 @@
         <label>Número</label>
         <input type="text" id="numero" required>
       </div>
+
       <div class="form-group">
         <label>Bairro</label>
         <input type="text" id="bairro" value="Guarda-Mor" required>
       </div>
+
       <div class="form-group">
         <label>Situação da Moradia</label>
         <input type="text" id="situacao" list="lista-situacao" placeholder="Selecione ou digite..." required>
@@ -130,6 +188,7 @@
           <option value="Cedida">
         </datalist>
       </div>
+
       <div class="form-group">
         <label>Tipo de Domicílio</label>
         <input type="text" id="tipoDomicilio" list="lista-domicilio" placeholder="Selecione ou digite..." required>
@@ -139,6 +198,7 @@
           <option value="Outro">
         </datalist>
       </div>
+
       <div class="form-group radio-group-container">
         <label>Localização</label>
         <div class="radio-options">
@@ -146,26 +206,44 @@
           <label class="radio-label"><input type="radio" name="localizacao" value="Rural"> Rural</label>
         </div>
       </div>
+
       <div class="form-group">
         <label>Animais no domicílio</label>
         <input type="text" id="animais" placeholder="Ex: 2 cães, 1 gato">
       </div>
+
+      <!-- ══════════════════════════════════════════
+           BOLSA FAMÍLIA
+           ══════════════════════════════════════════ -->
+      <div class="form-group span-full">
+        <label>💰 Bolsa Família</label>
+        <div class="bolsa-toggle-wrap" id="bolsaToggleWrap">
+          <div class="bolsa-toggle-label">
+            Beneficiária do Bolsa Família?
+            <span>Ative para acompanhar as condicionalidades desta família</span>
+          </div>
+          <button type="button" class="toggle-btn off" id="bolsaToggleBtn" onclick="toggleBolsa()"></button>
+        </div>
+        <input type="hidden" id="bolsaFamilia" value="Não">
+      </div>
+
       <div class="form-group span-full">
         <label>Observações</label>
         <textarea id="observacoes" rows="3" placeholder="Anotações importantes..."></textarea>
       </div>
+
       <div class="form-group span-full">
         <button type="submit" class="btn-salvar">Salvar Cadastro</button>
       </div>
+
     </form>
   </div>
 
   <!-- ══════════════════════════════════════════
        MEMBROS
-  ══════════════════════════════════════════ -->
+       ══════════════════════════════════════════ -->
   <div id="secaoMembros" class="card" style="margin-top:20px;display:none;">
     <h2>Membro da Família (Cadastro Individual)</h2>
-
     <form id="formMembro" class="form-grid">
 
       <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:10px;">
@@ -176,18 +254,22 @@
         <label>Nome Completo</label>
         <input type="text" id="nomeMembro" required>
       </div>
+
       <div class="form-group">
         <label>CNS (Cartão SUS)</label>
         <input type="text" id="cnsMembro" placeholder="Ex: 123 4567...">
       </div>
+
       <div class="form-group">
         <label>CPF</label>
         <input type="text" id="cpfMembro" placeholder="000.000.000-00">
       </div>
+
       <div class="form-group">
         <label>Data de Nascimento</label>
         <input type="date" id="nascimentoMembro" required>
       </div>
+
       <div class="form-group">
         <label>Sexo</label>
         <select id="sexoMembro" required>
@@ -196,6 +278,7 @@
           <option value="Feminino">Feminino</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>Raça/Cor</label>
         <select id="racaMembro">
@@ -207,14 +290,17 @@
           <option value="Indígena">Indígena</option>
         </select>
       </div>
+
       <div class="form-group span-2">
         <label>Nome da Mãe</label>
         <input type="text" id="maeMembro" required>
       </div>
+
       <div class="form-group span-2">
         <label>Nome do Pai</label>
         <input type="text" id="paiMembro" placeholder="(Opcional)">
       </div>
+
       <div class="form-group">
         <label>Nacionalidade</label>
         <select id="nacionalidadeMembro">
@@ -223,18 +309,22 @@
           <option value="Estrangeira">Estrangeira</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>Município de Nascimento</label>
         <input type="text" id="municipioNascMembro">
       </div>
+
       <div class="form-group">
         <label>UF</label>
         <input type="text" id="ufNascMembro" maxlength="2" placeholder="Ex: MG">
       </div>
+
       <div class="form-group">
         <label>Celular</label>
         <input type="tel" id="celularMembro" placeholder="(00) 00000-0000">
       </div>
+
       <div class="form-group span-2">
         <label>Parentesco (com responsável)</label>
         <select id="parentescoMembro" required>
@@ -259,6 +349,7 @@
         <label>Ocupação</label>
         <input type="text" id="ocupacaoMembro">
       </div>
+
       <div class="form-group">
         <label>Frequenta Escola/Creche?</label>
         <select id="escolaMembro">
@@ -267,6 +358,7 @@
           <option value="Não">Não</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>Escolaridade</label>
         <select id="escolaridadeMembro">
@@ -279,6 +371,7 @@
           <option value="Nenhum">Nenhum</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>Situação no Mercado de Trabalho</label>
         <select id="mercadoTrabalhoMembro">
@@ -290,6 +383,7 @@
           <option value="Não trabalha">Não trabalha</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>Orientação Sexual</label>
         <select id="orientacaoMembro">
@@ -300,6 +394,7 @@
           <option value="Outro">Outro</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>Identidade de Gênero</label>
         <select id="generoMembro">
@@ -320,6 +415,7 @@
         <label>Possui Deficiência?</label>
         <input type="text" id="deficienciaMembro" placeholder="Qual? (Deixe em branco se não possui)">
       </div>
+
       <div class="form-group">
         <label>Gestante?</label>
         <select id="gestanteMembro">
@@ -328,19 +424,16 @@
         </select>
       </div>
 
-      <!-- ════════════════════════════════════
-           CALCULADORA DE IMC (NOVO)
-      ════════════════════════════════════ -->
       <div class="form-group">
         <label>Peso (kg)</label>
         <input type="number" id="pesoKgMembro" placeholder="Ex: 70.5" step="0.1" min="1" max="300" oninput="calcularIMC()">
       </div>
+
       <div class="form-group">
         <label>Altura (cm)</label>
         <input type="number" id="alturaCmMembro" placeholder="Ex: 165" step="1" min="30" max="250" oninput="calcularIMC()">
       </div>
 
-      <!-- Resultado do IMC -->
       <div class="span-full">
         <div class="imc-resultado" id="imcResultado">
           <span class="imc-valor" id="imcValor">—</span>
@@ -366,10 +459,12 @@
         <label>Fumante?</label>
         <select id="fumaMembro"><option value="Não">Não</option><option value="Sim">Sim</option></select>
       </div>
+
       <div class="form-group">
         <label>Uso de Álcool?</label>
         <select id="alcoolMembro"><option value="Não">Não</option><option value="Sim">Sim</option></select>
       </div>
+
       <div class="form-group">
         <label>Uso de Outras Drogas?</label>
         <select id="drogasMembro"><option value="Não">Não</option><option value="Sim">Sim</option></select>
@@ -401,10 +496,12 @@
           <option value="Sim">Sim</option>
         </select>
       </div>
+
       <div class="form-group span-2">
         <label>Se internado, qual a causa?</label>
         <input type="text" id="causaInternacaoMembro" placeholder="Descreva a causa">
       </div>
+
       <div class="form-group span-full">
         <label>Outras condições de saúde</label>
         <input type="text" id="outrasCondicoesMembro" placeholder="Descreva outras condições ou observações médicas...">
@@ -413,6 +510,7 @@
       <div class="form-group span-full">
         <button type="submit" class="btn-salvar" style="background-color:#2b6cb0;margin-top:20px;">+ Adicionar Membro</button>
       </div>
+
     </form>
 
     <div id="listaMembros" style="margin-top:20px;"></div>
@@ -423,182 +521,147 @@
       </button>
     </div>
   </div>
+
 </div>
 
 <script src="script.js"></script>
 <script>
-// ══════════════════════════════════════════════
-//  CALCULADORA DE IMC
-// ══════════════════════════════════════════════
-function calcularIMC() {
-    const peso   = parseFloat(document.getElementById('pesoKgMembro')?.value);
-    const altura = parseFloat(document.getElementById('alturaCmMembro')?.value);
-    const resultado = document.getElementById('imcResultado');
-    const elValor   = document.getElementById('imcValor');
-    const elClass   = document.getElementById('imcClassificacao');
-    const elDica    = document.getElementById('imcDica');
-    const elPeso    = document.getElementById('pesoMembro');
 
-    if (!peso || !altura || peso < 1 || altura < 30) {
-        resultado.classList.remove('visivel');
-        return;
-    }
-
-    const alturaM = altura / 100;
-    const imc = peso / (alturaM * alturaM);
-    elValor.textContent = imc.toFixed(1);
-
-    // Remove classes de cor anteriores
-    resultado.classList.remove('azul','verde','laranja','vermelho','visivel');
-    resultado.classList.add('visivel');
-
-    let classe, dica, cor, pesoSugerido;
-    if (imc < 18.5) {
-        classe = '🔵 Abaixo do peso'; dica = 'Risco de desnutrição — acompanhar';
-        cor = 'azul'; pesoSugerido = 'Abaixo do peso';
-    } else if (imc < 25) {
-        classe = '✅ Peso adequado'; dica = 'IMC dentro da faixa saudável';
-        cor = 'verde'; pesoSugerido = 'Adequado';
-    } else if (imc < 30) {
-        classe = '🟡 Sobrepeso'; dica = 'Risco aumentado — orientar hábitos';
-        cor = 'laranja'; pesoSugerido = 'Acima do peso';
-    } else if (imc < 35) {
-        classe = '🔴 Obesidade Grau I'; dica = 'Acompanhamento nutricional indicado';
-        cor = 'vermelho'; pesoSugerido = 'Obesidade';
-    } else if (imc < 40) {
-        classe = '🔴 Obesidade Grau II'; dica = 'Encaminhamento especializado recomendado';
-        cor = 'vermelho'; pesoSugerido = 'Obesidade';
-    } else {
-        classe = '🔴 Obesidade Grau III'; dica = 'Obesidade mórbida — acompanhamento urgente';
-        cor = 'vermelho'; pesoSugerido = 'Obesidade';
-    }
-
-    resultado.classList.add(cor);
-    elClass.textContent = classe;
-    elDica.textContent  = dica;
-
-    // Preenche o select de "Situação do Peso" automaticamente
-    if (elPeso) elPeso.value = pesoSugerido;
+// ── BOLSA FAMÍLIA TOGGLE ──
+function toggleBolsa() {
+  const btn = document.getElementById('bolsaToggleBtn');
+  const wrap = document.getElementById('bolsaToggleWrap');
+  const hidden = document.getElementById('bolsaFamilia');
+  const ativo = btn.classList.contains('on');
+  btn.classList.toggle('on', !ativo);
+  btn.classList.toggle('off', ativo);
+  wrap.classList.toggle('ativo', !ativo);
+  hidden.value = !ativo ? 'Sim' : 'Não';
 }
 
-// ══════════════════════════════════════════════
-//  AUTO-SAVE DO FORMULÁRIO DE MEMBRO
-// ══════════════════════════════════════════════
+// Ao editar família existente, restaurar valor do Bolsa Família
+document.addEventListener('DOMContentLoaded', () => {
+  // script.js carrega os dados da família no formCadastro quando familiaAtual existe
+  // Aguarda um tick para o script.js preencher os campos
+  setTimeout(() => {
+    const famId = localStorage.getItem('familiaAtual');
+    if (famId) {
+      const familias = JSON.parse(localStorage.getItem('familias') || '[]');
+      const fam = familias.find(f => String(f.id) === String(famId));
+      if (fam && fam.bolsaFamilia === 'Sim') {
+        const btn = document.getElementById('bolsaToggleBtn');
+        const wrap = document.getElementById('bolsaToggleWrap');
+        const hidden = document.getElementById('bolsaFamilia');
+        btn.classList.replace('off', 'on');
+        wrap.classList.add('ativo');
+        hidden.value = 'Sim';
+      }
+    }
+  }, 300);
+});
+
+// ── CALCULADORA DE IMC ──
+function calcularIMC() {
+  const peso    = parseFloat(document.getElementById('pesoKgMembro')?.value);
+  const altura  = parseFloat(document.getElementById('alturaCmMembro')?.value);
+  const resultado = document.getElementById('imcResultado');
+  const elValor   = document.getElementById('imcValor');
+  const elClass   = document.getElementById('imcClassificacao');
+  const elDica    = document.getElementById('imcDica');
+  const elPeso    = document.getElementById('pesoMembro');
+
+  if (!peso || !altura || peso < 1 || altura < 30) {
+    resultado.classList.remove('visivel');
+    return;
+  }
+
+  const alturaM = altura / 100;
+  const imc = peso / (alturaM * alturaM);
+  elValor.textContent = imc.toFixed(1);
+
+  resultado.classList.remove('azul','verde','laranja','vermelho','visivel');
+  resultado.classList.add('visivel');
+
+  let classe, dica, cor, pesoSugerido;
+  if      (imc < 18.5) { classe='🔵 Abaixo do peso';    dica='Risco de desnutrição — acompanhar';              cor='azul';    pesoSugerido='Abaixo do peso'; }
+  else if (imc < 25)   { classe='✅ Peso adequado';       dica='IMC dentro da faixa saudável';                   cor='verde';   pesoSugerido='Adequado'; }
+  else if (imc < 30)   { classe='🟡 Sobrepeso';           dica='Risco aumentado — orientar hábitos';             cor='laranja'; pesoSugerido='Acima do peso'; }
+  else if (imc < 35)   { classe='🔴 Obesidade Grau I';   dica='Acompanhamento nutricional indicado';            cor='vermelho';pesoSugerido='Obesidade'; }
+  else if (imc < 40)   { classe='🔴 Obesidade Grau II';  dica='Encaminhamento especializado recomendado';       cor='vermelho';pesoSugerido='Obesidade'; }
+  else                 { classe='🔴 Obesidade Grau III'; dica='Obesidade mórbida — acompanhamento urgente';     cor='vermelho';pesoSugerido='Obesidade'; }
+
+  resultado.classList.add(cor);
+  elClass.textContent = classe;
+  elDica.textContent  = dica;
+  if (elPeso) elPeso.value = pesoSugerido;
+}
+
+// ── AUTO-SAVE DO FORMULÁRIO DE MEMBRO ──
 const RASCUNHO_KEY = 'rascunhoMembro';
 let autoSaveTimer = null;
 
 function salvarRascunho() {
-    const badge = document.getElementById('autosaveBadge');
-    if (badge) { badge.classList.add('visivel', 'salvando'); badge.textContent = '⏳ Salvando rascunho...'; }
+  const badge = document.getElementById('autosaveBadge');
+  if (badge) { badge.classList.add('visivel','salvando'); badge.textContent = '⏳ Salvando rascunho...'; }
 
-    const campos = [
-        'nomeMembro','cnsMembro','cpfMembro','nascimentoMembro','sexoMembro','racaMembro',
-        'maeMembro','paiMembro','nacionalidadeMembro','municipioNascMembro','ufNascMembro',
-        'celularMembro','parentescoMembro','ocupacaoMembro','escolaMembro','escolaridadeMembro',
-        'mercadoTrabalhoMembro','orientacaoMembro','generoMembro','deficienciaMembro',
-        'gestanteMembro','pesoKgMembro','alturaCmMembro','pesoMembro','fumaMembro',
-        'alcoolMembro','drogasMembro','internacaoMembro','causaInternacaoMembro','outrasCondicoesMembro'
-    ];
-    const dados = {};
-    campos.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) dados[id] = el.value;
-    });
-    // Checkboxes de doenças
-    dados._doencas = Array.from(document.querySelectorAll('#formMembro input[type="checkbox"]:checked')).map(c => c.value);
-    dados._familiaAtual = localStorage.getItem('familiaAtual');
-    dados._timestamp = Date.now();
+  const campos = [
+    'nomeMembro','cnsMembro','cpfMembro','nascimentoMembro','sexoMembro','racaMembro',
+    'maeMembro','paiMembro','nacionalidadeMembro','municipioNascMembro','ufNascMembro',
+    'celularMembro','parentescoMembro','ocupacaoMembro','escolaMembro','escolaridadeMembro',
+    'mercadoTrabalhoMembro','orientacaoMembro','generoMembro','deficienciaMembro',
+    'gestanteMembro','pesoKgMembro','alturaCmMembro','pesoMembro','fumaMembro',
+    'alcoolMembro','drogasMembro','internacaoMembro','causaInternacaoMembro','outrasCondicoesMembro'
+  ];
 
-    localStorage.setItem(RASCUNHO_KEY, JSON.stringify(dados));
+  const dados = {};
+  campos.forEach(id => { const el = document.getElementById(id); if (el) dados[id] = el.value; });
+  dados._doencas      = Array.from(document.querySelectorAll('#formMembro input[type="checkbox"]:checked')).map(c => c.value);
+  dados._familiaAtual = localStorage.getItem('familiaAtual');
+  dados._timestamp    = Date.now();
+  localStorage.setItem(RASCUNHO_KEY, JSON.stringify(dados));
 
-    setTimeout(() => {
-        if (badge) {
-            badge.classList.remove('salvando');
-            badge.textContent = '💾 Rascunho salvo';
-        }
-    }, 600);
+  setTimeout(() => { if (badge) { badge.classList.remove('salvando'); badge.textContent = '💾 Rascunho salvo'; } }, 600);
 }
 
 function restaurarRascunho() {
-    const raw = localStorage.getItem(RASCUNHO_KEY);
-    if (!raw) return;
-    const dados = JSON.parse(raw);
-
-    // Só restaura se for da mesma família
-    const famAtual = localStorage.getItem('familiaAtual');
-    if (dados._familiaAtual !== famAtual) return;
-
-    // Verifica se tem dados úteis
-    if (!dados.nomeMembro) return;
-
-    const mins = Math.floor((Date.now() - dados._timestamp) / 60000);
-    if (mins > 60) { localStorage.removeItem(RASCUNHO_KEY); return; } // Rascunho expirado
-
-    if (!confirm(`📋 Encontramos um rascunho de "${dados.nomeMembro}" salvo há ${mins} minuto(s). Deseja restaurar?`)) {
-        localStorage.removeItem(RASCUNHO_KEY);
-        return;
-    }
-
-    const campos = Object.keys(dados).filter(k => !k.startsWith('_'));
-    campos.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = dados[id] || '';
-    });
-
-    // Restaura checkboxes de doenças
-    if (dados._doencas?.length > 0) {
-        document.querySelectorAll('#formMembro input[type="checkbox"]').forEach(c => {
-            c.checked = dados._doencas.includes(c.value);
-        });
-    }
-
-    // Recalcula IMC se tiver dados
-    calcularIMC();
-
-    const badge = document.getElementById('autosaveBadge');
-    if (badge) { badge.classList.add('visivel'); badge.textContent = '✅ Rascunho restaurado'; }
+  const raw = localStorage.getItem(RASCUNHO_KEY);
+  if (!raw) return;
+  const dados = JSON.parse(raw);
+  const famAtual = localStorage.getItem('familiaAtual');
+  if (dados._familiaAtual !== famAtual) return;
+  if (!dados.nomeMembro) return;
+  const mins = Math.floor((Date.now() - dados._timestamp) / 60000);
+  if (mins > 60) { localStorage.removeItem(RASCUNHO_KEY); return; }
+  if (!confirm(`📋 Encontramos um rascunho de "${dados.nomeMembro}" salvo há ${mins} minuto(s). Deseja restaurar?`)) { localStorage.removeItem(RASCUNHO_KEY); return; }
+  const campos = Object.keys(dados).filter(k => !k.startsWith('_'));
+  campos.forEach(id => { const el = document.getElementById(id); if (el) el.value = dados[id] || ''; });
+  if (dados._doencas?.length > 0) {
+    document.querySelectorAll('#formMembro input[type="checkbox"]').forEach(c => { c.checked = dados._doencas.includes(c.value); });
+  }
+  calcularIMC();
+  const badge = document.getElementById('autosaveBadge');
+  if (badge) { badge.classList.add('visivel'); badge.textContent = '✅ Rascunho restaurado'; }
 }
 
-function limparRascunhoMembro() {
-    localStorage.removeItem(RASCUNHO_KEY);
-}
+function limparRascunhoMembro() { localStorage.removeItem(RASCUNHO_KEY); }
 
-// Ativa auto-save em todos os campos do formulário de membro
 document.addEventListener('DOMContentLoaded', () => {
-    const formMembro = document.getElementById('formMembro');
-    if (!formMembro) return;
+  const formMembro   = document.getElementById('formMembro');
+  const secaoMembros = document.getElementById('secaoMembros');
+  if (!formMembro) return;
 
-    // Restaura rascunho se houver
-    const secaoMembros = document.getElementById('secaoMembros');
-    if (secaoMembros && secaoMembros.style.display !== 'none') {
-        restaurarRascunho();
-    }
+  const observer = new MutationObserver(() => {
+    if (secaoMembros.style.display !== 'none') { restaurarRascunho(); observer.disconnect(); }
+  });
+  if (secaoMembros) observer.observe(secaoMembros, { attributes: true, attributeFilter: ['style'] });
 
-    // Observer para quando a seção de membros aparecer
-    const observer = new MutationObserver(() => {
-        if (secaoMembros.style.display !== 'none') {
-            restaurarRascunho();
-            observer.disconnect();
-        }
-    });
-    if (secaoMembros) observer.observe(secaoMembros, { attributes: true, attributeFilter: ['style'] });
-
-    // Auto-save ao digitar (debounce 1.5s)
-    formMembro.addEventListener('input', () => {
-        clearTimeout(autoSaveTimer);
-        autoSaveTimer = setTimeout(salvarRascunho, 1500);
-    });
-    formMembro.addEventListener('change', () => {
-        clearTimeout(autoSaveTimer);
-        autoSaveTimer = setTimeout(salvarRascunho, 1500);
-    });
-
-    // Limpa rascunho ao salvar membro com sucesso
-    formMembro.addEventListener('submit', () => {
-        setTimeout(limparRascunhoMembro, 500);
-        const badge = document.getElementById('autosaveBadge');
-        if (badge) badge.classList.remove('visivel');
-    });
+  formMembro.addEventListener('input',  () => { clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(salvarRascunho, 1500); });
+  formMembro.addEventListener('change', () => { clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(salvarRascunho, 1500); });
+  formMembro.addEventListener('submit', () => {
+    setTimeout(limparRascunhoMembro, 500);
+    const badge = document.getElementById('autosaveBadge');
+    if (badge) badge.classList.remove('visivel');
+  });
 });
 </script>
 </body>
