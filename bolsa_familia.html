@@ -187,7 +187,11 @@
 <script src="script.js"></script>
 <script>
 const ANO_ATUAL = new Date().getFullYear();
-const familiaId = localStorage.getItem("familiaAtual");
+
+// Usa sessionStorage com chave própria para não conflitar com familiaAtual de outras páginas
+let familiaId = sessionStorage.getItem("bolsafamilia_familiaId") || null;
+// Limpa o localStorage.familiaAtual ao entrar na página (evita herdar contexto de outra tela)
+localStorage.removeItem("familiaAtual");
 
 // Estado do modal
 let _modalFamiliaId = null, _modalMembroId = null, _modalSemestre = null;
@@ -251,7 +255,7 @@ function renderizarResumoGeral(famBolsa) {
     const chipTxt = pct>=100?'✅ Em dia':pct>=50?'⚠️ Parcial':'❌ Pendente';
 
     return `
-      <div class="cond-card" style="cursor:pointer;" onclick="localStorage.setItem('familiaAtual','${f.id}');carregarPagina()">
+      <div class="cond-card" style="cursor:pointer;" onclick="abrirDetalhe('${f.id}')">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
             <div style="font-size:15px;font-weight:700;color:#1a365d;">Família ${f.numeroFamilia} — ${f.responsavel}</div>
@@ -659,11 +663,18 @@ function toggleEscola(membroId, btn) {
   showToast(!atual?'✅ Frequência confirmada':'Frequência removida', !atual?'verde':'normal', 2000);
 }
 
+function abrirDetalhe(id) {
+  familiaId = id;
+  sessionStorage.setItem("bolsafamilia_familiaId", id);
+  carregarPagina();
+}
+
 function salvarEVoltar() {
   showToast('✅ Condicionalidades salvas!', 'verde', 2000);
   setTimeout(() => {
-    localStorage.removeItem("familiaAtual");
-    window.history.back();
+    familiaId = null;
+    sessionStorage.removeItem("bolsafamilia_familiaId");
+    carregarPagina();
   }, 1500);
 }
 
