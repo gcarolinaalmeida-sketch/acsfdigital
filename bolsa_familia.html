@@ -212,8 +212,16 @@ function carregarPagina() {
 /* ══════════════════════════════════════
    VISÃO GERAL — com tabs
 ══════════════════════════════════════ */
+// Aceita qualquer variação: true, "Sim", "sim", "true", "1" etc.
+function ehBolsaFamilia(f) {
+  const v = f.bolsaFamilia;
+  if (!v || v === false) return false;
+  const s = String(v).toLowerCase().trim();
+  return ['sim','s','true','1','yes'].includes(s);
+}
+
 function renderizarVisaoGeral(container) {
-  const famBolsa = familias.filter(f => f.bolsaFamilia === "Sim");
+  const famBolsa = familias.filter(ehBolsaFamilia);
 
   if (famBolsa.length === 0) {
     container.innerHTML = `<div class="sem-bolsa"><div style="font-size:48px;margin-bottom:12px;">💰</div><p>Nenhuma família cadastrada como beneficiária do Bolsa Família.</p></div>`;
@@ -506,7 +514,7 @@ function renderizarDetalhe(container) {
 
   if (!familia) { container.innerHTML = '<p style="color:#e53e3e;">Família não encontrada.</p>'; return; }
 
-  if (familia.bolsaFamilia !== "Sim") {
+  if (!ehBolsaFamilia(familia)) {
     container.innerHTML = `
       <div class="sem-bolsa">
         <div style="font-size:48px;margin-bottom:12px;">💰</div>
