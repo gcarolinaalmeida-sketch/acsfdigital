@@ -1,45 +1,102 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Bolsa Família - ACS Digital</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .cond-card { background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:16px; margin-bottom:14px; border-left:4px solid #d69e2e; }
-    .cond-titulo { font-size:15px; font-weight:700; color:#744210; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-    .cond-membro { background:#fffbeb; border:1px solid #fbd38d; border-radius:8px; padding:14px; margin-bottom:10px; }
-    .cond-membro:last-child { margin-bottom:0; }
-    .membro-nome { font-size:14px; font-weight:700; color:#2c5282; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
-    .cond-grupo { margin-bottom:12px; }
-    .cond-grupo-titulo { font-size:12px; font-weight:700; color:#744210; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .check-linha { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:white; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:6px; }
-    .check-linha:last-child { margin-bottom:0; }
-    .check-label { font-size:13px; color:#4a5568; display:flex; align-items:center; gap:8px; }
-    .check-status { display:flex; align-items:center; gap:6px; }
-    .toggle-btn { width:44px; height:24px; border-radius:12px; border:none; cursor:pointer; position:relative; transition:background 0.2s; flex-shrink:0; }
-    .toggle-btn.on  { background:#38a169; }
-    .toggle-btn.off { background:#e2e8f0; }
-    .toggle-btn::after { content:''; position:absolute; top:3px; width:18px; height:18px; border-radius:50%; background:white; transition:left 0.2s; }
-    .toggle-btn.on::after  { left:23px; }
-    .toggle-btn.off::after { left:3px; }
-    .data-input { padding:5px 8px; border:1px solid #cbd5e0; border-radius:5px; font-size:12px; width:130px; }
-    .resumo-bar { height:8px; border-radius:4px; background:#edf2f7; overflow:hidden; margin-top:4px; }
-    .resumo-bar-fill { height:100%; border-radius:4px; transition:width 0.5s; }
-    .status-chip { font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; }
-    .chip-ok   { background:#c6f6d5; color:#22543d; }
-    .chip-pend { background:#fed7d7; color:#742a2a; }
-    .chip-half { background:#feebc8; color:#744210; }
-    .sem-bolsa { text-align:center; padding:40px 20px; color:#718096; }
-    .info-box { background:#ebf8ff; border:1px solid #bee3f8; border-radius:8px; padding:12px 16px; font-size:13px; color:#2c5282; margin-bottom:16px; }
-  </style>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bolsa Família - ACS Digital</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── Cards de família ── */
+.cond-card { background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:16px; margin-bottom:14px; border-left:4px solid #d69e2e; }
+.cond-titulo { font-size:15px; font-weight:700; color:#744210; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.cond-membro { background:#fffbeb; border:1px solid #fbd38d; border-radius:8px; padding:14px; margin-bottom:10px; }
+.cond-membro:last-child { margin-bottom:0; }
+.membro-nome { font-size:14px; font-weight:700; color:#2c5282; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.cond-grupo { margin-bottom:12px; }
+.cond-grupo-titulo { font-size:12px; font-weight:700; color:#744210; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.check-linha { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:white; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:6px; }
+.check-linha:last-child { margin-bottom:0; }
+.check-label { font-size:13px; color:#4a5568; display:flex; align-items:center; gap:8px; }
+.check-status { display:flex; align-items:center; gap:6px; }
+.toggle-btn { width:44px; height:24px; border-radius:12px; border:none; cursor:pointer; position:relative; transition:background 0.2s; flex-shrink:0; }
+.toggle-btn.on { background:#38a169; }
+.toggle-btn.off { background:#e2e8f0; }
+.toggle-btn::after { content:''; position:absolute; top:3px; width:18px; height:18px; border-radius:50%; background:white; transition:left 0.2s; }
+.toggle-btn.on::after { left:23px; }
+.toggle-btn.off::after { left:3px; }
+.data-input { padding:5px 8px; border:1px solid #cbd5e0; border-radius:5px; font-size:12px; width:130px; }
+.resumo-bar { height:8px; border-radius:4px; background:#edf2f7; overflow:hidden; margin-top:4px; }
+.resumo-bar-fill { height:100%; border-radius:4px; transition:width 0.5s; }
+.status-chip { font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; white-space:nowrap; }
+.chip-ok { background:#c6f6d5; color:#22543d; }
+.chip-pend { background:#fed7d7; color:#742a2a; }
+.chip-half { background:#feebc8; color:#744210; }
+.sem-bolsa { text-align:center; padding:40px 20px; color:#718096; }
+.info-box { background:#ebf8ff; border:1px solid #bee3f8; border-radius:8px; padding:12px 16px; font-size:13px; color:#2c5282; margin-bottom:16px; }
+
+/* ── TABS ── */
+.tabs-wrapper { display:flex; gap:6px; margin-bottom:16px; background:#f7fafc; border-radius:10px; padding:4px; }
+.tab-btn { flex:1; padding:10px 6px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; background:transparent; color:#718096; transition:all .2s; }
+.tab-btn.ativo { background:white; color:#d69e2e; box-shadow:0 1px 4px rgba(0,0,0,.1); }
+
+/* ── Lista rápida de pesagem ── */
+.pesagem-familia-card {
+  background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.06);
+  margin-bottom:14px; overflow:hidden; border-left:4px solid #d69e2e;
+}
+.pesagem-familia-header {
+  padding:12px 16px; background:#fffbeb; display:flex; justify-content:space-between; align-items:center; gap:10px;
+  cursor:pointer; user-select:none;
+}
+.pesagem-familia-nome { font-size:14px; font-weight:700; color:#744210; }
+.pesagem-familia-sub { font-size:12px; color:#a0aec0; margin-top:2px; }
+.pesagem-familia-body { padding:12px 16px; border-top:1px solid #fbd38d; }
+
+.crianca-row {
+  display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #f0f0f0; gap:10px; flex-wrap:wrap;
+}
+.crianca-row:last-child { border-bottom:none; }
+.crianca-info { flex:1; min-width:120px; }
+.crianca-nome { font-size:13px; font-weight:700; color:#2c5282; }
+.crianca-idade { font-size:11px; color:#718096; }
+
+.sem-checks { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.check-semestre {
+  display:flex; align-items:center; gap:6px; padding:6px 10px;
+  border-radius:8px; border:1px solid #e2e8f0; background:#f9fafb;
+  cursor:pointer; font-size:12px; font-weight:600; color:#4a5568;
+  transition:all .15s; user-select:none; min-width:110px;
+}
+.check-semestre:hover { background:#edf2f7; }
+.check-semestre.marcado { background:#f0fff4; border-color:#9ae6b4; color:#22543d; }
+.check-semestre .icone-check { font-size:14px; line-height:1; }
+
+.data-semestre { font-size:11px; color:#718096; display:block; margin-top:2px; }
+
+.progresso-familia { height:4px; background:#edf2f7; }
+.progresso-fill { height:100%; transition:width .4s; }
+
+.nenhuma-crianca { font-size:13px; color:#a0aec0; padding:8px 0; font-style:italic; }
+
+/* modal data */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:999; align-items:center; justify-content:center; }
+.modal-overlay.aberto { display:flex; }
+.modal-box { background:white; border-radius:14px; padding:24px; width:90%; max-width:340px; box-shadow:0 8px 32px rgba(0,0,0,.15); }
+.modal-titulo { font-size:16px; font-weight:700; color:#1a365d; margin-bottom:16px; }
+.modal-label { font-size:13px; color:#4a5568; margin-bottom:6px; display:block; }
+.modal-input { width:100%; padding:10px 12px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; margin-bottom:14px; box-sizing:border-box; }
+.modal-acoes { display:flex; gap:10px; }
+.modal-btn { flex:1; padding:10px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+.modal-btn-ok { background:#38a169; color:white; }
+.modal-btn-cancel { background:#edf2f7; color:#4a5568; }
+.modal-btn-remove { background:#fff5f5; color:#c53030; border:1px solid #feb2b2; }
+</style>
 </head>
 <body style="padding-bottom:80px;">
 
 <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
-
 <aside class="sidebar">
   <div class="logo">💚 ACS Digital</div>
   <nav>
@@ -103,7 +160,6 @@
     <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
   </header>
 
-  <!-- Resumo geral ou detalhes da família -->
   <div id="conteudoPagina"></div>
 
   <nav class="bottom-nav no-print">
@@ -114,109 +170,389 @@
   </nav>
 </main>
 
+<!-- Modal de data de pesagem -->
+<div class="modal-overlay" id="modalPesagem">
+  <div class="modal-box">
+    <div class="modal-titulo" id="modalTitulo">Registrar pesagem</div>
+    <label class="modal-label">Data da pesagem:</label>
+    <input type="date" class="modal-input" id="modalData">
+    <div class="modal-acoes">
+      <button class="modal-btn modal-btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="modal-btn modal-btn-remove" id="btnRemover" onclick="removerPesagem()" style="display:none;">Remover</button>
+      <button class="modal-btn modal-btn-ok" onclick="confirmarPesagem()">✅ Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <script src="script.js"></script>
 <script>
-  const ANO_ATUAL = new Date().getFullYear();
-  const familiaId = localStorage.getItem("familiaAtual");
+const ANO_ATUAL = new Date().getFullYear();
+const familiaId = localStorage.getItem("familiaAtual");
 
-  function carregarPagina() {
-    const container = document.getElementById("conteudoPagina");
-    const condicionalidades = JSON.parse(localStorage.getItem("condicionalidades")) || {};
-    const vacinacao = JSON.parse(localStorage.getItem("vacinacao")) || {};
-    const hoje = new Date();
+// Estado do modal
+let _modalFamiliaId = null, _modalMembroId = null, _modalSemestre = null;
 
-    // Se vier de uma família específica, mostra o detalhe
-    if (familiaId) {
-      const familia = familias.find(f => f.id == familiaId);
-      if (!familia) { container.innerHTML = '<p style="color:#e53e3e;">Família não encontrada.</p>'; return; }
+/* ══════════════════════════════════════
+   ROTEAMENTO: detalhe ou visão geral
+══════════════════════════════════════ */
+function carregarPagina() {
+  const container = document.getElementById("conteudoPagina");
 
-      if (familia.bolsaFamilia !== "Sim") {
-        container.innerHTML = `
-          <div class="sem-bolsa">
-            <div style="font-size:48px;margin-bottom:12px;">💰</div>
-            <p>Esta família não está cadastrada como beneficiária do Bolsa Família.</p>
-            <button onclick="editarFamilia(${familia.id})" class="btn btn-primary" style="margin-top:16px;">✏️ Editar cadastro</button>
-          </div>`;
-        return;
-      }
+  if (familiaId) {
+    renderizarDetalhe(container);
+  } else {
+    renderizarVisaoGeral(container);
+  }
+}
 
-      const memFam = membros.filter(m => m.familia_id == familiaId);
-      const cond = condicionalidades[familiaId] || {};
+/* ══════════════════════════════════════
+   VISÃO GERAL — com tabs
+══════════════════════════════════════ */
+function renderizarVisaoGeral(container) {
+  const famBolsa = familias.filter(f => f.bolsaFamilia === "Sim");
 
-      container.innerHTML = `
-        <div class="info-box">
-          ℹ️ <strong>Família ${familia.numeroFamilia} — ${familia.responsavel}</strong><br>
-          As condicionalidades são verificadas semestralmente pelo CRAS. Mantenha os registros atualizados.
-        </div>
-        ${renderizarResumoFamilia(familia, memFam, cond, vacinacao, hoje)}
-        ${memFam.map(m => renderizarMembroCondicionalidade(m, cond, vacinacao, hoje)).join('')}
-        <button onclick="salvarEVoltar()" style="margin-top:16px;background:#38a169;color:white;border:none;padding:14px;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;width:100%;">
-          ✅ Salvar e Voltar
-        </button>`;
-
-    } else {
-      // Visão geral — todas as famílias Bolsa Família
-      const famBolsa = familias.filter(f => f.bolsaFamilia === "Sim");
-      if (famBolsa.length === 0) {
-        container.innerHTML = `<div class="sem-bolsa"><div style="font-size:48px;margin-bottom:12px;">💰</div><p>Nenhuma família cadastrada como beneficiária do Bolsa Família.</p></div>`;
-        return;
-      }
-      container.innerHTML = `
-        <div class="info-box">💰 <strong>${famBolsa.length} família(s)</strong> beneficiárias do Bolsa Família na microárea.</div>
-        ${famBolsa.map(f => {
-          const memFam = membros.filter(m => m.familia_id == f.id);
-          const cond = condicionalidades[f.id] || {};
-          const { ok, total } = calcularStatusGeral(memFam, cond, vacinacao, hoje);
-          const pct = total ? Math.round((ok/total)*100) : 100;
-          const chipClass = pct>=100?'chip-ok':pct>=50?'chip-half':'chip-pend';
-          const chipTxt   = pct>=100?'✅ Em dia':pct>=50?'⚠️ Parcial':'❌ Pendente';
-          return `
-          <div class="cond-card" style="cursor:pointer;" onclick="localStorage.setItem('familiaAtual','${f.id}');carregarPagina()">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-              <div>
-                <div style="font-size:15px;font-weight:700;color:#1a365d;">Família ${f.numeroFamilia} — ${f.responsavel}</div>
-                <div style="font-size:12px;color:#718096;margin-top:2px;">📍 ${f.logradouro||'—'} · ${memFam.length} membro(s)</div>
-              </div>
-              <span class="status-chip ${chipClass}">${chipTxt}</span>
-            </div>
-            <div class="resumo-bar" style="margin-top:10px;">
-              <div class="resumo-bar-fill" style="width:${pct}%;background:${pct>=100?'#38a169':pct>=50?'#d69e2e':'#e53e3e'};"></div>
-            </div>
-            <div style="font-size:11px;color:#718096;margin-top:4px;">${ok} de ${total} condicionalidade(s) cumprida(s)</div>
-          </div>`;
-        }).join('')}`;
-    }
+  if (famBolsa.length === 0) {
+    container.innerHTML = `<div class="sem-bolsa"><div style="font-size:48px;margin-bottom:12px;">💰</div><p>Nenhuma família cadastrada como beneficiária do Bolsa Família.</p></div>`;
+    return;
   }
 
-  function calcularStatusGeral(memFam, cond, vacinacao, hoje) {
-    let ok = 0, total = 0;
-    memFam.forEach(m => {
-      const idade = m.nascimento ? Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25)) : 99;
-      if (idade < 7) {
-        // Vacinas
-        total++;
-        const vac = vacinacao[m.id] || {};
-        if (["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VRH (Rotavírus)","Pneumo 10","Tríplice Viral (SCR)"].every(v => vac[v])) ok++;
-        // Peso 1º semestre
-        total++;
-        if ((cond[`peso_${m.id}`]||{}).semestre1) ok++;
-        // Peso 2º semestre
-        total++;
-        if ((cond[`peso_${m.id}`]||{}).semestre2) ok++;
-      }
-      if (idade >= 6 && idade <= 17) {
-        total++;
-        if (cond[`escola_${m.id}`]) ok++;
-      }
-    });
-    return { ok, total };
-  }
+  container.innerHTML = `
+    <div class="info-box">💰 <strong>${famBolsa.length} família(s)</strong> beneficiárias do Bolsa Família na microárea.</div>
 
-  function renderizarResumoFamilia(familia, memFam, cond, vacinacao, hoje) {
+    <div class="tabs-wrapper">
+      <button class="tab-btn ativo" id="tab-resumo" onclick="trocarTab('resumo')">📋 Visão Geral</button>
+      <button class="tab-btn" id="tab-pesagem" onclick="trocarTab('pesagem')">⚖️ Pesagem Rápida</button>
+    </div>
+
+    <div id="painel-resumo">${renderizarResumoGeral(famBolsa)}</div>
+    <div id="painel-pesagem" style="display:none;">${renderizarPesagemRapida(famBolsa)}</div>
+  `;
+}
+
+function trocarTab(tab) {
+  document.getElementById('tab-resumo').classList.toggle('ativo', tab === 'resumo');
+  document.getElementById('tab-pesagem').classList.toggle('ativo', tab === 'pesagem');
+  document.getElementById('painel-resumo').style.display = tab === 'resumo' ? '' : 'none';
+  document.getElementById('painel-pesagem').style.display = tab === 'pesagem' ? '' : 'none';
+}
+
+/* ── Painel resumo (visão original melhorada) ── */
+function renderizarResumoGeral(famBolsa) {
+  const condicionalidades = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+  const vacinacao = JSON.parse(localStorage.getItem("vacinacao")) || {};
+  const hoje = new Date();
+
+  return famBolsa.map(f => {
+    const memFam = membros.filter(m => m.familia_id == f.id);
+    const cond = condicionalidades[f.id] || {};
     const { ok, total } = calcularStatusGeral(memFam, cond, vacinacao, hoje);
     const pct = total ? Math.round((ok/total)*100) : 100;
-    const cor = pct>=100?'#38a169':pct>=50?'#d69e2e':'#e53e3e';
+    const chipClass = pct>=100?'chip-ok':pct>=50?'chip-half':'chip-pend';
+    const chipTxt = pct>=100?'✅ Em dia':pct>=50?'⚠️ Parcial':'❌ Pendente';
+
     return `
+      <div class="cond-card" style="cursor:pointer;" onclick="localStorage.setItem('familiaAtual','${f.id}');carregarPagina()">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#1a365d;">Família ${f.numeroFamilia} — ${f.responsavel}</div>
+            <div style="font-size:12px;color:#718096;margin-top:2px;">📍 ${f.logradouro||'—'} · ${memFam.length} membro(s)</div>
+          </div>
+          <span class="status-chip ${chipClass}">${chipTxt}</span>
+        </div>
+        <div class="resumo-bar" style="margin-top:10px;">
+          <div class="resumo-bar-fill" style="width:${pct}%;background:${pct>=100?'#38a169':pct>=50?'#d69e2e':'#e53e3e'};"></div>
+        </div>
+        <div style="font-size:11px;color:#718096;margin-top:4px;">${ok} de ${total} condicionalidade(s) cumprida(s) · toque para detalhar</div>
+      </div>`;
+  }).join('');
+}
+
+/* ── Painel pesagem rápida (NOVO) ── */
+function renderizarPesagemRapida(famBolsa) {
+  const condicionalidades = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+  const hoje = new Date();
+
+  const semAtual = hoje.getMonth() < 6 ? 1 : 2;
+
+  let html = `
+    <div class="info-box" style="background:#f0fff4;border-color:#9ae6b4;color:#22543d;">
+      ⚖️ Marque as crianças que <strong>já pesaram</strong> neste semestre (${semAtual}º/${ANO_ATUAL}).
+      Toque no botão para registrar a data da pesagem.
+    </div>`;
+
+  famBolsa.forEach(f => {
+    const cond = condicionalidades[f.id] || {};
+    // apenas crianças < 7 anos
+    const criancas = membros.filter(m => {
+      if (m.familia_id != f.id) return false;
+      const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
+      return idade < 7;
+    });
+
+    // conta pesagens desta família
+    const totalPes = criancas.length * 2;
+    const feitas = criancas.reduce((acc, m) => {
+      const pc = cond[`peso_${m.id}`] || {};
+      return acc + (pc.semestre1 ? 1 : 0) + (pc.semestre2 ? 1 : 0);
+    }, 0);
+    const pct = totalPes ? Math.round((feitas/totalPes)*100) : 100;
+    const cor = pct>=100?'#38a169':pct>=50?'#d69e2e':'#e53e3e';
+
+    html += `
+      <div class="pesagem-familia-card" id="card-fam-${f.id}">
+        <div class="pesagem-familia-header" onclick="toggleFamiliaCard('body-fam-${f.id}')">
+          <div>
+            <div class="pesagem-familia-nome">Família ${f.numeroFamilia} — ${f.responsavel}</div>
+            <div class="pesagem-familia-sub">
+              ${criancas.length === 0 ? 'Sem crianças &lt;7 anos' : `${criancas.length} criança(s) · ${feitas}/${totalPes} pesagens`}
+            </div>
+          </div>
+          <span class="status-chip ${pct>=100?'chip-ok':pct>=50?'chip-half':'chip-pend'}" id="chip-fam-${f.id}">
+            ${pct>=100?'✅ Completo':pct>=50?'⚠️ Parcial':'❌ Pendente'}
+          </span>
+        </div>
+        <div class="progresso-familia">
+          <div class="progresso-fill" style="width:${pct}%;background:${cor};" id="prog-fam-${f.id}"></div>
+        </div>
+        <div class="pesagem-familia-body" id="body-fam-${f.id}">
+          ${criancas.length === 0
+            ? '<div class="nenhuma-crianca">Nenhuma criança abaixo de 7 anos nesta família.</div>'
+            : criancas.map(m => renderizarCriancaPesagem(m, cond, f.id)).join('')
+          }
+        </div>
+      </div>`;
+  });
+
+  return html;
+}
+
+function toggleFamiliaCard(bodyId) {
+  const el = document.getElementById(bodyId);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+function renderizarCriancaPesagem(m, cond, fid) {
+  const hoje = new Date();
+  const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 0;
+  const meses = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*30.44)) : 0;
+  const idadeStr = idade < 1 ? `${meses} mês(es)` : `${idade} ano(s)`;
+
+  const pc = cond[`peso_${m.id}`] || {};
+
+  const s1ok = !!pc.semestre1;
+  const s2ok = !!pc.semestre2;
+
+  return `
+    <div class="crianca-row" id="row-${m.id}">
+      <div class="crianca-info">
+        <div class="crianca-nome">👶 ${m.nome}</div>
+        <div class="crianca-idade">${idadeStr}</div>
+      </div>
+      <div class="sem-checks">
+        <div class="check-semestre ${s1ok?'marcado':''}" id="cs1-${m.id}"
+             onclick="abrirModal('${fid}','${m.id}','semestre1','${m.nome}')">
+          <span class="icone-check">${s1ok?'✅':'⬜'}</span>
+          <div>
+            <span>1º Semestre</span>
+            <span class="data-semestre">${s1ok ? formatarData(pc.semestre1) : 'Jan–Jun · não pesado'}</span>
+          </div>
+        </div>
+        <div class="check-semestre ${s2ok?'marcado':''}" id="cs2-${m.id}"
+             onclick="abrirModal('${fid}','${m.id}','semestre2','${m.nome}')">
+          <span class="icone-check">${s2ok?'✅':'⬜'}</span>
+          <div>
+            <span>2º Semestre</span>
+            <span class="data-semestre">${s2ok ? formatarData(pc.semestre2) : 'Jul–Dez · não pesado'}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function formatarData(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+/* ── Modal de pesagem ── */
+function abrirModal(familiaId, membroId, semestre, nomeM) {
+  _modalFamiliaId = familiaId;
+  _modalMembroId = membroId;
+  _modalSemestre = semestre;
+
+  const condicionalidades = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+  const cond = condicionalidades[familiaId] || {};
+  const pc = cond[`peso_${membroId}`] || {};
+  const valorAtual = pc[semestre] || '';
+
+  document.getElementById('modalTitulo').textContent =
+    `⚖️ ${nomeM} — ${semestre === 'semestre1' ? '1º Semestre (Jan–Jun)' : '2º Semestre (Jul–Dez)'}`;
+  document.getElementById('modalData').value = valorAtual;
+  document.getElementById('btnRemover').style.display = valorAtual ? '' : 'none';
+
+  document.getElementById('modalPesagem').classList.add('aberto');
+}
+
+function fecharModal() {
+  document.getElementById('modalPesagem').classList.remove('aberto');
+  _modalFamiliaId = _modalMembroId = _modalSemestre = null;
+}
+
+function confirmarPesagem() {
+  const data = document.getElementById('modalData').value;
+  if (!data) { alert('Informe a data da pesagem.'); return; }
+
+  salvarPesoLocal(_modalFamiliaId, _modalMembroId, _modalSemestre, data);
+  fecharModal();
+}
+
+function removerPesagem() {
+  salvarPesoLocal(_modalFamiliaId, _modalMembroId, _modalSemestre, '');
+  fecharModal();
+}
+
+function salvarPesoLocal(fid, mid, semestre, valor) {
+  const todas = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+  if (!todas[fid]) todas[fid] = {};
+  if (!todas[fid][`peso_${mid}`]) todas[fid][`peso_${mid}`] = {};
+
+  if (valor) {
+    todas[fid][`peso_${mid}`][semestre] = valor;
+  } else {
+    delete todas[fid][`peso_${mid}`][semestre];
+  }
+  localStorage.setItem("condicionalidades", JSON.stringify(todas));
+
+  // Atualiza UI inline sem recarregar tudo
+  atualizarCriancaUI(fid, mid, todas[fid] || {});
+  atualizarCartaFamiliaUI(fid, todas);
+
+  const sem = semestre === 'semestre1' ? 1 : 2;
+  if (valor) {
+    showToast(`✅ ${sem}º semestre registrado!`, 'verde', 2000);
+  } else {
+    showToast('Pesagem removida.', 'normal', 2000);
+  }
+}
+
+function atualizarCriancaUI(fid, mid, cond) {
+  const pc = cond[`peso_${mid}`] || {};
+
+  // 1º semestre
+  const el1 = document.getElementById(`cs1-${mid}`);
+  if (el1) {
+    const ok = !!pc.semestre1;
+    el1.className = `check-semestre ${ok ? 'marcado' : ''}`;
+    el1.innerHTML = `
+      <span class="icone-check">${ok ? '✅' : '⬜'}</span>
+      <div>
+        <span>1º Semestre</span>
+        <span class="data-semestre">${ok ? formatarData(pc.semestre1) : 'Jan–Jun · não pesado'}</span>
+      </div>`;
+  }
+  // 2º semestre
+  const el2 = document.getElementById(`cs2-${mid}`);
+  if (el2) {
+    const ok = !!pc.semestre2;
+    el2.className = `check-semestre ${ok ? 'marcado' : ''}`;
+    el2.innerHTML = `
+      <span class="icone-check">${ok ? '✅' : '⬜'}</span>
+      <div>
+        <span>2º Semestre</span>
+        <span class="data-semestre">${ok ? formatarData(pc.semestre2) : 'Jul–Dez · não pesado'}</span>
+      </div>`;
+  }
+}
+
+function atualizarCartaFamiliaUI(fid, todasCond) {
+  const cond = todasCond[fid] || {};
+  const hoje = new Date();
+  const criancas = membros.filter(m => {
+    if (m.familia_id != fid) return false;
+    const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
+    return idade < 7;
+  });
+  const totalPes = criancas.length * 2;
+  const feitas = criancas.reduce((acc, m) => {
+    const pc = cond[`peso_${m.id}`] || {};
+    return acc + (pc.semestre1 ? 1 : 0) + (pc.semestre2 ? 1 : 0);
+  }, 0);
+  const pct = totalPes ? Math.round((feitas/totalPes)*100) : 100;
+  const cor = pct>=100?'#38a169':pct>=50?'#d69e2e':'#e53e3e';
+
+  const chip = document.getElementById(`chip-fam-${fid}`);
+  if (chip) {
+    chip.className = `status-chip ${pct>=100?'chip-ok':pct>=50?'chip-half':'chip-pend'}`;
+    chip.textContent = pct>=100?'✅ Completo':pct>=50?'⚠️ Parcial':'❌ Pendente';
+  }
+  const prog = document.getElementById(`prog-fam-${fid}`);
+  if (prog) { prog.style.width = `${pct}%`; prog.style.background = cor; }
+}
+
+/* ══════════════════════════════════════
+   DETALHE DE FAMÍLIA (tela original)
+══════════════════════════════════════ */
+function renderizarDetalhe(container) {
+  const condicionalidades = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+  const vacinacao = JSON.parse(localStorage.getItem("vacinacao")) || {};
+  const hoje = new Date();
+  const familia = familias.find(f => f.id == familiaId);
+
+  if (!familia) { container.innerHTML = '<p style="color:#e53e3e;">Família não encontrada.</p>'; return; }
+
+  if (familia.bolsaFamilia !== "Sim") {
+    container.innerHTML = `
+      <div class="sem-bolsa">
+        <div style="font-size:48px;margin-bottom:12px;">💰</div>
+        <p>Esta família não está cadastrada como beneficiária do Bolsa Família.</p>
+        <button onclick="editarFamilia(${familia.id})" class="btn btn-primary" style="margin-top:16px;">✏️ Editar cadastro</button>
+      </div>`;
+    return;
+  }
+
+  const memFam = membros.filter(m => m.familia_id == familiaId);
+  const cond = condicionalidades[familiaId] || {};
+
+  container.innerHTML = `
+    <div class="info-box">
+      ℹ️ <strong>Família ${familia.numeroFamilia} — ${familia.responsavel}</strong><br>
+      As condicionalidades são verificadas semestralmente pelo CRAS. Mantenha os registros atualizados.
+    </div>
+    ${renderizarResumoFamilia(familia, memFam, cond, vacinacao, hoje)}
+    ${memFam.map(m => renderizarMembroCondicionalidade(m, cond, vacinacao, hoje)).join('')}
+    <button onclick="salvarEVoltar()" style="margin-top:16px;background:#38a169;color:white;border:none;padding:14px;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;width:100%;">
+      ✅ Salvar e Voltar
+    </button>`;
+}
+
+/* ══════════════════════════════════════
+   HELPERS compartilhados
+══════════════════════════════════════ */
+function calcularStatusGeral(memFam, cond, vacinacao, hoje) {
+  let ok = 0, total = 0;
+  memFam.forEach(m => {
+    const idade = m.nascimento ? Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25)) : 99;
+    if (idade < 7) {
+      const vac = vacinacao[m.id] || {};
+      total++;
+      if (["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VRH (Rotavírus)","Pneumo 10","Tríplice Viral (SCR)"].every(v => vac[v])) ok++;
+      total++; if ((cond[`peso_${m.id}`]||{}).semestre1) ok++;
+      total++; if ((cond[`peso_${m.id}`]||{}).semestre2) ok++;
+    }
+    if (idade >= 6 && idade <= 17) {
+      total++; if (cond[`escola_${m.id}`]) ok++;
+    }
+  });
+  return { ok, total };
+}
+
+function renderizarResumoFamilia(familia, memFam, cond, vacinacao, hoje) {
+  const { ok, total } = calcularStatusGeral(memFam, cond, vacinacao, hoje);
+  const pct = total ? Math.round((ok/total)*100) : 100;
+  const cor = pct>=100?'#38a169':pct>=50?'#d69e2e':'#e53e3e';
+  return `
     <div class="cond-card" style="margin-bottom:16px;">
       <div class="cond-titulo">📊 Resumo das Condicionalidades</div>
       <div style="display:flex;align-items:center;gap:16px;">
@@ -228,130 +564,115 @@
         <span class="status-chip ${pct>=100?'chip-ok':pct>=50?'chip-half':'chip-pend'}">${pct>=100?'✅ Em dia':pct>=50?'⚠️ Parcial':'❌ Pendente'}</span>
       </div>
     </div>`;
-  }
+}
 
-  function renderizarMembroCondicionalidade(m, cond, vacinacao, hoje) {
-    const idade = m.nascimento ? Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25)) : 99;
-    const pc = cond[`peso_${m.id}`] || {};
-    const vac = vacinacao[m.id] || {};
+function renderizarMembroCondicionalidade(m, cond, vacinacao, hoje) {
+  const idade = m.nascimento ? Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25)) : 99;
+  const pc = cond[`peso_${m.id}`] || {};
+  const vac = vacinacao[m.id] || {};
+  let secoes = '';
 
-    let secoes = '';
+  if (idade < 7) {
+    const vacObrig = ["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VRH (Rotavírus)","Pneumo 10","Tríplice Viral (SCR)"];
+    const vacFalt = vacObrig.filter(v => !vac[v]);
+    const vacOk = vacFalt.length === 0;
 
-    // ── SAÚDE: crianças < 7 anos ──
-    if (idade < 7) {
-      const vacObrigatorias = ["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VRH (Rotavírus)","Pneumo 10","Tríplice Viral (SCR)"];
-      const vacFaltando = vacObrigatorias.filter(v => !vac[v]);
-      const vacOk = vacFaltando.length === 0;
-
-      secoes += `
+    secoes += `
       <div class="cond-grupo">
         <div class="cond-grupo-titulo">💉 Vacinas obrigatórias (Bolsa Família)</div>
         <div class="check-linha">
           <div class="check-label">
-            ${vacOk ? '✅' : '❌'}
-            <span>${vacOk ? 'Todas as vacinas obrigatórias em dia' : `Faltam: ${vacFaltando.join(', ')}`}</span>
+            ${vacOk?'✅':'❌'}
+            <span>${vacOk?'Todas as vacinas obrigatórias em dia':`Faltam: ${vacFalt.join(', ')}`}</span>
           </div>
           <button onclick="window.location.href='vacinacao.html'" style="font-size:12px;background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;padding:4px 10px;border-radius:4px;cursor:pointer;">
-            ${vacOk ? '✏️ Ver' : '⚠️ Atualizar'}
+            ${vacOk?'✏️ Ver':'⚠️ Atualizar'}
           </button>
         </div>
       </div>
-
       <div class="cond-grupo">
         <div class="cond-grupo-titulo">⚖️ Acompanhamento de Peso e Altura — ${ANO_ATUAL}</div>
         <div style="font-size:12px;color:#718096;margin-bottom:8px;">Obrigatório: 2 pesagens por ano (1º e 2º semestre)</div>
-
         <div class="check-linha">
           <div class="check-label">
-            ${pc.semestre1 ? '✅' : '⏳'}
-            <span>1º Semestre (Jan–Jun)</span>
-            ${pc.semestre1 ? `<span style="color:#718096;font-size:11px;">${pc.semestre1}</span>` : ''}
+            ${pc.semestre1?'✅':'⏳'} <span>1º Semestre (Jan–Jun)</span>
+            ${pc.semestre1?`<span style="color:#718096;font-size:11px;">${pc.semestre1}</span>`:''}
           </div>
-          <div class="check-status">
-            <input type="date" class="data-input" id="peso1_${m.id}"
-              value="${pc.semestre1||''}"
-              onchange="salvarPeso('${m.id}','semestre1',this.value)"
-              placeholder="Data da pesagem">
-          </div>
+          <input type="date" class="data-input" value="${pc.semestre1||''}"
+            onchange="salvarPesoDetalhe('${m.id}','semestre1',this.value)" placeholder="Data da pesagem">
         </div>
-
         <div class="check-linha">
           <div class="check-label">
-            ${pc.semestre2 ? '✅' : '⏳'}
-            <span>2º Semestre (Jul–Dez)</span>
-            ${pc.semestre2 ? `<span style="color:#718096;font-size:11px;">${pc.semestre2}</span>` : ''}
+            ${pc.semestre2?'✅':'⏳'} <span>2º Semestre (Jul–Dez)</span>
+            ${pc.semestre2?`<span style="color:#718096;font-size:11px;">${pc.semestre2}</span>`:''}
           </div>
-          <div class="check-status">
-            <input type="date" class="data-input" id="peso2_${m.id}"
-              value="${pc.semestre2||''}"
-              onchange="salvarPeso('${m.id}','semestre2',this.value)"
-              placeholder="Data da pesagem">
-          </div>
+          <input type="date" class="data-input" value="${pc.semestre2||''}"
+            onchange="salvarPesoDetalhe('${m.id}','semestre2',this.value)" placeholder="Data da pesagem">
         </div>
-
         ${pc.semestre1 && pc.semestre2
           ? `<div style="text-align:center;padding:8px;background:#f0fff4;border-radius:6px;font-size:13px;color:#22543d;font-weight:bold;margin-top:6px;">✅ Pesagens do ano concluídas!</div>`
           : `<div style="text-align:center;padding:8px;background:#fffbeb;border-radius:6px;font-size:13px;color:#744210;margin-top:6px;">⚠️ ${pc.semestre1||pc.semestre2?'Falta 1 pesagem':'Faltam 2 pesagens'} para cumprir a condicionalidade</div>`
         }
       </div>`;
-    }
+  }
 
-    // ── EDUCAÇÃO: 6-17 anos ──
-    if (idade >= 6 && idade <= 17) {
-      const escOk = !!cond[`escola_${m.id}`];
-      secoes += `
+  if (idade >= 6 && idade <= 17) {
+    const escOk = !!cond[`escola_${m.id}`];
+    secoes += `
       <div class="cond-grupo">
         <div class="cond-grupo-titulo">🏫 Frequência Escolar Mínima (85%)</div>
         <div class="check-linha">
-          <div class="check-label">
-            ${escOk ? '✅' : '❌'}
-            <span>Frequência escolar verificada no bimestre</span>
-          </div>
-          <button class="toggle-btn ${escOk?'on':'off'}" id="escToggle_${m.id}"
-            onclick="toggleEscola('${m.id}', this)"></button>
+          <div class="check-label">${escOk?'✅':'❌'} <span>Frequência escolar verificada no bimestre</span></div>
+          <button class="toggle-btn ${escOk?'on':'off'}" onclick="toggleEscola('${m.id}',this)"></button>
         </div>
-        ${!escOk ? `<div style="font-size:12px;color:#c53030;padding:6px 10px;background:#fff5f5;border-radius:4px;margin-top:4px;">⚠️ Verificar frequência escolar — risco de suspensão do benefício</div>` : ''}
+        ${!escOk?`<div style="font-size:12px;color:#c53030;padding:6px 10px;background:#fff5f5;border-radius:4px;margin-top:4px;">⚠️ Verificar frequência escolar — risco de suspensão do benefício</div>`:''}
       </div>`;
-    }
+  }
 
-    if (!secoes) return ''; // sem condicionalidades para este membro
-
-    const idadeStr = `${idade} ano${idade!==1?'s':''}`;
-    return `
+  if (!secoes) return '';
+  const idadeStr = `${idade} ano${idade!==1?'s':''}`;
+  return `
     <div class="cond-membro">
       <div class="membro-nome">👤 ${m.nome} <span style="font-size:12px;color:#718096;font-weight:normal;">${m.sexo||''} · ${idadeStr}</span></div>
       ${secoes}
     </div>`;
-  }
+}
 
-  function salvarPeso(membroId, semestre, valor) {
-    const todas = JSON.parse(localStorage.getItem("condicionalidades")) || {};
-    if (!todas[familiaId]) todas[familiaId] = {};
-    if (!todas[familiaId][`peso_${membroId}`]) todas[familiaId][`peso_${membroId}`] = {};
-    todas[familiaId][`peso_${membroId}`][semestre] = valor;
-    localStorage.setItem("condicionalidades", JSON.stringify(todas));
-    // Atualiza visual sem recarregar
-    const sem = semestre === 'semestre1' ? 1 : 2;
-    showToast(`✅ ${sem}º semestre registrado!`, 'verde', 2000);
-  }
+function salvarPesoDetalhe(membroId, semestre, valor) {
+  const todas = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+  if (!todas[familiaId]) todas[familiaId] = {};
+  if (!todas[familiaId][`peso_${membroId}`]) todas[familiaId][`peso_${membroId}`] = {};
+  todas[familiaId][`peso_${membroId}`][semestre] = valor;
+  localStorage.setItem("condicionalidades", JSON.stringify(todas));
+  const sem = semestre === 'semestre1' ? 1 : 2;
+  showToast(`✅ ${sem}º semestre registrado!`, 'verde', 2000);
+}
 
-  function toggleEscola(membroId, btn) {
-    const todas = JSON.parse(localStorage.getItem("condicionalidades")) || {};
-    if (!todas[familiaId]) todas[familiaId] = {};
-    const atual = !!todas[familiaId][`escola_${membroId}`];
-    todas[familiaId][`escola_${membroId}`] = !atual;
-    localStorage.setItem("condicionalidades", JSON.stringify(todas));
-    btn.classList.toggle('on',  !atual);
-    btn.classList.toggle('off', atual);
-    showToast(!atual ? '✅ Frequência confirmada' : 'Frequência removida', !atual?'verde':'normal', 2000);
-  }
+function toggleEscola(membroId, btn) {
+  const todas = JSON.parse(localStorage.getItem("condicionalidades")) || {};
+  if (!todas[familiaId]) todas[familiaId] = {};
+  const atual = !!todas[familiaId][`escola_${membroId}`];
+  todas[familiaId][`escola_${membroId}`] = !atual;
+  localStorage.setItem("condicionalidades", JSON.stringify(todas));
+  btn.classList.toggle('on', !atual);
+  btn.classList.toggle('off', atual);
+  showToast(!atual?'✅ Frequência confirmada':'Frequência removida', !atual?'verde':'normal', 2000);
+}
 
-  function salvarEVoltar() {
-    showToast('✅ Condicionalidades salvas!', 'verde', 2000);
-    setTimeout(() => window.history.back(), 1500);
-  }
+function salvarEVoltar() {
+  showToast('✅ Condicionalidades salvas!', 'verde', 2000);
+  setTimeout(() => {
+    localStorage.removeItem("familiaAtual");
+    window.history.back();
+  }, 1500);
+}
 
-  window.addEventListener('load', carregarPagina);
+// Fechar modal clicando fora
+document.getElementById('modalPesagem').addEventListener('click', function(e) {
+  if (e.target === this) fecharModal();
+});
+
+window.addEventListener('load', carregarPagina);
 </script>
 </body>
 </html>
