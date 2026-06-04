@@ -212,12 +212,13 @@ function carregarPagina() {
 /* ══════════════════════════════════════
    VISÃO GERAL — com tabs
 ══════════════════════════════════════ */
-// Aceita qualquer variação: true, "Sim", "sim", "true", "1" etc.
+// Campo é toggle: salva true/false booleano
+// Mas aceita também "Sim", "sim", "true", "1" por segurança
 function ehBolsaFamilia(f) {
   const v = f.bolsaFamilia;
-  if (!v || v === false) return false;
-  const s = String(v).toLowerCase().trim();
-  return ['sim','s','true','1','yes'].includes(s);
+  if (v === true || v === 1) return true;
+  if (!v || v === false || v === 0) return false;
+  return ['sim','s','true','1','yes'].includes(String(v).toLowerCase().trim());
 }
 
 function renderizarVisaoGeral(container) {
