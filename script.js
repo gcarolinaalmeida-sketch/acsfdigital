@@ -499,9 +499,15 @@ if (formCadastro) {
             set("observacoes",   fEd.observacoes);
             
             // Marca Bolsa Familia
-            if (fEd.bolsaFamilia) {
-                const rBolsa = document.querySelector(`input[name="bolsaFamilia"][value="${fEd.bolsaFamilia}"]`);
-                if (rBolsa) rBolsa.checked = true;
+            const hiddenBolsa = document.getElementById('bolsaFamilia');
+const btnBolsa = document.getElementById('bolsaToggleBtn');
+if (hiddenBolsa && fEd.bolsaFamilia) {
+    hiddenBolsa.value = fEd.bolsaFamilia;
+    if (btnBolsa) {
+        const ativo = fEd.bolsaFamilia === 'Sim';
+        btnBolsa.classList.toggle('on', ativo);
+        btnBolsa.classList.toggle('off', !ativo);
+    }
             }
 
             if (fEd.localizacao) {
@@ -523,7 +529,7 @@ if (formCadastro) {
     formCadastro.addEventListener("submit", function(e) {
         e.preventDefault();
         const locChecked = document.querySelector('input[name="localizacao"]:checked');
-        const bolsaChecked = document.querySelector('input[name="bolsaFamilia"]:checked');
+        const bolsaChecked = null;
 
         const dadosFamilia = {
             numeroFamilia:    document.getElementById("numeroFamilia").value,
@@ -538,7 +544,7 @@ if (formCadastro) {
             situacao:         document.getElementById("situacao").value,
             tipoDomicilio:    document.getElementById("tipoDomicilio").value,
             localizacao:      locChecked ? locChecked.value : '',
-            bolsaFamilia:     bolsaChecked ? bolsaChecked.value : 'Não',
+            bolsaFamilia:     document.getElementById('bolsaFamilia')?.value || 'Não',
             animais:          document.getElementById("animais").value,
             observacoes:      document.getElementById("observacoes").value,
             fotoCasa:         window._fotoFamiliaBase64
