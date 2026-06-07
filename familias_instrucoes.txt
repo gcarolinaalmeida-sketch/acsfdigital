@@ -1,0 +1,70 @@
+
+MUDANÇAS NO familias.html
+=========================
+
+1. APÓS o bloco de Bolsa Família (após </div> do bolsaToggleWrap), adicionar:
+
+      <!-- GEOLOCALIZAÇÃO -->
+      <div class="form-group span-full">
+        <label>📍 Localização GPS do Domicílio</label>
+        <div style="background:#ebf8ff;border:1px solid #bee3f8;border-radius:10px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <button type="button" id="btnGeo" onclick="capturarGeolocalizacao()"
+              style="background:#3182ce;color:white;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+              📍 Capturar Localização GPS
+            </button>
+            <span id="geoStatus" style="font-size:12px;color:#4a5568;flex:1;"></span>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px;">
+            <div style="flex:1;">
+              <label style="font-size:11px;color:#718096;display:block;margin-bottom:4px;">Latitude</label>
+              <input type="text" id="geoLat" placeholder="-21.764329" readonly
+                style="width:100%;padding:8px;border:1px solid #bee3f8;border-radius:6px;font-size:13px;background:#f0f8ff;box-sizing:border-box;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:11px;color:#718096;display:block;margin-bottom:4px;">Longitude</label>
+              <input type="text" id="geoLng" placeholder="-43.350891" readonly
+                style="width:100%;padding:8px;border:1px solid #bee3f8;border-radius:6px;font-size:13px;background:#f0f8ff;box-sizing:border-box;">
+            </div>
+          </div>
+          <div style="font-size:11px;color:#718096;margin-top:6px;">
+            💡 Aperte o botão estando no domicílio para registrar a localização exata.
+          </div>
+        </div>
+      </div>
+
+2. NO <script> ao final do arquivo, ANTES de fechar </script>, adicionar:
+
+function capturarGeolocalizacao() {
+  const btn    = document.getElementById('btnGeo');
+  const status = document.getElementById('geoStatus');
+  const latEl  = document.getElementById('geoLat');
+  const lngEl  = document.getElementById('geoLng');
+  if (!navigator.geolocation) {
+    status.textContent = '❌ GPS não suportado neste dispositivo.';
+    status.style.color = '#e53e3e'; return;
+  }
+  btn.disabled = true;
+  btn.textContent = '📡 Buscando...';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude.toFixed(6);
+      const lng = pos.coords.longitude.toFixed(6);
+      latEl.value = lat; lngEl.value = lng;
+      btn.textContent = '✅ GPS capturado';
+      btn.style.background = '#38a169';
+      btn.disabled = false;
+      status.innerHTML = `<strong>${lat}, ${lng}</strong> &nbsp;<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" style="color:#3182ce;">🗺 Ver no mapa</a>`;
+      status.style.color = '#22543d';
+    },
+    err => {
+      const m = {1:'Permissão negada — libere o GPS.',2:'GPS indisponível.',3:'Tempo esgotado.'};
+      btn.textContent = '📍 Capturar Localização GPS';
+      btn.style.background = '#3182ce';
+      btn.disabled = false;
+      status.textContent = '⚠️ ' + (m[err.code]||'Erro.');
+      status.style.color = '#e53e3e';
+    },
+    {enableHighAccuracy:true, timeout:12000, maximumAge:0}
+  );
+}

@@ -85,13 +85,9 @@ function calcularMetasEPrioridades() {
         else elAlerta.innerText = `⏳ Faltam ${Math.max(0, metaFam - feitas)} famílias para atingir a meta.`;
     }
 
-    // ------------------------------------
-    // PRIORIDADES BRASIL 360
-    // ------------------------------------
     const lista = document.getElementById("listaPrioridades");
     if (!lista) return;
 
-    // Calcula cada grupo
     const foiVisitadoMes = m => nomesVisitadosMes.has(m.nome) || famVisitadasMes.has(String(m.familia_id));
     const foiVisitadoAno = m => nomesVisitadosAno.has(m.nome) || famVisitadasAno.has(String(m.familia_id));
 
@@ -149,7 +145,7 @@ function calcularMetasEPrioridades() {
 }
 
 // ------------------------------------
-// PAINEL — GRÁFICO DE VISITAS (novo)
+// PAINEL — GRÁFICO DE VISITAS
 // ------------------------------------
 function renderizarGraficoVisitas() {
     const canvas = document.getElementById("graficoVisitasSemana");
@@ -166,7 +162,6 @@ function renderizarGraficoVisitas() {
         semanas[sem]++;
     });
 
-    // Usa devicePixelRatio para tela nítida e offsetWidth para tamanho real
     const ratio = window.devicePixelRatio || 1;
     const cw = canvas.offsetWidth;
     const ch = 160;
@@ -194,7 +189,6 @@ function renderizarGraficoVisitas() {
         const x = padX + i * (totalW / 5) + 4;
         const y = ch - padBot - barH;
 
-        // Barra
         ctx.fillStyle = val > 0 ? cores[0] : "#edf2f7";
         ctx.beginPath();
         if (ctx.roundRect) {
@@ -204,13 +198,11 @@ function renderizarGraficoVisitas() {
         }
         ctx.fill();
 
-        // Label da semana (embaixo)
         ctx.fillStyle = "#718096";
         ctx.font = `${11 * (cw < 400 ? 0.9 : 1)}px sans-serif`;
         ctx.textAlign = "center";
         ctx.fillText(labels[i], x + barW / 2, ch - 6);
 
-        // Valor em cima da barra
         if (val > 0) {
             ctx.fillStyle = "#2c5282";
             ctx.font = "bold 12px sans-serif";
@@ -239,7 +231,7 @@ function carregarBuscaAtiva() {
 }
 
 // ------------------------------------
-// PENDÊNCIAS — LISTA CONSOLIDADA (novo)
+// PENDÊNCIAS
 // ------------------------------------
 function renderizarPendencias() {
     const container = document.getElementById("listaPendencias");
@@ -247,7 +239,6 @@ function renderizarPendencias() {
     const filtroStatus = document.getElementById("filtroPendenciaStatus")?.value || "";
     const filtroBusca  = (document.getElementById("filtroPendenciaBusca")?.value || "").toLowerCase();
 
-    // Coleta pendências das visitas
     const pendencias = [];
     visitas.forEach(v => {
         const checkboxes = ["pendenciaReceita","pendenciaMarcacao","pendenciaPreventivo","pendenciaEcg"];
@@ -266,7 +257,6 @@ function renderizarPendencias() {
                 });
             }
         });
-        // Pendências genéricas do campo detalhe
         if (v.detalhePendencia && !checkboxes.some(c => v[c])) {
             pendencias.push({
                 id: `${v.id}_detalhe`,
@@ -358,10 +348,10 @@ function mostrarFamilias(filtradas) {
             ? `<img src="${f.fotoCasa}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e0;margin-left:10px;">`
             : `<div style="width:60px;height:60px;background:#edf2f7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-left:10px;">🏠</div>`;
 
-        // ── Bolsa Família ──
-        const isBolsa = f.bolsaFamilia === "Sim";
+        // ── Bolsa Família — aceita "Sim", true, "true" ──
+        const bfVal = f.bolsaFamilia;
+        const isBolsa = bfVal === "Sim" || bfVal === true || String(bfVal).toLowerCase() === "true";
 
-        // ── Condicionalidades ──
         let condHtml = '';
         if (isBolsa) {
             const memFam = membros.filter(m => m.familia_id == f.id);
@@ -475,10 +465,10 @@ function limparFiltrosFam() {
 
 // ------------------------------------
 // SALVAR FAMÍLIA (com edição)
+// ── CORRIGIDO: lê input hidden #bolsaFamilia ──
 // ------------------------------------
 const formCadastro = document.getElementById("formCadastro");
 if (formCadastro) {
-    // Pré-preenche se estiver editando
     const idEd = localStorage.getItem("editandoFamilia");
     if (idEd) {
         const fEd = familias.find(f=>f.id==idEd);
@@ -496,18 +486,26 @@ if (formCadastro) {
             set("situacao",      fEd.situacao);
             set("tipoDomicilio", fEd.tipoDomicilio);
             set("animais",       fEd.animais);
+            set("geoLat",        fEd.geoLat);
+            set("geoLng",        fEd.geoLng);
+            // Restaura status da geolocalização
+            if (fEd.geoLat && fEd.geoLng) {
+                const statusEl = document.getElementById('geoStatus');
+                const btnGeo   = document.getElementById('btnGeo');
+                if (statusEl) statusEl.innerHTML = `📍 Lat: <strong>${fEd.geoLat}</strong> · Lng: <strong>${fEd.geoLng}</strong> · <a href="https://maps.google.com/?q=${fEd.geoLat},${fEd.geoLng}" target="_blank" style="color:#3182ce;">Ver no mapa</a>`;
+                if (btnGeo)   { btnGeo.textContent='✅ Localização salva'; btnGeo.style.background='#c6f6d5'; btnGeo.style.color='#22543d'; }
+            }
             set("observacoes",   fEd.observacoes);
-            
-            // Marca Bolsa Familia
+
+            // ── Restaura toggle Bolsa Família ──
             const hiddenBolsa = document.getElementById('bolsaFamilia');
-const btnBolsa = document.getElementById('bolsaToggleBtn');
-if (hiddenBolsa && fEd.bolsaFamilia) {
-    hiddenBolsa.value = fEd.bolsaFamilia;
-    if (btnBolsa) {
-        const ativo = fEd.bolsaFamilia === 'Sim';
-        btnBolsa.classList.toggle('on', ativo);
-        btnBolsa.classList.toggle('off', !ativo);
-    }
+            const btnBolsa    = document.getElementById('bolsaToggleBtn');
+            const bfVal = fEd.bolsaFamilia;
+            const isBolsaEd = bfVal === "Sim" || bfVal === true || String(bfVal).toLowerCase() === "true";
+            if (hiddenBolsa) hiddenBolsa.value = isBolsaEd ? "Sim" : "Não";
+            if (btnBolsa) {
+                btnBolsa.classList.toggle('on',  isBolsaEd);
+                btnBolsa.classList.toggle('off', !isBolsaEd);
             }
 
             if (fEd.localizacao) {
@@ -529,7 +527,10 @@ if (hiddenBolsa && fEd.bolsaFamilia) {
     formCadastro.addEventListener("submit", function(e) {
         e.preventDefault();
         const locChecked = document.querySelector('input[name="localizacao"]:checked');
-        const bolsaChecked = null;
+
+        // ── Lê o input hidden #bolsaFamilia (atualizado pelo toggleBolsa()) ──
+        const hiddenBolsa = document.getElementById('bolsaFamilia');
+        const bolsaValor  = hiddenBolsa ? hiddenBolsa.value : 'Não';
 
         const dadosFamilia = {
             numeroFamilia:    document.getElementById("numeroFamilia").value,
@@ -544,7 +545,9 @@ if (hiddenBolsa && fEd.bolsaFamilia) {
             situacao:         document.getElementById("situacao").value,
             tipoDomicilio:    document.getElementById("tipoDomicilio").value,
             localizacao:      locChecked ? locChecked.value : '',
-            bolsaFamilia:     document.getElementById('bolsaFamilia')?.value || 'Não',
+            bolsaFamilia:     bolsaValor,
+            geoLat:           document.getElementById('geoLat')?.value || '',
+            geoLng:           document.getElementById('geoLng')?.value || '',
             animais:          document.getElementById("animais").value,
             observacoes:      document.getElementById("observacoes").value,
             fotoCasa:         window._fotoFamiliaBase64
@@ -572,8 +575,6 @@ if (hiddenBolsa && fEd.bolsaFamilia) {
 // ------------------------------------
 const formMembro = document.getElementById("formMembro");
 if (formMembro) {
-
-    // ── Lista de todos os campos do formulário ──
     const CAMPOS_MEMBRO = [
         "nomeMembro","cnsMembro","cpfMembro","prontuarioMembro","nascimentoMembro","sexoMembro",
         "racaMembro","maeMembro","paiMembro","nacionalidadeMembro","municipioNascMembro",
@@ -583,14 +584,12 @@ if (formMembro) {
         "drogasMembro","internacaoMembro","causaInternacaoMembro","outrasCondicoesMembro"
     ];
 
-    // ── Salva rascunho no localStorage ──
     function salvarRascunhoMembro() {
         const rascunho = {};
         CAMPOS_MEMBRO.forEach(id => {
             const el = document.getElementById(id);
             if (el) rascunho[id] = el.value;
         });
-        // Salva checkboxes de doenças
         const doencas = Array.from(document.querySelectorAll('#formMembro input[type="checkbox"]:checked')).map(c=>c.value);
         rascunho._doencas = doencas;
         rascunho._editandoId = formMembro.dataset.editandoMembro || "";
@@ -599,41 +598,32 @@ if (formMembro) {
         atualizarIndicadorRascunho(true);
     }
 
-    // ── Restaura rascunho ──
     function restaurarRascunhoMembro() {
         const salvo = JSON.parse(localStorage.getItem("rascunhoMembro"));
         if (!salvo) return;
-
-        // Só restaura se tiver nome preenchido e for recente (menos de 24h)
         const idadeHoras = (Date.now() - salvo._timestamp) / (1000 * 60 * 60);
         if (!salvo.nomeMembro || idadeHoras > 24) {
             localStorage.removeItem("rascunhoMembro");
             return;
         }
-
         CAMPOS_MEMBRO.forEach(id => {
             const el = document.getElementById(id);
             if (el && salvo[id] !== undefined) el.value = salvo[id];
         });
-
-        // Restaura checkboxes
         if (salvo._doencas && salvo._doencas.length > 0) {
             document.querySelectorAll('#formMembro input[type="checkbox"]').forEach(c => {
                 c.checked = salvo._doencas.includes(c.value);
             });
         }
-
         if (salvo._editandoId) {
             formMembro.dataset.editandoMembro = salvo._editandoId;
             const btnSubmit = document.querySelector('#formMembro button[type="submit"]');
             if (btnSubmit) btnSubmit.textContent = "💾 Salvar Alterações";
         }
-
         atualizarIndicadorRascunho(true);
         mostrarAvisoDRascunho(salvo._timestamp);
     }
 
-    // ── Limpa rascunho ──
     function limparRascunhoMembro() {
         localStorage.removeItem("rascunhoMembro");
         atualizarIndicadorRascunho(false);
@@ -641,7 +631,6 @@ if (formMembro) {
         if (aviso) aviso.remove();
     }
 
-    // ── Indicador visual de rascunho salvo ──
     function atualizarIndicadorRascunho(temRascunho) {
         let ind = document.getElementById("indicadorRascunho");
         if (!ind) {
@@ -663,7 +652,6 @@ if (formMembro) {
         }
     }
 
-    // ── Aviso de rascunho encontrado ──
     function mostrarAvisoDRascunho(timestamp) {
         if (document.getElementById("avisoDRascunho")) return;
         const tempoStr = new Date(timestamp).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -679,7 +667,6 @@ if (formMembro) {
         formMembro.parentElement.insertBefore(div, formMembro);
     }
 
-    // ── Escuta mudanças em todos os campos (debounce 1s) ──
     let _rascunhoTimer = null;
     function agendarSalvarRascunho() {
         clearTimeout(_rascunhoTimer);
@@ -692,12 +679,10 @@ if (formMembro) {
         if (el) el.addEventListener("change", agendarSalvarRascunho);
     });
 
-    // Escuta checkboxes também
     document.querySelectorAll('#formMembro input[type="checkbox"]').forEach(c => {
         c.addEventListener("change", agendarSalvarRascunho);
     });
 
-    // ── Restaura ao abrir a página ──
     restaurarRascunhoMembro();
 
     formMembro.addEventListener("submit", function(e) {
@@ -706,7 +691,6 @@ if (formMembro) {
         if (!familiaId) { alert("Salve a família primeiro!"); return; }
         const doencas = Array.from(document.querySelectorAll('#formMembro input[type="checkbox"]:checked')).map(c=>c.value);
         const editId  = formMembro.dataset.editandoMembro;
-        
         const membro  = {
             id:             editId ? parseInt(editId) : Date.now(),
             familia_id:     familiaId,
@@ -752,17 +736,13 @@ if (formMembro) {
             membros.push(membro);
         }
         localStorage.setItem("membros", JSON.stringify(membros));
-
-        // Limpa rascunho após salvar com sucesso
         limparRascunhoMembro();
-
         formMembro.reset();
         renderizarMembrosSalvos();
         showToast(`✅ ${membro.nome} salvo com sucesso!`, 'verde');
     });
 }
 
-// ── Função global para descartar rascunho ──
 function descartarRascunho() {
     if (!confirm("Descartar o rascunho e limpar o formulário?")) return;
     localStorage.removeItem("rascunhoMembro");
@@ -803,20 +783,18 @@ function editarMembro(id) {
     const m = membros.find(x=>x.id===id);
     if (!m||!formMembro) return;
     const set = (elId, val) => { const e=document.getElementById(elId); if(e) e.value=val||""; };
-    set("nomeMembro",           m.nome);        set("cnsMembro",         m.cns);
-    set("cpfMembro",            m.cpf);         set("nascimentoMembro",  m.nascimento);
-    set("sexoMembro",           m.sexo);        set("racaMembro",        m.raca);
-    set("maeMembro",            m.mae);         set("paiMembro",         m.pai);
-    set("nacionalidadeMembro",  m.nacionalidade); set("municipioNascMembro", m.municipioNasc);
-    set("ufNascMembro",         m.ufNasc);      set("celularMembro",     m.celular);
-    set("parentescoMembro",     m.parentesco);  set("ocupacaoMembro",    m.ocupacao);
-    set("escolaMembro",         m.escola);      set("escolaridadeMembro",m.escolaridade);
-    set("mercadoTrabalhoMembro",m.mercadoTrabalho); set("orientacaoMembro", m.orientacao);
-    set("generoMembro",         m.genero);      set("deficienciaMembro", m.deficiencia);
-    set("gestanteMembro",       m.gestante);    set("pesoMembro",        m.peso);
-    set("fumaMembro",           m.fuma);        set("alcoolMembro",      m.alcool);
-    set("drogasMembro",         m.drogas);      set("internacaoMembro",  m.internacao);
-    set("causaInternacaoMembro",m.causaInternacao); set("outrasCondicoesMembro", m.outrasCondicoes);
+    set("nomeMembro",m.nome); set("cnsMembro",m.cns); set("cpfMembro",m.cpf);
+    set("nascimentoMembro",m.nascimento); set("sexoMembro",m.sexo); set("racaMembro",m.raca);
+    set("maeMembro",m.mae); set("paiMembro",m.pai); set("nacionalidadeMembro",m.nacionalidade);
+    set("municipioNascMembro",m.municipioNasc); set("ufNascMembro",m.ufNasc);
+    set("celularMembro",m.celular); set("parentescoMembro",m.parentesco);
+    set("ocupacaoMembro",m.ocupacao); set("escolaMembro",m.escola);
+    set("escolaridadeMembro",m.escolaridade); set("mercadoTrabalhoMembro",m.mercadoTrabalho);
+    set("orientacaoMembro",m.orientacao); set("generoMembro",m.genero);
+    set("deficienciaMembro",m.deficiencia); set("gestanteMembro",m.gestante);
+    set("pesoMembro",m.peso); set("fumaMembro",m.fuma); set("alcoolMembro",m.alcool);
+    set("drogasMembro",m.drogas); set("internacaoMembro",m.internacao);
+    set("causaInternacaoMembro",m.causaInternacao); set("outrasCondicoesMembro",m.outrasCondicoes);
     document.querySelectorAll('#formMembro input[type="checkbox"]').forEach(c => {
         c.checked = m.doencas_lista?.includes(c.value)||false;
     });
@@ -868,9 +846,8 @@ function mostrarFamiliaDetalhe() {
                 ${v.info?`<p style="font-size:13px;color:#718096;margin-top:4px;">${v.info}</p>`:''}
                 ${v.foto?`<img src="${v.foto}" style="max-width:100%;max-height:150px;border-radius:6px;margin-top:8px;">`:''}
                 ${v.assinatura?`<div style="margin-top:8px;padding:8px;background:#f8fafc;border-radius:6px;border:1px solid #e2e8f0;"><span style="font-size:11px;color:#718096;display:block;margin-bottom:4px;">✍️ Assinatura do responsável</span><img src="${v.assinatura}" style="max-height:65px;border-radius:4px;background:white;"></div>`:''}
-                    <button onclick="editarVisita(${v.id})" style="background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;">✏️ Editar</button>
-                    <button onclick="excluirVisita(${v.id})" style="background:#fff5f5;color:#c53030;border:1px solid #fed7d7;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;">🗑️ Excluir</button>
-                </div>
+                <button onclick="editarVisita(${v.id})" style="background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;">✏️ Editar</button>
+                <button onclick="excluirVisita(${v.id})" style="background:#fff5f5;color:#c53030;border:1px solid #fed7d7;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;">🗑️ Excluir</button>
             </div>`).join('') : "<p style='color:#a0aec0;'>Nenhuma visita registrada.</p>";
     }
 }
@@ -895,7 +872,7 @@ function renderizarMembrosDetalhe() {
 }
 
 // ------------------------------------
-// CIDADÃOS — LISTAR COM FILTROS
+// CIDADÃOS
 // ------------------------------------
 function mostrarCidadaosGeral(filtroGrupo) {
     const container = document.getElementById("listaCidadaos");
@@ -906,7 +883,13 @@ function mostrarCidadaosGeral(filtroGrupo) {
     const idFilt = document.getElementById("filtroIdadeCid")?.value||"";
     const hoje   = new Date();
     let resultado = membros.filter(m=>{
-        if (texto && !(m.nome||"").toLowerCase().includes(texto)) return false;
+        if (texto) {
+            const textoSemMask = texto.replace(/\D/g,'');
+            const nomeOk  = (m.nome||"").toLowerCase().includes(texto);
+            const cnsOk   = (m.cns||"").includes(texto);
+            const cpfOk   = textoSemMask.length >= 3 && (m.cpf||"").replace(/\D/g,'').includes(textoSemMask);
+            if (!nomeOk && !cnsOk && !cpfOk) return false;
+        }
         if (sexo  && m.sexo!==sexo) return false;
         let idade=0;
         if (m.nascimento) idade=Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25));
@@ -957,7 +940,7 @@ function limparFiltrosCid() {
 }
 
 // ------------------------------------
-// BUSCA GLOBAL (novo)
+// BUSCA GLOBAL
 // ------------------------------------
 function buscaGlobal(texto) {
     const container = document.getElementById("resultadoBuscaGlobal");
@@ -965,7 +948,6 @@ function buscaGlobal(texto) {
     if (!texto || texto.length < 2) { container.style.display = "none"; container.innerHTML = ""; return; }
     const q = texto.toLowerCase();
     let html = "";
-
     const famRes = familias.filter(f => (f.responsavel||"").toLowerCase().includes(q) || String(f.numeroFamilia).includes(q));
     if (famRes.length > 0) {
         html += `<div style="font-size:11px;font-weight:bold;color:#718096;padding:8px 10px 4px;text-transform:uppercase;letter-spacing:.05em;">Famílias</div>`;
@@ -975,14 +957,11 @@ function buscaGlobal(texto) {
                  onmouseover="this.style.background='#ebf8ff';this.style.borderColor='#bee3f8'"
                  onmouseout="this.style.background='none';this.style.borderColor='transparent'">
                 <span style="font-size:18px;flex-shrink:0;">🏠</span>
-                <span>
-                    <strong style="color:#2c5282;">Família ${f.numeroFamilia}</strong> — ${f.responsavel}<br>
-                    <small style="color:#718096;">${f.logradouro||'Sem endereço'}</small>
-                </span>
+                <span><strong style="color:#2c5282;">Família ${f.numeroFamilia}</strong> — ${f.responsavel}<br>
+                <small style="color:#718096;">${f.logradouro||'Sem endereço'}</small></span>
             </div>`).join("");
     }
-
-    const memRes = membros.filter(m => (m.nome||"").toLowerCase().includes(q) || (m.cns||"").includes(q));
+    const memRes = membros.filter(m => (m.nome||"").toLowerCase().includes(q) || (m.cns||"").includes(q) || (m.cpf||"").replace(/\D/g,'').includes(q.replace(/\D/g,'')) || (m.cpf||"").includes(q));
     if (memRes.length > 0) {
         html += `<div style="font-size:11px;font-weight:bold;color:#718096;padding:8px 10px 4px;text-transform:uppercase;letter-spacing:.05em;">Cidadãos</div>`;
         html += memRes.slice(0,5).map(m => {
@@ -993,16 +972,12 @@ function buscaGlobal(texto) {
                  onmouseover="this.style.background='#faf5ff';this.style.borderColor='#e9d8fd'"
                  onmouseout="this.style.background='none';this.style.borderColor='transparent'">
                 <span style="font-size:18px;flex-shrink:0;">👤</span>
-                <span>
-                    <strong style="color:#44337a;">${m.nome}</strong><br>
-                    <small style="color:#718096;">${fam ? `Família ${fam.numeroFamilia} — ${fam.responsavel}` : ''}</small>
-                </span>
+                <span><strong style="color:#44337a;">${m.nome}</strong><br>
+                <small style="color:#718096;">${fam ? `Família ${fam.numeroFamilia} — ${fam.responsavel}` : ''}</small></span>
             </div>`;
         }).join("");
     }
-
     if (!html) html = `<div style="padding:16px;color:#718096;text-align:center;font-size:13px;">Nenhum resultado para "<strong>${texto}</strong>"</div>`;
-
     container.innerHTML = html;
     container.style.display = "block";
 }
@@ -1015,7 +990,7 @@ function fecharBusca() {
 }
 
 // ------------------------------------
-// VISITAS — SALVAR, EDITAR, EXCLUIR
+// VISITAS
 // ------------------------------------
 document.addEventListener("DOMContentLoaded", function() {
     const selectFamilia = document.getElementById("familiaVisita");
@@ -1034,7 +1009,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const params=new URLSearchParams(window.location.search);
         const famIdUrl=params.get("familiaId");
         if (famIdUrl){selectFamilia.value=famIdUrl;carregarMembrosFamiliaParaVisita();}
-        // Pré-preenche edição
         const editId=localStorage.getItem("editandoVisita");
         if (editId){
             const v=visitas.find(vis=>vis.id==editId);
@@ -1066,17 +1040,14 @@ if (document.getElementById("formVisita")) {
         const nomeDestino=familia?`Família Nº ${familia.numeroFamilia}`:"Família";
         const membrosMarcados=[];
         document.querySelectorAll('.membro-visita-chk:checked').forEach(c=>membrosMarcados.push(c.value));
-        // Captura a assinatura do canvas
         let assinaturaBase64 = null;
         const canvas = document.getElementById("signaturePad");
         if (canvas) {
-            // Verifica se o canvas tem algo desenhado (não está em branco)
             const ctx = canvas.getContext("2d");
             const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
             const temDesenho = pixels.some((val, i) => i % 4 !== 3 && val !== 0);
             if (temDesenho) assinaturaBase64 = canvas.toDataURL("image/png");
         }
-
         const dadosVisita={
             id:                  document.getElementById("formVisita").dataset.editandoId||Date.now(),
             familiaId,
@@ -1095,7 +1066,6 @@ if (document.getElementById("formVisita")) {
             pendenciaEcg:        document.getElementById("pendenciaEcg")?.checked||false,
             detalhePendencia:    document.getElementById("detalhePendencia")?.value||""
         };
-        // Atualiza roteiro
         const idTarefa=sessionStorage.getItem("idTarefaPercursoAtiva");
         if (idTarefa){
             let roteiro=JSON.parse(localStorage.getItem("roteiroDigital"))||[];
@@ -1108,8 +1078,8 @@ if (document.getElementById("formVisita")) {
             if(idx!==-1) visitas[idx]=dadosVisita;
         } else { visitas.push(dadosVisita); }
         localStorage.setItem("visitas",JSON.stringify(visitas));
-        showToast("✅ Visita salva com sucesso!", "verde"); setTimeout(()=>window.location.href="visitas_lista.html",1200); return;
-        window.location.href="visitas_lista.html";
+        showToast("✅ Visita salva com sucesso!", "verde");
+        setTimeout(()=>window.location.href="visitas_lista.html",1200);
     });
 }
 
@@ -1129,9 +1099,6 @@ function carregarMembrosFamiliaParaVisita() {
     }
 }
 
-// ------------------------------------
-// VISITAS — LISTAR COM FILTROS
-// ------------------------------------
 function mostrarVisitasGeral(lista) {
     const container=document.getElementById("listaVisitasGeral");
     if(!container)return;
@@ -1160,7 +1127,8 @@ function mostrarVisitasGeral(lista) {
             ${v.info?`<p style="font-size:13px;color:#4a5568;margin-top:4px;">📝 ${v.info}</p>`:''}
             ${v.foto?`<img src="${v.foto}" style="max-width:100%;max-height:180px;border-radius:6px;margin-top:10px;">`:''}
             ${v.assinatura?`<div style="margin-top:8px;padding:8px;background:#f8fafc;border-radius:6px;border:1px solid #e2e8f0;"><span style="font-size:11px;color:#718096;display:block;margin-bottom:4px;">✍️ Assinatura do responsável</span><img src="${v.assinatura}" style="max-height:65px;border-radius:4px;background:white;"></div>`:''}
-        </div>`; }).join("");
+        </div>`;
+    }).join("");
 }
 
 function filtrarVisitas() {
@@ -1197,9 +1165,6 @@ function editarVisita(id) {
     window.location.href="visitas.html";
 }
 
-// ------------------------------------
-// PERCURSO — confirma visita como realizada
-// ------------------------------------
 function iniciarVisitaRoteiro(familiaId) {
     const roteiro=JSON.parse(localStorage.getItem("roteiroDigital"))||[];
     const item=roteiro.find(r=>r.familiaId==familiaId&&r.data===document.getElementById("dataPercurso")?.value);
@@ -1278,9 +1243,6 @@ function limparAssinatura(){
     if(c)c.getContext("2d").clearRect(0,0,c.width,c.height);
 }
 
-// ------------------------------------
-// VALIDAÇÃO DATA FUTURA
-// ------------------------------------
 function validarDataVisita(input){
     const hoje=new Date().toISOString().split('T')[0];
     const aviso=document.getElementById("avisoDataFutura");
@@ -1288,15 +1250,13 @@ function validarDataVisita(input){
 }
 
 // ------------------------------------
-// ALERTAS AUTOMÁTICOS (novo)
+// ALERTAS AUTOMÁTICOS
 // ------------------------------------
 function verificarAlertasAutomaticos() {
     const container=document.getElementById("alertasAutomaticos");
     if(!container)return;
     const alertas=[];
     const hoje=new Date();
-
-    // Gestantes sem visita este mês
     const visitasMes=visitas.filter(v=>{
         const d=new Date(v.data);
         return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear()&&v.desfecho==="Visita Realizada";
@@ -1308,8 +1268,6 @@ function verificarAlertasAutomaticos() {
             alertas.push({tipo:"danger",msg:`🤰 <strong>${g.nome}</strong> — Gestante sem visita este mês!`});
         }
     });
-
-    // Acamados/Domiciliados há mais de 15 dias
     membros.filter(m=>m.doencas_lista?.includes("Acamado")||m.doencas_lista?.includes("Domiciliado")).forEach(m=>{
         const vFam=visitas.filter(v=>v.familiaId==m.familia_id).sort((a,b)=>new Date(b.data)-new Date(a.data));
         const ultima=vFam.length?new Date(vFam[0].data):null;
@@ -1318,8 +1276,6 @@ function verificarAlertasAutomaticos() {
             alertas.push({tipo:"warning",msg:`🛏️ <strong>${m.nome}</strong> — ${m.doencas_lista.includes("Acamado")?"Acamado":"Domiciliado"} há ${dias>300?"muito tempo":dias+"d"} sem visita`});
         }
     });
-
-    // Crianças próximas de 2 anos
     membros.forEach(m=>{
         if(!m.nascimento)return;
         const nasc=new Date(m.nascimento);
@@ -1329,10 +1285,7 @@ function verificarAlertasAutomaticos() {
             alertas.push({tipo:"info",msg:`👶 <strong>${m.nome}</strong> — Completa 2 anos em ${diasPara2anos} dia(s). Sairá do grupo prioritário de crianças.`});
         }
     });
-
-    if(alertas.length===0){
-        container.style.display="none";return;
-    }
+    if(alertas.length===0){container.style.display="none";return;}
     container.style.display="block";
     container.innerHTML=`
         <div style="background:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:16px;margin-bottom:20px;">
@@ -1347,7 +1300,7 @@ function verificarAlertasAutomaticos() {
 }
 
 // ------------------------------------
-// RELATÓRIO COMPLETO (novo)
+// RELATÓRIO
 // ------------------------------------
 function gerarRelatorio() {
     const container=document.getElementById("conteudoRelatorio");
@@ -1355,36 +1308,28 @@ function gerarRelatorio() {
     const perfil=JSON.parse(localStorage.getItem("acsPerfil"))||{nome:"ACS Digital",ubs:"UBS",microarea:"—"};
     const hoje=new Date();
     const mesRef=hoje.toLocaleString('pt-BR',{month:'long',year:'numeric'});
-
-    const visitasMes=visitas.filter(v=>{
-        const d=new Date(v.data);
-        return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear();
-    });
+    const visitasMes=visitas.filter(v=>{const d=new Date(v.data);return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear();});
     const realizadas=visitasMes.filter(v=>v.desfecho==="Visita Realizada");
     const recusadas =visitasMes.filter(v=>v.desfecho==="Visita Recusada").length;
     const ausentes  =visitasMes.filter(v=>v.desfecho==="Ausente").length;
-
-    const hipertensos    =membros.filter(m=>m.doencas_lista?.includes("Hipertensão")).length;
-    const diabeticos     =membros.filter(m=>m.doencas_lista?.includes("Diabetes")).length;
-    const gestantes      =membros.filter(m=>m.gestante==="Sim").length;
-    const idosos         =membros.filter(m=>{if(!m.nascimento)return false;return Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25))>=60;}).length;
-    const acamados       =membros.filter(m=>m.doencas_lista?.includes("Acamado")).length;
-    const domiciliados   =membros.filter(m=>m.doencas_lista?.includes("Domiciliado")).length;
-    const criancas       =membros.filter(m=>{if(!m.nascimento)return false;const a=Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25));return a<2;}).length;
-    const tabagistas     =membros.filter(m=>m.fuma==="Sim").length;
-
-    const famVisitadas   =new Set(realizadas.map(v=>String(v.familiaId))).size;
-    const cfg            =JSON.parse(localStorage.getItem("metasConfig2"))||{metaVisitasPct:80};
-    const metaFam        =Math.ceil(familias.length*(cfg.metaVisitasPct/100));
-    const pct            =metaFam===0?0:Math.min(100,Math.round((famVisitadas/metaFam)*100));
-
+    const hipertensos=membros.filter(m=>m.doencas_lista?.includes("Hipertensão")).length;
+    const diabeticos =membros.filter(m=>m.doencas_lista?.includes("Diabetes")).length;
+    const gestantes  =membros.filter(m=>m.gestante==="Sim").length;
+    const idosos     =membros.filter(m=>{if(!m.nascimento)return false;return Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25))>=60;}).length;
+    const acamados   =membros.filter(m=>m.doencas_lista?.includes("Acamado")).length;
+    const domiciliados=membros.filter(m=>m.doencas_lista?.includes("Domiciliado")).length;
+    const criancas   =membros.filter(m=>{if(!m.nascimento)return false;const a=Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25));return a<2;}).length;
+    const tabagistas =membros.filter(m=>m.fuma==="Sim").length;
+    const famVisitadas=new Set(realizadas.map(v=>String(v.familiaId))).size;
+    const cfg=JSON.parse(localStorage.getItem("metasConfig2"))||{metaVisitasPct:80};
+    const metaFam=Math.ceil(familias.length*(cfg.metaVisitasPct/100));
+    const pct=metaFam===0?0:Math.min(100,Math.round((famVisitadas/metaFam)*100));
     container.innerHTML=`
-    <div style="border:2px solid #1a365d;border-radius:10px;padding:20px;margin-bottom:20px;text-align:center;" class="cabecalho-relatorio">
+    <div style="border:2px solid #1a365d;border-radius:10px;padding:20px;margin-bottom:20px;text-align:center;">
         <h2 style="color:#1a365d;margin-bottom:4px;">RELATÓRIO MENSAL DE ATIVIDADES</h2>
         <p style="color:#4a5568;margin:2px 0;"><strong>Agente:</strong> ${perfil.nome} | <strong>UBS:</strong> ${perfil.ubs} | <strong>Microárea:</strong> ${perfil.microarea}</p>
         <p style="color:#4a5568;margin:2px 0;"><strong>Período:</strong> ${mesRef.toUpperCase()}</p>
     </div>
-
     <div class="box" style="margin-bottom:16px;">
         <h3 style="color:#2b6cb0;border-bottom:2px solid #2b6cb0;padding-bottom:5px;">📊 Produtividade Geral</h3>
         <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:10px;">
@@ -1396,64 +1341,11 @@ function gerarRelatorio() {
             <tr><td style="border:1px solid #e2e8f0;padding:10px;">Total de Famílias Cadastradas</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${familias.length}</td></tr>
             <tr><td style="border:1px solid #e2e8f0;padding:10px;">Total de Cidadãos Cadastrados</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${membros.length}</td></tr>
         </table>
-    </div>
-
-    <div class="box" style="margin-bottom:16px;">
-        <h3 style="color:#2b6cb0;border-bottom:2px solid #2b6cb0;padding-bottom:5px;">👥 Grupos Prioritários Cadastrados</h3>
-        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:10px;">
-            <tr style="background:#edf2f7;"><th style="border:1px solid #cbd5e0;padding:10px;text-align:left;">Grupo</th><th style="border:1px solid #cbd5e0;padding:10px;text-align:center;">Cadastrados</th></tr>
-            <tr><td style="border:1px solid #e2e8f0;padding:10px;">❤️ Hipertensos</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${hipertensos}</td></tr>
-            <tr><td style="border:1px solid #e2e8f0;padding:10px;">🩸 Diabéticos</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${diabeticos}</td></tr>
-            <tr><td style="border:1px solid #e2e8f0;padding:10px;">🤰 Gestantes</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${gestantes}</td></tr>
-            <tr><td style="border:1px solid #e2e8f0;padding:10px;">👴 Idosos (60+)</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${idosos}</td></tr>
-            <tr><td style="border:1px solid #e2e8f0;padding:10px;">🛏️ Acamados</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${acamados}</td></tr>
-            <tr><td style="border:1px solid #e2e8f0;padding:10px;">🏠 Domiciliados</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${domiciliados}</td></tr>
-            <tr><td style="border:1px solid #e2e8f0;padding:10px;">👶 Crianças (menor de 2 anos)</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${criancas}</td></tr>
-            <tr><td style="border:1px solid #e2e8f0;padding:10px;">🚬 Tabagistas</td><td style="border:1px solid #e2e8f0;padding:10px;text-align:center;">${tabagistas}</td></tr>
-        </table>
-    </div>
-
-    <div class="box" style="margin-bottom:16px;">
-        <h3 style="color:#2b6cb0;border-bottom:2px solid #2b6cb0;padding-bottom:5px;">📋 Registro de Visitas do Mês</h3>
-        ${visitasMes.length===0?'<p style="color:#a0aec0;text-align:center;padding:20px;">Nenhuma visita registrada este mês.</p>':
-        `<table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;">
-            <tr style="background:#edf2f7;">
-                <th style="border:1px solid #cbd5e0;padding:8px;text-align:left;">Data</th>
-                <th style="border:1px solid #cbd5e0;padding:8px;text-align:left;">Família</th>
-                <th style="border:1px solid #cbd5e0;padding:8px;text-align:left;">Motivo</th>
-                <th style="border:1px solid #cbd5e0;padding:8px;text-align:center;">Desfecho</th>
-            </tr>
-            ${visitasMes.sort((a,b)=>new Date(a.data)-new Date(b.data)).map(v=>`
-            <tr>
-                <td style="border:1px solid #e2e8f0;padding:8px;">${v.data?v.data.split('-').reverse().join('/'):'—'}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px;">${v.cidadao||'—'}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px;">${v.motivos||'—'}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px;text-align:center;font-weight:bold;color:${v.desfecho==='Visita Realizada'?'#22543d':'#742a2a'};">${v.desfecho}</td>
-            </tr>`).join('')}
-        </table>`}
-    </div>
-
-    <div class="box" style="margin-top:30px;">
-        <h3 style="color:#2b6cb0;border-bottom:2px solid #2b6cb0;padding-bottom:5px;">✍️ Assinaturas</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:20px;">
-            <div style="text-align:center;">
-                <div style="border-top:1px solid #4a5568;padding-top:8px;margin-top:40px;">
-                    <strong>${perfil.nome}</strong><br>
-                    <span style="font-size:13px;color:#718096;">Agente Comunitário de Saúde — Microárea ${perfil.microarea}</span>
-                </div>
-            </div>
-            <div style="text-align:center;">
-                <div style="border-top:1px solid #4a5568;padding-top:8px;margin-top:40px;">
-                    <strong>___________________________</strong><br>
-                    <span style="font-size:13px;color:#718096;">Supervisor(a) / Enfermeiro(a) — ${perfil.ubs}</span>
-                </div>
-            </div>
-        </div>
     </div>`;
 }
 
 // ------------------------------------
-// INICIALIZAÇÃO POR PÁGINA
+// INICIALIZAÇÃO
 // ------------------------------------
 document.addEventListener("DOMContentLoaded", function() {
     atualizarContadores();
@@ -1461,13 +1353,11 @@ document.addEventListener("DOMContentLoaded", function() {
     carregarBuscaAtiva();
     verificarAlertasAutomaticos();
     renderizarGraficoVisitas();
-
     if(document.getElementById("listaFamilias"))       filtrarFamilias();
     if(document.getElementById("listaCidadaos"))       mostrarCidadaosGeral();
     if(document.getElementById("listaVisitasGeral"))   filtrarVisitas();
     if(document.getElementById("listaPendencias"))     renderizarPendencias();
     if(document.getElementById("conteudoRelatorio"))   gerarRelatorio();
-
     if(document.getElementById("dadosFamilia")) {
         mostrarFamiliaDetalhe();
         renderizarMembrosDetalhe();
@@ -1475,7 +1365,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const famId=localStorage.getItem("familiaAtual");
         if(btnNova&&famId) btnNova.onclick=()=>window.location.href=`visitas.html?familiaId=${famId}`;
     }
-
     if(document.getElementById("formMembro")) {
         const famId=localStorage.getItem("familiaAtual");
         if(famId) {
@@ -1486,17 +1375,11 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// ------------------------------------
-// HISTÓRICO DE SAÚDE POR CIDADÃO
-// ------------------------------------
 function abrirHistoricoSaude(membroId) {
     localStorage.setItem("membroSaudeAtual", membroId);
     window.location.href = "saude_cidadao.html";
 }
 
-// ------------------------------------
-// MENU HAMBÚRGUER (mobile)
-// ------------------------------------
 function toggleSidebar() {
     const sidebar  = document.querySelector('.sidebar');
     const overlay  = document.getElementById('sidebarOverlay');
@@ -1514,15 +1397,10 @@ function fecharSidebar() {
     document.body.style.overflow = '';
 }
 
-// Fecha sidebar ao navegar (click em botão do menu)
-// Exclui os botões de grupo (nav-grupo-btn) para não fechar ao abrir submenu
 document.querySelectorAll('.sidebar nav button:not(.nav-grupo-btn)').forEach(btn => {
     btn.addEventListener('click', fecharSidebar);
 });
 
-// ------------------------------------
-// CARD DE META — reage ao progresso
-// ------------------------------------
 function colorirCardMeta(pct) {
     const card = document.getElementById('cardMeta');
     if (!card) return;
@@ -1531,24 +1409,17 @@ function colorirCardMeta(pct) {
     else                card.dataset.meta = 'critico';
 }
 
-// ------------------------------------
-// SIDEBAR — MENU COM SUBGRUPOS
-// ------------------------------------
 function toggleGrupo(id) {
     const submenu = document.getElementById('sub_' + id);
     const btn     = document.getElementById('btn_' + id);
     if (!submenu || !btn) return;
     const aberto = submenu.classList.toggle('aberto');
     btn.classList.toggle('aberto', aberto);
-    // Salva estado aberto para manter entre navegações
     try { localStorage.setItem('menu_' + id, aberto ? '1' : '0'); } catch(e) {}
 }
 
 function iniciarMenuSidebar() {
-    // Detecta a página atual
     const paginaAtual = window.location.pathname.split('/').pop() || 'index.html';
-
-    // Mapa de qual grupo abrir automaticamente por página
     const gruposPorPagina = {
         'familias.html':       'familias',
         'familias_lista.html': 'familias',
@@ -1567,36 +1438,25 @@ function iniciarMenuSidebar() {
         'configuracoes.html':  'config',
         'importador.html':     'config',
     };
-
     const grupoAtivo = gruposPorPagina[paginaAtual];
-
-    // Abre o grupo da página atual automaticamente
     if (grupoAtivo) {
         const sub = document.getElementById('sub_' + grupoAtivo);
         const btn = document.getElementById('btn_' + grupoAtivo);
         if (sub) sub.classList.add('aberto');
         if (btn) btn.classList.add('aberto');
     }
-
-    // Marca o botão da página atual como active
     const todos = document.querySelectorAll('.nav-submenu button, .sidebar nav > button');
     todos.forEach(btn => {
         const href = btn.getAttribute('onclick') || '';
         if (href.includes(paginaAtual)) btn.classList.add('active');
     });
-
-    // Marca o grupo pai como active se estiver na página
     if (grupoAtivo) {
         const btnGrupo = document.getElementById('btn_' + grupoAtivo);
         if (btnGrupo) btnGrupo.classList.add('active');
     }
 }
-
 document.addEventListener('DOMContentLoaded', iniciarMenuSidebar);
 
-// ------------------------------------
-// CARREGA PERFIL NA SIDEBAR
-// ------------------------------------
 function carregarPerfilSidebar() {
     const perfil = JSON.parse(localStorage.getItem("acsPerfil")) || {};
     const nome   = document.getElementById("sidebarNomePerfil");
@@ -1608,73 +1468,40 @@ function carregarPerfilSidebar() {
 }
 document.addEventListener('DOMContentLoaded', carregarPerfilSidebar);
 
-// Redesenha gráfico quando janela muda de tamanho
 window.addEventListener('resize', () => {
     if (document.getElementById("graficoVisitasSemana")) renderizarGraficoVisitas();
 });
 
-// ------------------------------------
-// EXPORTAR CSV PARA e-SUS
-// ------------------------------------
 function exportarCSVeSUS() {
     const hoje = new Date();
     const mesRef = document.getElementById("mesReferencia")?.value || `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
     const [ano, mes] = mesRef.split("-");
     const perfil = JSON.parse(localStorage.getItem("acsPerfil")) || { nome:"ACS", microarea:"03" };
-
     const visitasFiltradas = visitas.filter(v => {
         if (!v.data) return false;
         const d = new Date(v.data);
         return d.getMonth()==mes-1 && d.getFullYear()==ano;
     });
-
-    const linhas = [
-        ["Data","Família","Membros Atendidos","Motivo","Desfecho","Turno","Informações","ACS","Microárea"]
-    ];
-
+    const linhas = [["Data","Família","Membros Atendidos","Motivo","Desfecho","Turno","Informações","ACS","Microárea"]];
     visitasFiltradas.forEach(v => {
         const fam = familias.find(f => f.id == v.familiaId);
-        linhas.push([
-            v.data || "",
-            fam ? `Família ${fam.numeroFamilia} - ${fam.responsavel}` : v.cidadao || "",
-            (v.membrosAtendidos||[]).join("; "),
-            v.motivos || "",
-            v.desfecho || "",
-            v.turno || "",
-            (v.info||"").replace(/[\n\r;]/g," "),
-            perfil.nome,
-            perfil.microarea
-        ]);
+        linhas.push([v.data||"",fam?`Família ${fam.numeroFamilia} - ${fam.responsavel}`:v.cidadao||"",(v.membrosAtendidos||[]).join("; "),v.motivos||"",v.desfecho||"",v.turno||"",(v.info||"").replace(/[\n\r;]/g," "),perfil.nome,perfil.microarea]);
     });
-
     const csv = linhas.map(l => l.map(c => `"${String(c).replace(/"/g,'""')}"`).join(";")).join("\n");
-    const bom = "\uFEFF"; // BOM UTF-8 para Excel
-    const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = `Visitas_eSUS_${mes}_${ano}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    a.href = url; a.download = `Visitas_eSUS_${mes}_${ano}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     showToast(`✅ CSV exportado: ${visitasFiltradas.length} visitas`, "verde");
 }
 
-// ------------------------------------
-// INDICADOR OFFLINE / ONLINE
-// ------------------------------------
 function iniciarIndicadorOffline() {
     const div = document.createElement("div");
     div.id = "indicadorOffline";
-    div.style.cssText = `
-        display:none; position:fixed; top:0; left:0; right:0; z-index:9999;
-        background:#e53e3e; color:white; text-align:center;
-        padding:8px 16px; font-size:13px; font-weight:bold;
-        box-shadow:0 2px 8px rgba(0,0,0,0.2);
-    `;
+    div.style.cssText = `display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#e53e3e;color:white;text-align:center;padding:8px 16px;font-size:13px;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.2);`;
     div.textContent = "📵 Sem conexão — modo offline ativo. Dados serão salvos localmente.";
     document.body.appendChild(div);
-
     function atualizar() {
         div.style.display = navigator.onLine ? "none" : "block";
         if (navigator.onLine) {
@@ -1685,59 +1512,45 @@ function iniciarIndicadorOffline() {
             setTimeout(() => ok.remove(), 2500);
         }
     }
-
     window.addEventListener("online",  atualizar);
     window.addEventListener("offline", atualizar);
     atualizar();
 }
 document.addEventListener("DOMContentLoaded", iniciarIndicadorOffline);
 
-// ------------------------------------
-// PROTEÇÃO POR PIN — verificar sessão
-// ------------------------------------
 function verificarPinSessao() {
     const pin = localStorage.getItem("pinAcesso");
-    if (!pin) return; // PIN não configurado, deixa passar
+    if (!pin) return;
     const sessao = localStorage.getItem("pinSessao");
     if (!sessao) { window.location.href = "pin.html"; return; }
-    // Sessão expira em 8 horas
     const diff = Date.now() - parseInt(sessao);
     if (diff > 8 * 60 * 60 * 1000) { window.location.href = "pin.html"; }
 }
-// Só verifica PIN em páginas principais (não na própria pin.html)
 if (!window.location.pathname.endsWith("pin.html")) {
     document.addEventListener("DOMContentLoaded", verificarPinSessao);
 }
 
-// ------------------------------------
-// ORDENAÇÃO NAS LISTAS
-// ------------------------------------
 let ordemFamilias = "numero";
 function ordenarFamilias(criterio) {
     ordemFamilias = criterio;
     filtrarFamilias();
 }
 
-// Atualiza mostrarFamilias para respeitar ordenação
 const _mostrarFamilias = mostrarFamilias;
 mostrarFamilias = function(filtradas) {
     let dados = (filtradas !== undefined ? filtradas : familias).slice();
-    if (ordemFamilias === "numero")    dados.sort((a,b) => a.numeroFamilia - b.numeroFamilia);
-    if (ordemFamilias === "nome")      dados.sort((a,b) => (a.responsavel||"").localeCompare(b.responsavel||""));
-    if (ordemFamilias === "visita")    dados.sort((a,b) => {
+    if (ordemFamilias === "numero") dados.sort((a,b) => a.numeroFamilia - b.numeroFamilia);
+    if (ordemFamilias === "nome")   dados.sort((a,b) => (a.responsavel||"").localeCompare(b.responsavel||""));
+    if (ordemFamilias === "visita") dados.sort((a,b) => {
         const va = visitas.filter(v=>v.familiaId==a.id).sort((x,y)=>new Date(y.data)-new Date(x.data))[0];
         const vb = visitas.filter(v=>v.familiaId==b.id).sort((x,y)=>new Date(y.data)-new Date(x.data))[0];
         const da = va ? new Date(va.data) : new Date(0);
         const db = vb ? new Date(vb.data) : new Date(0);
-        return da - db; // mais antigas primeiro
+        return da - db;
     });
     _mostrarFamilias(dados);
 };
 
-
-// ============================================================
-//  MELHORIAS — TOAST (substitui alert)
-// ============================================================
 function showToast(msg, tipo = "normal", duracao = 3000) {
     let container = document.getElementById("toastContainer");
     if (!container) {
@@ -1758,9 +1571,6 @@ function showToast(msg, tipo = "normal", duracao = 3000) {
     }, duracao);
 }
 
-// ============================================================
-//  MELHORIAS — MODO ESCURO
-// ============================================================
 function aplicarTema() {
     const tema = localStorage.getItem("tema") || "claro";
     document.documentElement.setAttribute("data-tema", tema);
@@ -1775,6 +1585,9 @@ function toggleTema() {
     showToast(novo === "escuro" ? "🌙 Modo escuro ativado" : "☀️ Modo claro ativado", "normal", 1800);
 }
 
+// alias usado no index.html
+function toggleTemaEscuro() { toggleTema(); }
+
 function injetarBotaoTema() {
     if (document.getElementById("btnToggleTema")) return;
     const btn = document.createElement("button");
@@ -1785,9 +1598,6 @@ function injetarBotaoTema() {
     aplicarTema();
 }
 
-// ============================================================
-//  MELHORIAS — ANIVERSARIANTES DO DIA
-// ============================================================
 function verificarAniversariantes() {
     const container = document.getElementById("alertasAutomaticos");
     if (!container) return;
@@ -1802,22 +1612,16 @@ function verificarAniversariantes() {
     bloco.innerHTML = aniversariantes.map(m => {
         const fam = familias.find(f => f.id == m.familia_id);
         const idade = hoje.getFullYear() - parseInt(m.nascimento.split("-")[0]);
-        return `<div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #f6ad55;border-left:5px solid #d69e2e;border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px;">
+        return `<div style="background:#fffbeb;border:1px solid #f6ad55;border-left:5px solid #d69e2e;border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px;">
             <span style="font-size:26px;flex-shrink:0;">🎂</span>
-            <div>
-                <strong>${m.nome}</strong> faz <strong>${idade} anos</strong> hoje!
-                ${fam ? `<span style="font-size:12px;color:#975a16;margin-left:6px;">🏠 Família ${fam.numeroFamilia}</span>` : ''}
-                <div style="margin-top:4px;"><span class="aniversario-badge">🎉 Aniversariante do dia</span></div>
-            </div>
-        </div>`;
+            <div><strong>${m.nome}</strong> faz <strong>${idade} anos</strong> hoje!
+            ${fam ? `<span style="font-size:12px;color:#975a16;margin-left:6px;">🏠 Família ${fam.numeroFamilia}</span>` : ''}
+            </div></div>`;
     }).join('');
     container.prepend(bloco);
     container.style.display = "block";
 }
 
-// ============================================================
-//  MELHORIAS — ALERTA VACINAÇÃO NO PAINEL
-// ============================================================
 function verificarVacinacaoPainel() {
     const container = document.getElementById("alertasAutomaticos");
     if (!container) return;
@@ -1837,15 +1641,12 @@ function verificarVacinacaoPainel() {
     if (totalPendentes === 0) return;
     const div = document.createElement("div");
     div.style.cssText = "background:#fff5f5;border:1px solid #fc8181;border-left:5px solid #e53e3e;border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;";
-    div.innerHTML = `<div style="display:flex;align-items:center;gap:10px;flex:1;"><span style="font-size:26px;">💉</span><div><strong style="color:#742a2a;">${totalPendentes} cidadão(s) com vacinação pendente</strong><div style="font-size:12px;color:#9b2c2c;margin-top:2px;">Verifique o controle de vacinação.</div></div></div>
+    div.innerHTML = `<div style="display:flex;align-items:center;gap:10px;flex:1;"><span style="font-size:26px;">💉</span><div><strong style="color:#742a2a;">${totalPendentes} cidadão(s) com vacinação pendente</strong></div></div>
         <button onclick="window.location.href='vacinacao.html'" style="background:#e53e3e;color:white;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap;">Ver vacinação →</button>`;
     container.appendChild(div);
     container.style.display = "block";
 }
 
-// ============================================================
-//  MELHORIAS — BADGE DE NOTIFICAÇÕES NA SIDEBAR
-// ============================================================
 function atualizarBadgeNotificacoes() {
     const badge = document.getElementById("badgeNotif");
     if (!badge) return;
@@ -1855,19 +1656,10 @@ function atualizarBadgeNotificacoes() {
     const visitasMes = visitas.filter(v => { const d=new Date(v.data); return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear()&&v.desfecho==="Visita Realizada"; });
     const famVisitadasMes = new Set(visitasMes.map(v => String(v.familiaId)));
     membros.filter(m => m.gestante==="Sim").forEach(m => { if(!famVisitadasMes.has(String(m.familia_id))&&!lidas.includes(`gest_${m.id}`)) total++; });
-    membros.filter(m => m.doencas_lista?.includes("Acamado")||m.doencas_lista?.includes("Domiciliado")).forEach(m => {
-        const vFam = visitas.filter(v=>v.familiaId==m.familia_id).sort((a,b)=>new Date(b.data)-new Date(a.data));
-        const dias = vFam.length ? Math.floor((hoje-new Date(vFam[0].data))/(1000*60*60*24)) : 999;
-        if(dias>15&&!lidas.includes(`acamado_${m.id}`)) total++;
-    });
-    if(!lidas.includes("nunca_visitadas")&&familias.some(f=>!visitas.some(v=>v.familiaId==f.id))) total++;
     if(total>0){badge.textContent=total;badge.style.display="inline";}
     else badge.style.display="none";
 }
 
-// ============================================================
-//  MELHORIAS — CONTADOR REGRESSIVO DE META
-// ============================================================
 function calcularDiasUteisRestantesMes() {
     const hoje = new Date();
     const ultimo = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
@@ -1903,36 +1695,11 @@ function atualizarContadorRegressivo() {
     }
 }
 
-// ============================================================
-//  MELHORIAS — CARDS COLORIDOS NO PAINEL
-// ============================================================
-function colorirCardsDoPanel() {
-    // Card famílias — verde
-    const cards = document.querySelectorAll('.card');
-    if (!cards.length) return;
-    const totalFam = document.getElementById("totalFamilias");
-    const totalCid = document.getElementById("totalCidadaos");
-    const totalVis = document.getElementById("totalVisitas");
-    if (totalFam) totalFam.closest('.card')?.classList.add('card-familias');
-    if (totalCid) totalCid.closest('.card')?.classList.add('card-cidadaos');
-    if (totalVis) totalVis.closest('.card')?.classList.add('card-visitas');
-}
-
-// ============================================================
-//  MELHORIAS — HOOK NA INICIALIZAÇÃO
-// ============================================================
-const _initOriginal = document.addEventListener;
 document.addEventListener("DOMContentLoaded", function() {
-    // Injeta botão de tema
     injetarBotaoTema();
-    // Cards coloridos
-    colorirCardsDoPanel();
-    // Aniversariantes e vacinação no painel
     verificarAniversariantes();
     verificarVacinacaoPainel();
-    // Badge notificações
     atualizarBadgeNotificacoes();
-    // Contador regressivo
     atualizarContadorRegressivo();
 });
 
