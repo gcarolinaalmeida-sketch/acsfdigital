@@ -188,6 +188,15 @@
 <script>
 const ANO_ATUAL = new Date().getFullYear();
 
+// Lê familias e membros diretamente do localStorage como fallback
+// (caso script.js não defina as variáveis globais)
+if (typeof familias === 'undefined') {
+  window.familias = JSON.parse(localStorage.getItem("familias") || "[]");
+}
+if (typeof membros === 'undefined') {
+  window.membros = JSON.parse(localStorage.getItem("membros") || "[]");
+}
+
 // Usa sessionStorage com chave própria para não conflitar com familiaAtual de outras páginas
 let familiaId = sessionStorage.getItem("bolsafamilia_familiaId") || null;
 // Limpa o localStorage.familiaAtual ao entrar na página (evita herdar contexto de outra tela)
@@ -212,13 +221,15 @@ function carregarPagina() {
 /* ══════════════════════════════════════
    VISÃO GERAL — com tabs
 ══════════════════════════════════════ */
-// Campo é toggle: salva true/false booleano
-// Mas aceita também "Sim", "sim", "true", "1" por segurança
+// Aceita qualquer valor positivo: true, "Sim", "sim", "true", "1"
+// Rejeita: false, "Não", "nao", undefined, null, ""
 function ehBolsaFamilia(f) {
   const v = f.bolsaFamilia;
   if (v === true || v === 1) return true;
   if (!v || v === false || v === 0) return false;
-  return ['sim','s','true','1','yes'].includes(String(v).toLowerCase().trim());
+  const s = String(v).toLowerCase().trim();
+  if (['não','nao','no','false','0',''].includes(s)) return false;
+  return s === 'sim';
 }
 
 function renderizarVisaoGeral(container) {
