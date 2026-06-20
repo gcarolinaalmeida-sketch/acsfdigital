@@ -1107,3 +1107,340 @@ body.tema-escuro [style*="background:#f0f4f8"] { background: #2d3748 !important;
   display: none; align-items: center; gap: 10px; margin-top: 8px;
   padding: 10px 14px; border-radius: var(--raio-sm); font-size: 14px; font-weight: 600;
 }
+/* ============================================================
+   ACS DIGITAL — NOVA HOME (classes adicionadas)
+   Adicionar este bloco ao final do style.css existente.
+   Não remove nem sobrescreve nenhuma classe ou ID anterior.
+   ============================================================ */
+
+/* ---------- Header / saudação ---------- */
+.home-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  padding:18px 16px 10px;
+  gap:12px;
+}
+.home-header .home-greeting{
+  font-size:20px;
+  font-weight:800;
+  color:#1a365d;
+}
+.home-header .home-date{
+  font-size:12px;
+  color:#718096;
+  margin-top:1px;
+}
+.home-header-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.home-icon-btn{
+  background:#f0f4f8;
+  border:none;
+  border-radius:8px;
+  width:36px;
+  height:36px;
+  font-size:17px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  text-decoration:none;
+  color:inherit;
+}
+
+/* ---------- Card base (usado em todos os blocos da Home) ---------- */
+.home-card{
+  background:white;
+  border-radius:14px;
+  padding:16px;
+  margin:0 16px 14px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.home-card-title{
+  font-size:13px;
+  font-weight:700;
+  color:#2c5282;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.home-card-link{
+  font-size:11px;
+  font-weight:700;
+  color:#718096;
+  text-decoration:none;
+}
+.home-card-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+
+/* ---------- Mini resumo (3 números) ---------- */
+.home-resumo-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:0 16px 16px;
+}
+.home-resumo-item{
+  background:white;
+  border-radius:12px;
+  padding:14px 12px;
+  text-align:center;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  cursor:pointer;
+}
+.home-resumo-valor{
+  font-size:24px;
+  font-weight:800;
+}
+.home-resumo-label{
+  font-size:10px;
+  font-weight:700;
+  color:#a0aec0;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  margin-top:2px;
+}
+
+/* ---------- Percurso do dia (substitui parte da barra de meta na Home) ---------- */
+.home-percurso-card{
+  background:white;
+  border-radius:14px;
+  padding:18px 16px;
+  margin:0 16px 14px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.home-percurso-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.home-percurso-label{
+  font-size:14px;
+  font-weight:700;
+  color:#1a365d;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.home-percurso-count{
+  font-size:12px;
+  color:#718096;
+}
+.home-percurso-bar-track{
+  height:8px;
+  background:#edf2f7;
+  border-radius:999px;
+  overflow:hidden;
+  margin-bottom:14px;
+}
+.home-percurso-bar-fill{
+  height:100%;
+  border-radius:999px;
+  background:#2b6cb0;
+  transition:width 0.8s cubic-bezier(.4,0,.2,1);
+}
+.home-btn-iniciar{
+  width:100%;
+  background:#1a365d;
+  color:#fff;
+  border:none;
+  font-size:15px;
+  font-weight:700;
+  padding:13px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  cursor:pointer;
+}
+.home-btn-iniciar:active{ opacity:0.85; }
+
+/* ---------- Atenção urgente (funde Busca Ativa + Alertas Automáticos) ---------- */
+.home-urgente-card{
+  background:#fff5f5;
+  border-radius:14px;
+  padding:16px;
+  margin:0 16px 14px;
+  cursor:pointer;
+}
+.home-urgente-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.home-urgente-title{
+  font-size:13px;
+  font-weight:700;
+  color:#742a2a;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.home-urgente-count{
+  font-size:12px;
+  font-weight:700;
+  color:#742a2a;
+  background:rgba(116,42,42,0.1);
+  padding:2px 10px;
+  border-radius:999px;
+}
+.home-urgente-lista{
+  list-style:none;
+  margin:0 0 10px;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.home-urgente-item{
+  background:white;
+  border-radius:8px;
+  padding:10px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+}
+.home-urgente-item-dias{
+  font-size:11px;
+  font-weight:800;
+  color:#742a2a;
+  white-space:nowrap;
+}
+.home-urgente-ver-todos{
+  width:100%;
+  background:transparent;
+  border:1px solid rgba(116,42,42,0.25);
+  color:#742a2a;
+  font-size:12px;
+  font-weight:700;
+  padding:8px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* ---------- Coluna lateral de métricas + atalho metas (grid 2 colunas) ---------- */
+.home-grid-2{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:14px;
+  margin:0 16px 14px;
+}
+@media (max-width:680px){
+  .home-grid-2{ grid-template-columns:1fr; }
+  .home-grid-2 .home-urgente-card,
+  .home-grid-2 .home-side-stack{ margin:0; }
+}
+.home-side-stack{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.home-metric-card{
+  background:white;
+  border-radius:14px;
+  padding:14px 16px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.home-metric-label{
+  font-size:11px;
+  color:#a0aec0;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  margin-bottom:6px;
+}
+.home-metric-value{
+  font-size:22px;
+  font-weight:800;
+}
+.home-nav-card{
+  background:white;
+  border-radius:14px;
+  padding:14px 16px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+  color:#2c5282;
+  text-decoration:none;
+}
+
+/* ---------- Atalhos rápidos ---------- */
+.home-shortcuts-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin:0 16px 20px;
+}
+@media (max-width:560px){
+  .home-shortcuts-grid{ grid-template-columns:repeat(2,1fr); }
+}
+.home-shortcut{
+  background:white;
+  border-radius:14px;
+  padding:14px 8px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  font-size:11.5px;
+  font-weight:700;
+  color:#2c5282;
+  text-decoration:none;
+}
+.home-shortcut-icon{ font-size:20px; }
+
+/* ---------- Chip de aniversariante (header) ---------- */
+.home-chip-aniversario{
+  font-size:11px;
+  font-weight:700;
+  background:#fffbeb;
+  color:#744210;
+  padding:5px 10px 5px 8px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  border:none;
+  cursor:pointer;
+  text-decoration:none;
+  white-space:nowrap;
+}
+
+/* ---------- Tema escuro: extensão para as novas classes ---------- */
+body.tema-escuro .home-card,
+body.tema-escuro .home-resumo-item,
+body.tema-escuro .home-percurso-card,
+body.tema-escuro .home-metric-card,
+body.tema-escuro .home-nav-card,
+body.tema-escuro .home-shortcut,
+body.tema-escuro .home-urgente-item{
+  background:#2d3748 !important;
+  color:#e2e8f0 !important;
+}
+body.tema-escuro .home-urgente-card{
+  background:#3a2424 !important;
+}
+body.tema-escuro .home-icon-btn{
+  background:#4a5568 !important;
+}
+body.tema-escuro .home-percurso-bar-track{
+  background:#4a5568 !important;
+}
