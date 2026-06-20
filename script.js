@@ -1,3 +1,4 @@
+
 // ============================================================
 //  ACS DIGITAL — script.js  (versão completa e melhorada)
 // ============================================================
@@ -348,7 +349,6 @@ function mostrarFamilias(filtradas) {
             ? `<img src="${f.fotoCasa}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e0;margin-left:10px;">`
             : `<div style="width:60px;height:60px;background:#edf2f7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-left:10px;">🏠</div>`;
 
-        // ── Bolsa Família — aceita "Sim", true, "true" ──
         const bfVal = f.bolsaFamilia;
         const isBolsa = bfVal === "Sim" || bfVal === true || String(bfVal).toLowerCase() === "true";
 
@@ -465,7 +465,6 @@ function limparFiltrosFam() {
 
 // ------------------------------------
 // SALVAR FAMÍLIA (com edição)
-// ── CORRIGIDO: lê input hidden #bolsaFamilia ──
 // ------------------------------------
 const formCadastro = document.getElementById("formCadastro");
 if (formCadastro) {
@@ -488,7 +487,6 @@ if (formCadastro) {
             set("animais",       fEd.animais);
             set("geoLat",        fEd.geoLat);
             set("geoLng",        fEd.geoLng);
-            // Restaura status da geolocalização
             if (fEd.geoLat && fEd.geoLng) {
                 const statusEl = document.getElementById('geoStatus');
                 const btnGeo   = document.getElementById('btnGeo');
@@ -497,7 +495,6 @@ if (formCadastro) {
             }
             set("observacoes",   fEd.observacoes);
 
-            // ── Restaura toggle Bolsa Família ──
             const hiddenBolsa = document.getElementById('bolsaFamilia');
             const btnBolsa    = document.getElementById('bolsaToggleBtn');
             const bfVal = fEd.bolsaFamilia;
@@ -527,8 +524,6 @@ if (formCadastro) {
     formCadastro.addEventListener("submit", function(e) {
         e.preventDefault();
         const locChecked = document.querySelector('input[name="localizacao"]:checked');
-
-        // ── Lê o input hidden #bolsaFamilia (atualizado pelo toggleBolsa()) ──
         const hiddenBolsa = document.getElementById('bolsaFamilia');
         const bolsaValor  = hiddenBolsa ? hiddenBolsa.value : 'Não';
 
@@ -1251,51 +1246,95 @@ function validarDataVisita(input){
 
 // ------------------------------------
 // ALERTAS AUTOMÁTICOS
+// ── CORRIGIDO: cada função usa seu próprio slot ──
 // ------------------------------------
+function verificarAniversariantes() {
+    const container = document.getElementById("slotAniversariantes");
+    if (!container) return;
+    const hoje = new Date();
+    const aniversariantes = membros.filter(m => {
+        if (!m.nascimento) return false;
+        const [,mes,dia] = m.nascimento.split("-").map(Number);
+        return dia === hoje.getDate() && mes === (hoje.getMonth()+1);
+    });
+    if (aniversariantes.length === 0) return;
+    container.innerHTML = aniversariantes.map(m => {
+        const fam = familias.find(f => f.id == m.familia_id);
+        const idade = hoje.getFullYear() - parseInt(m.nascimento.split("-")[0]);
+        return `<div style="background:#fffbeb;border:1px solid #f6ad55;border-left:5px solid #d69e2e;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;">
+            <span style="font-size:26px;flex-shrink:0;">🎂</span>
+            <div><strong>${m.nome}</strong> faz <strong>${idade} anos</strong> hoje!
+            ${fam ? `<span style="font-size:12px;color:#975a16;margin-left:6px;">🏠 Família ${fam.numeroFamilia}</span>` : ''}
+            </div></div>`;
+    }).join('');
+}
+
 function verificarAlertasAutomaticos() {
-    const container=document.getElementById("alertasAutomaticos");
-    if(!container)return;
-    const alertas=[];
-    const hoje=new Date();
-    const visitasMes=visitas.filter(v=>{
-        const d=new Date(v.data);
-        return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear()&&v.desfecho==="Visita Realizada";
+    const container = document.getElementById("slotAlertas");
+    if (!container) return;
+    const alertas = [];
+    const hoje = new Date();
+    const visitasMes = visitas.filter(v => {
+        const d = new Date(v.data);
+        return d.getMonth()===hoje.getMonth() && d.getFullYear()===hoje.getFullYear() && v.desfecho==="Visita Realizada";
     });
-    const famVisitadasMes=new Set(visitasMes.map(v=>String(v.familiaId)));
-    const gestantes=membros.filter(m=>m.gestante==="Sim");
-    gestantes.forEach(g=>{
-        if(!famVisitadasMes.has(String(g.familia_id))){
-            alertas.push({tipo:"danger",msg:`🤰 <strong>${g.nome}</strong> — Gestante sem visita este mês!`});
-        }
+    const famVisitadasMes = new Set(visitasMes.map(v => String(v.familiaId)));
+    membros.filter(m => m.gestante==="Sim").forEach(g => {
+        if (!famVisitadasMes.has(String(g.familia_id)))
+            alertas.push({tipo:"danger", msg:`🤰 <strong>${g.nome}</strong> — Gestante sem visita este mês!`});
     });
-    membros.filter(m=>m.doencas_lista?.includes("Acamado")||m.doencas_lista?.includes("Domiciliado")).forEach(m=>{
-        const vFam=visitas.filter(v=>v.familiaId==m.familia_id).sort((a,b)=>new Date(b.data)-new Date(a.data));
-        const ultima=vFam.length?new Date(vFam[0].data):null;
-        const dias=ultima?Math.floor((hoje-ultima)/(1000*60*60*24)):999;
-        if(dias>15){
-            alertas.push({tipo:"warning",msg:`🛏️ <strong>${m.nome}</strong> — ${m.doencas_lista.includes("Acamado")?"Acamado":"Domiciliado"} há ${dias>300?"muito tempo":dias+"d"} sem visita`});
-        }
+    membros.filter(m => m.doencas_lista?.includes("Acamado") || m.doencas_lista?.includes("Domiciliado")).forEach(m => {
+        const vFam = visitas.filter(v => v.familiaId==m.familia_id).sort((a,b) => new Date(b.data)-new Date(a.data));
+        const ultima = vFam.length ? new Date(vFam[0].data) : null;
+        const dias = ultima ? Math.floor((hoje-ultima)/(1000*60*60*24)) : 999;
+        if (dias > 15)
+            alertas.push({tipo:"warning", msg:`🛏️ <strong>${m.nome}</strong> — ${m.doencas_lista.includes("Acamado")?"Acamado":"Domiciliado"} há ${dias>300?"muito tempo":dias+"d"} sem visita`});
     });
-    membros.forEach(m=>{
-        if(!m.nascimento)return;
-        const nasc=new Date(m.nascimento);
-        const anos2=new Date(nasc); anos2.setFullYear(anos2.getFullYear()+2);
-        const diasPara2anos=Math.floor((anos2-hoje)/(1000*60*60*24));
-        if(diasPara2anos>=0&&diasPara2anos<=30){
-            alertas.push({tipo:"info",msg:`👶 <strong>${m.nome}</strong> — Completa 2 anos em ${diasPara2anos} dia(s). Sairá do grupo prioritário de crianças.`});
-        }
+    membros.forEach(m => {
+        if (!m.nascimento) return;
+        const nasc = new Date(m.nascimento);
+        const anos2 = new Date(nasc); anos2.setFullYear(anos2.getFullYear()+2);
+        const diasPara2anos = Math.floor((anos2-hoje)/(1000*60*60*24));
+        if (diasPara2anos >= 0 && diasPara2anos <= 30)
+            alertas.push({tipo:"info", msg:`👶 <strong>${m.nome}</strong> — Completa 2 anos em ${diasPara2anos} dia(s). Sairá do grupo prioritário de crianças.`});
     });
-    if(alertas.length===0){container.style.display="none";return;}
-    container.style.display="block";
-    container.innerHTML=`
-        <div style="background:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:16px;margin-bottom:20px;">
+    if (alertas.length === 0) return;
+    container.innerHTML = `
+        <div style="background:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:16px;">
             <h3 style="color:#c53030;margin-bottom:12px;">🔔 Alertas Automáticos (${alertas.length})</h3>
-            ${alertas.map(a=>`
+            ${alertas.map(a => `
                 <div style="padding:8px 12px;margin-bottom:8px;border-radius:6px;font-size:13px;
                     background:${a.tipo==="danger"?"#fff5f5":a.tipo==="warning"?"#fffbeb":"#ebf8ff"};
                     border-left:4px solid ${a.tipo==="danger"?"#e53e3e":a.tipo==="warning"?"#ed8936":"#3182ce"};">
                     ${a.msg}
                 </div>`).join('')}
+        </div>`;
+}
+
+function verificarVacinacaoPainel() {
+    const container = document.getElementById("slotVacinacao");
+    if (!container) return;
+    const hoje = new Date();
+    const VACINAS_CRIANCA  = ["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VIP (Pólio injetável)","VRH (Rotavírus)","Pneumo 10","Meningocócica C","Febre Amarela","Tríplice Viral (SCR)","VOP (Pólio oral)","DTP (reforço)","Varicela","Hepatite A"];
+    const VACINAS_GESTANTE = ["dTpa (Coqueluche)","Hepatite B","Influenza"];
+    const VACINAS_IDOSO    = ["Influenza (anual)","Pneumo 23","dT (dupla adulto)"];
+    const todasVac = JSON.parse(localStorage.getItem("vacinacao")) || {};
+    let totalPendentes = 0;
+    membros.forEach(m => {
+        const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
+        const vacLista = m.gestante==="Sim" ? VACINAS_GESTANTE : idade<15 ? VACINAS_CRIANCA : idade>=60 ? VACINAS_IDOSO : [];
+        if (vacLista.length === 0) return;
+        const vac = todasVac[m.id] || {};
+        if (vacLista.filter(v => !vac[v]).length > 0) totalPendentes++;
+    });
+    if (totalPendentes === 0) return;
+    container.innerHTML = `
+        <div style="background:#fff5f5;border:1px solid #fc8181;border-left:5px solid #e53e3e;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;">
+                <span style="font-size:26px;">💉</span>
+                <strong style="color:#742a2a;">${totalPendentes} cidadão(s) com vacinação pendente</strong>
+            </div>
+            <button onclick="window.location.href='vacinacao.html'" style="background:#e53e3e;color:white;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap;">Ver vacinação →</button>
         </div>`;
 }
 
@@ -1585,7 +1624,6 @@ function toggleTema() {
     showToast(novo === "escuro" ? "🌙 Modo escuro ativado" : "☀️ Modo claro ativado", "normal", 1800);
 }
 
-// alias usado no index.html
 function toggleTemaEscuro() { toggleTema(); }
 
 function injetarBotaoTema() {
@@ -1596,55 +1634,6 @@ function injetarBotaoTema() {
     btn.onclick = toggleTema;
     document.body.appendChild(btn);
     aplicarTema();
-}
-
-function verificarAniversariantes() {
-    const container = document.getElementById("alertasAutomaticos");
-    if (!container) return;
-    const hoje = new Date();
-    const aniversariantes = membros.filter(m => {
-        if (!m.nascimento) return false;
-        const [,mes,dia] = m.nascimento.split("-").map(Number);
-        return dia === hoje.getDate() && mes === (hoje.getMonth()+1);
-    });
-    if (aniversariantes.length === 0) return;
-    const bloco = document.createElement("div");
-    bloco.innerHTML = aniversariantes.map(m => {
-        const fam = familias.find(f => f.id == m.familia_id);
-        const idade = hoje.getFullYear() - parseInt(m.nascimento.split("-")[0]);
-        return `<div style="background:#fffbeb;border:1px solid #f6ad55;border-left:5px solid #d69e2e;border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px;">
-            <span style="font-size:26px;flex-shrink:0;">🎂</span>
-            <div><strong>${m.nome}</strong> faz <strong>${idade} anos</strong> hoje!
-            ${fam ? `<span style="font-size:12px;color:#975a16;margin-left:6px;">🏠 Família ${fam.numeroFamilia}</span>` : ''}
-            </div></div>`;
-    }).join('');
-    container.prepend(bloco);
-    container.style.display = "block";
-}
-
-function verificarVacinacaoPainel() {
-    const container = document.getElementById("alertasAutomaticos");
-    if (!container) return;
-    const hoje = new Date();
-    const VACINAS_CRIANCA  = ["BCG","Hepatite B","Pentavalente (DTP+Hib+HepB)","VIP (Pólio injetável)","VRH (Rotavírus)","Pneumo 10","Meningocócica C","Febre Amarela","Tríplice Viral (SCR)","VOP (Pólio oral)","DTP (reforço)","Varicela","Hepatite A"];
-    const VACINAS_GESTANTE = ["dTpa (Coqueluche)","Hepatite B","Influenza"];
-    const VACINAS_IDOSO    = ["Influenza (anual)","Pneumo 23","dT (dupla adulto)"];
-    const todasVac = JSON.parse(localStorage.getItem("vacinacao")) || {};
-    let totalPendentes = 0;
-    membros.forEach(m => {
-        const idade = m.nascimento ? Math.floor((hoje - new Date(m.nascimento)) / (1000*60*60*24*365.25)) : 99;
-        let vacLista = m.gestante==="Sim" ? VACINAS_GESTANTE : idade<15 ? VACINAS_CRIANCA : idade>=60 ? VACINAS_IDOSO : [];
-        if (vacLista.length === 0) return;
-        const vac = todasVac[m.id] || {};
-        if (vacLista.filter(v => !vac[v]).length > 0) totalPendentes++;
-    });
-    if (totalPendentes === 0) return;
-    const div = document.createElement("div");
-    div.style.cssText = "background:#fff5f5;border:1px solid #fc8181;border-left:5px solid #e53e3e;border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;";
-    div.innerHTML = `<div style="display:flex;align-items:center;gap:10px;flex:1;"><span style="font-size:26px;">💉</span><div><strong style="color:#742a2a;">${totalPendentes} cidadão(s) com vacinação pendente</strong></div></div>
-        <button onclick="window.location.href='vacinacao.html'" style="background:#e53e3e;color:white;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap;">Ver vacinação →</button>`;
-    container.appendChild(div);
-    container.style.display = "block";
 }
 
 function atualizarBadgeNotificacoes() {
@@ -1717,3 +1706,6 @@ function salvarCondicionalidade(familiaId, chave, valor) {
     todas[familiaId][chave] = valor;
     localStorage.setItem("condicionalidades", JSON.stringify(todas));
 }
+
+
+
