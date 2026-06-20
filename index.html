@@ -1,371 +1,153 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ACS Digital">
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>ACS Digital</title>
-<link rel="stylesheet" href="style.css" />
-<link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#1a365d" />
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACS Digital - Painel de Controle</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
-<!-- HAMBÚRGUER MOBILE -->
-<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="ph-bold ph-heart-beat"></i></div>
+                <div>
+                    <h1>ACS Digital</h1>
+                    <span class="subtitle">Microárea 03 - Guarda-Mor</span>
+                </div>
+            </div>
 
-<aside class="sidebar">
-  <div class="logo">💚 ACS Digital</div>
-  <nav>
-    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
-    <button onclick="window.location.href='notificacoes.html'" id="btn_notif" style="position:relative;">🔔 Notificações <span id="badgeNotif" style="display:none;background:#e53e3e;color:white;font-size:10px;font-weight:bold;border-radius:99px;padding:1px 6px;margin-left:4px;">0</span></button>
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Navegação Principal</span>
+                <a href="#" class="nav-item active"><i class="ph ph-house"></i> Dashboard</a>
+                <a href="#" class="nav-item"><i class="ph ph-users"></i> Famílias</a>
+                <a href="#" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
+                <a href="#" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
+                
+                <span class="nav-section-title">Atalhos Rápidos</span>
+                <a href="#" class="nav-item"><i class="ph ph-user-plus"></i> Novo Cadastro</a>
+                <a href="#" class="nav-item"><i class="ph ph-clipboard-text"></i> Ficha de Sintomas</a>
+            </nav>
 
-    <div class="nav-divisor"></div>
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
+                <div class="sync-status">
+                    <i class="ph-bold ph-cloud-check"></i>
+                    <span>Sincronizado (Offline)</span>
+                </div>
+            </div>
+        </aside>
 
-    <!-- CAMPO -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_campo" onclick="toggleGrupo('campo')"><span>📍 Campo</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_campo">
-        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
-        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
-        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
-      </div>
+        <main class="main-content">
+            
+            <header class="main-header">
+                <div class="welcome-zone">
+                    <h2>Bom dia, Gabi.</h2>
+                    <p class="current-date" id="live-date">Sábado, 20 de Junho</p>
+                </div>
+                <div class="search-zone">
+                    <i class="ph ph-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Busca rápida por nome, CPF ou rua..." class="search-input">
+                </div>
+            </header>
+
+            <section class="overview-section">
+                <div class="compact-card">
+                    <span class="card-label">Famílias</span>
+                    <span class="card-value">142</span>
+                    <span class="card-subtext positive">+2 este mês</span>
+                </div>
+                <div class="compact-card">
+                    <span class="card-label">Visitas Mês</span>
+                    <span class="card-value">45 <span class="goal">/ 150</span></span>
+                    <span class="card-subtext">Meta: 30% concluída</span>
+                </div>
+                <div class="compact-card">
+                    <span class="card-label">Gestantes</span>
+                    <span class="card-value">8</span>
+                    <span class="card-subtext highlight">2 no 3º trimestre</span>
+                </div>
+                <div class="compact-card">
+                    <span class="card-label">Pendências</span>
+                    <span class="card-value text-alert">5</span>
+                    <span class="card-subtext">Atualizar hoje</span>
+                </div>
+            </section>
+
+            <section class="priority-section">
+                <div class="section-header">
+                    <h3>Visitas Prioritárias</h3>
+                    <button class="btn-secondary"><i class="ph ph-plus"></i> Nova Visita</button>
+                </div>
+
+                <div class="priority-list">
+                    <div class="priority-item">
+                        <div class="item-left">
+                            <span class="badge-priority high"></span>
+                            <div class="patient-info">
+                                <span class="patient-condition">Gestante 3º Trimestre</span>
+                                <span class="patient-meta">Ana Silva — Rua A, 12</span>
+                            </div>
+                        </div>
+                        <button class="btn-action">Iniciar</button>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="item-left">
+                            <span class="badge-priority medium"></span>
+                            <div class="patient-info">
+                                <span class="patient-condition">Hipertenso - Atrasado</span>
+                                <span class="patient-meta">João Costa — Rua B, 44</span>
+                            </div>
+                        </div>
+                        <button class="btn-action">Iniciar</button>
+                    </div>
+
+                    <div class="priority-item">
+                        <div class="item-left">
+                            <span class="badge-priority low"></span>
+                            <div class="patient-info">
+                                <span class="patient-condition">Rotina Mensal</span>
+                                <span class="patient-meta">Maria José — Rua C, 10</span>
+                            </div>
+                        </div>
+                        <button class="btn-action">Iniciar</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="split-section">
+                <div class="split-block map-block">
+                    <h4>Contexto Geoespacial</h4>
+                    <div class="map-placeholder">
+                        <i class="ph ph-map-trifold"></i>
+                        <p>Exibindo 3 visitas prioritárias no raio atual</p>
+                    </div>
+                </div>
+                <div class="split-block indicators-block">
+                    <h4>Indicadores da Semana</h4>
+                    <ul class="indicator-ranking">
+                        <li>
+                            <span class="indicator-name">Vacinação Infantil</span>
+                            <span class="indicator-percent">90%</span>
+                        </li>
+                        <li>
+                            <span class="indicator-name">Controle Glicêmico</span>
+                            <span class="indicator-percent">75%</span>
+                        </li>
+                        <li>
+                            <span class="indicator-name">Pré-Natal Iniciado</span>
+                            <span class="indicator-percent">100%</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
     </div>
-
-    <!-- PESSOAS -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_pessoas" onclick="toggleGrupo('pessoas')"><span>👨‍👩‍👧 Pessoas</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_pessoas">
-        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
-        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
-        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
-        <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
-        <button onclick="window.location.href='receitas.html'">💊 Controle de Receitas</button>
-        <button onclick="window.location.href='bolsa_familia.html'">💰 Bolsa Família</button>
-      </div>
-    </div>
-
-    <!-- GESTÃO -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_gestao" onclick="toggleGrupo('gestao')"><span>📊 Gestão</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_gestao">
-        <button onclick="window.location.href='metas.html'">🎯 Metas e Grupos</button>
-        <button onclick="window.location.href='relatorios.html'">📈 Desempenho</button>
-        <button onclick="window.location.href='relatorios_mensal.html'">📊 Relatório Consolidado</button>
-        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
-        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
-        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
-        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
-      </div>
-    </div>
-
-    <div class="nav-divisor"></div>
-
-    <!-- CONFIGURAÇÕES -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_config">
-        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
-        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
-        <button onclick="window.location.href='pin.html'">🔒 Alterar PIN</button>
-      </div>
-    </div>
-  </nav>
-
-  <div class="user">
-    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
-    <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
-  </div>
-</aside>
-
-<main class="main" style="padding:0 0 90px;">
-
-  <!-- ── TOPBAR ── -->
-  <header class="home-header">
-    <div>
-      <div class="home-greeting" id="saudacao">Olá! 👋</div>
-      <div class="home-date" id="dataHoje">—</div>
-    </div>
-    <div class="home-header-actions">
-      <!-- Chip aniversariante: alertasAutomaticos injeta o conteúdo via JS, mantido como container -->
-      <div id="alertasAutomaticos" style="display:flex; align-items:center; gap:8px;"></div>
-
-      <!-- Busca global -->
-      <div style="position:relative;">
-        <button class="home-icon-btn" aria-label="Buscar" onclick="document.getElementById('buscaWrap').classList.toggle('visivel')">🔍</button>
-        <div id="buscaWrap" style="display:none;position:absolute;right:0;top:44px;width:300px;z-index:999;">
-          <input type="text" id="inputBuscaGlobal" placeholder="Buscar família ou cidadão..."
-            oninput="buscaGlobal(this.value)"
-            style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,0.12);box-sizing:border-box;">
-          <div id="resultadoBuscaGlobal" onmousedown="event.preventDefault()"
-            style="background:white;border:1px solid #e2e8f0;border-radius:10px;margin-top:4px;max-height:300px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
-        </div>
-      </div>
-
-      <!-- Tema escuro -->
-      <button id="btnTemaEscuro" class="home-icon-btn" aria-label="Alternar tema" onclick="toggleTemaEscuro()">🌙</button>
-
-      <!-- Notificações -->
-      <a href="notificacoes.html" class="home-icon-btn" aria-label="Notificações">
-        🔔<span id="badgeNotif" style="display:none;position:absolute;top:4px;right:4px;background:#e53e3e;color:white;font-size:9px;font-weight:800;border-radius:99px;min-width:16px;height:16px;padding:0 3px;line-height:16px;text-align:center;">0</span>
-      </a>
-    </div>
-  </header>
-
-  <!-- ── ALERTAS DISCRETOS (backup) ── -->
-  <div id="alertasTopBar" style="padding:0 16px 12px;display:flex;flex-direction:column;gap:6px;"></div>
-
-  <!-- ── PERCURSO DO DIA ── -->
-  <div class="home-percurso-card">
-    <div class="home-percurso-top">
-      <span class="home-percurso-label">🚶 Percurso de hoje</span>
-      <span class="home-percurso-count" id="metaFracao">— de — famílias</span>
-    </div>
-    <div class="home-percurso-bar-track">
-      <div id="metaBarra" class="home-percurso-bar-fill" style="width:0%;"></div>
-    </div>
-    <button class="home-btn-iniciar" onclick="window.location.href='percurso.html'">▶ Iniciar percurso</button>
-    <div style="display:flex; justify-content:space-between; margin-top:10px;">
-      <div style="font-size:11px;color:#a0aec0;" id="metaAlerta">—</div>
-      <div style="font-size:11px;font-weight:800;" id="metaPorcentagem">—%</div>
-    </div>
-    <div id="metaCountdown" style="display:none;"></div>
-  </div>
-
-  <!-- ── MINI RESUMO 3 NÚMEROS ── -->
-  <div class="home-resumo-grid">
-    <div class="home-resumo-item" onclick="window.location.href='visitas_lista.html'" role="button">
-      <div class="home-resumo-valor" style="color:#22543d;" id="miniVisitasHoje">0</div>
-      <div class="home-resumo-label">Hoje</div>
-    </div>
-    <div class="home-resumo-item" onclick="window.location.href='pendencias.html'" role="button">
-      <div class="home-resumo-valor" style="color:#744210;" id="miniPendencias">0</div>
-      <div class="home-resumo-label">Pendências</div>
-    </div>
-    <div class="home-resumo-item">
-      <div class="home-resumo-valor" style="color:#2b6cb0;" id="miniFamiliasAtivas">0</div>
-      <div class="home-resumo-label">Fam. ativas</div>
-    </div>
-  </div>
-
-  <!-- ── ATENÇÃO URGENTE + COLUNA LATERAL ── -->
-  <div class="home-grid-2">
-
-    <!-- Card vermelho: Busca Ativa (a lista é a mesma que script.js já preenche via carregarBuscaAtiva) -->
-    <div class="home-urgente-card" onclick="window.location.href='familias_lista.html'">
-      <div class="home-urgente-header">
-        <span class="home-urgente-title">🚨 Atenção urgente</span>
-      </div>
-      <ul id="listaBuscaAtiva" class="home-urgente-lista"></ul>
-      <button class="home-urgente-ver-todos" onclick="event.stopPropagation(); window.location.href='familias_lista.html'">Ver todas →</button>
-    </div>
-
-    <!-- Coluna lateral: pendências (resumo), e atalho para metas -->
-    <div class="home-side-stack">
-      <div class="home-metric-card">
-        <div class="home-metric-label">Pendências</div>
-        <div class="home-metric-value" id="resumoPendencias">—</div>
-      </div>
-      <a href="metas.html" class="home-nav-card">
-        <span>🎯 Metas e grupos</span>
-        <span>›</span>
-      </a>
-      <a href="relatorios.html" class="home-nav-card">
-        <span>📈 Desempenho</span>
-        <span>›</span>
-      </a>
-    </div>
-
-  </div>
-
-  <!-- listaPendencias e listaPrioridades seguem existindo no DOM (ocultos),
-       pois script.js pode referenciar esses IDs em outras funções.
-       Caso confirmem que nada além da Home os usa, podem ser removidos com segurança. -->
-  <div id="listaPendencias" style="display:none;"></div>
-  <ul id="listaPrioridades" style="display:none;"></ul>
-
-  <!-- ── ATALHOS RÁPIDOS ── -->
-  <div class="home-shortcuts-grid">
-    <a href="visitas.html" class="home-shortcut"><span class="home-shortcut-icon">➕</span>Nova visita</a>
-    <a href="familias_lista.html" class="home-shortcut"><span class="home-shortcut-icon">👥</span>Famílias</a>
-    <a href="mapa.html" class="home-shortcut"><span class="home-shortcut-icon">🗺️</span>Mapa</a>
-    <a href="relatorios.html" class="home-shortcut"><span class="home-shortcut-icon">📈</span>Desempenho</a>
-  </div>
-
-</main>
-
-<!-- CSS TEMA ESCURO (mantido do original) -->
-<style>
-body.tema-escuro { background:#1a202c !important; color:#e2e8f0 !important; }
-body.tema-escuro .main { background:#1a202c; }
-body.tema-escuro .box, body.tema-escuro .card { background:#2d3748 !important; color:#e2e8f0 !important; }
-body.tema-escuro h1, body.tema-escuro h2, body.tema-escuro h3 { color:#e2e8f0 !important; }
-body.tema-escuro p, body.tema-escuro span, body.tema-escuro label { color:#a0aec0; }
-body.tema-escuro strong, body.tema-escuro b { color:#e2e8f0; }
-body.tema-escuro input, body.tema-escuro select { background:#4a5568; color:#e2e8f0; border-color:#718096; }
-body.tema-escuro .bottom-nav { background:#2d3748; border-top:1px solid #4a5568; }
-body.tema-escuro .bottom-nav .nav-item { color:#a0aec0; }
-body.tema-escuro .bottom-nav .nav-item.active { color:#63b3ed; }
-body.tema-escuro [style*="background:white"] { background:#2d3748 !important; }
-body.tema-escuro [style*="color:#1a365d"] { color:#e2e8f0 !important; }
-body.tema-escuro [style*="color:#4a5568"] { color:#a0aec0 !important; }
-body.tema-escuro [style*="color:#718096"] { color:#718096 !important; }
-body.tema-escuro [style*="color:#2c5282"] { color:#90cdf4 !important; }
-</style>
-
-<script src="script.js?v=3"></script>
-
-<!-- Sentinela: impede o script.js de injetar o botão de tema duplicado -->
-<div id="btnToggleTema" style="display:none;" aria-hidden="true"></div>
-
-<script>
-// ── DATA E SAUDAÇÃO ──
-(function() {
-  const h = new Date().getHours();
-  const saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
-  const perfil = JSON.parse(localStorage.getItem('acsPerfil')) || {};
-  const primeiroNome = (perfil.nome || 'Gabriela').split(' ')[0];
-  const el = document.getElementById('saudacao');
-  if (el) el.textContent = `${saud}, ${primeiroNome}! ${h < 12 ? '☀️' : h < 18 ? '👋' : '🌙'}`;
-  const data = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
-  const elD = document.getElementById('dataHoje');
-  if (elD) elD.textContent = data.charAt(0).toUpperCase() + data.slice(1);
-})();
-
-// Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
-}
-
-// ── ALERTAS DISCRETOS (backup) ──
-(function gerarAlertasTopBar() {
-  const container = document.getElementById('alertasTopBar');
-  if (!container) return;
-  const alertas = [];
-  const hoje = new Date().toISOString().split('T')[0];
-  const dispensado = localStorage.getItem('backupDispensado');
-
-  if (dispensado !== hoje) {
-    const ub = localStorage.getItem('ultimoBackup');
-    const temDados = localStorage.getItem('familias');
-    if (temDados && JSON.parse(temDados).length > 0) {
-      if (!ub) {
-        alertas.push({ icone:'💾', texto:'Você nunca fez backup dos dados.', cor:'#744210', bg:'#fffbeb', acao:`window.location.href='configuracoes.html'`, label:'Fazer backup', id:'backup' });
-      } else {
-        const dias = Math.floor((new Date() - new Date(ub)) / 86400000);
-        if (dias >= 7) alertas.push({ icone:'💾', texto:`Backup há ${dias} dias.`, cor:'#744210', bg:'#fffbeb', acao:`window.location.href='configuracoes.html'`, label:'Fazer backup', id:'backup' });
-      }
-    }
-  }
-
-  container.innerHTML = alertas.map(a => `
-    <div style="display:flex;align-items:center;gap:10px;background:${a.bg};border-radius:10px;padding:10px 14px;border:1px solid rgba(0,0,0,0.06);">
-      <span style="font-size:18px;">${a.icone}</span>
-      <span style="flex:1;font-size:12px;font-weight:600;color:${a.cor};">${a.texto}</span>
-      <button onclick="${a.acao}" style="background:${a.cor};color:white;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">${a.label}</button>
-      <button onclick="localStorage.setItem('backupDispensado','${hoje}');this.parentElement.remove()" style="background:none;border:none;color:#a0aec0;cursor:pointer;font-size:16px;padding:0 2px;">×</button>
-    </div>`).join('');
-})();
-
-// ── MINI RESUMO ──
-function atualizarMiniResumo() {
-  const hoje = new Date().toISOString().split('T')[0];
-  const _vis = JSON.parse(localStorage.getItem('visitas') || '[]');
-  const visitasHoje = _vis.filter(v => v.data === hoje && v.desfecho === 'Visita Realizada').length;
-
-  let pend = 0;
-  _vis.forEach(v => {
-    ['pendenciaReceita','pendenciaMarcacao','pendenciaPreventivo','pendenciaEcg'].forEach(c => {
-      if (v[c] && (v['status_'+c]||'aberta')==='aberta') pend++;
-    });
-  });
-
-  const mes = new Date();
-  const famAtivas = new Set(_vis.filter(v => {
-    const d = new Date(v.data);
-    return d.getMonth()===mes.getMonth() && d.getFullYear()===mes.getFullYear() && v.desfecho==='Visita Realizada';
-  }).map(v => v.familiaId)).size;
-
-  const el = id => document.getElementById(id);
-  if (el('miniVisitasHoje')) el('miniVisitasHoje').textContent = visitasHoje;
-  if (el('miniPendencias')) el('miniPendencias').textContent = pend;
-  if (el('miniFamiliasAtivas')) el('miniFamiliasAtivas').textContent = famAtivas;
-
-  // Resumo de pendências na coluna lateral (novo elemento da Home reformulada)
-  const resumoEl = el('resumoPendencias');
-  if (resumoEl) resumoEl.textContent = pend;
-}
-
-// ── BUSCA ATIVA (mesma lógica original, agora populando o card "Atenção urgente") ──
-function carregarBuscaAtiva() {
-  const listaUI = document.getElementById('listaBuscaAtiva');
-  if (!listaUI) return;
-  const _fam = JSON.parse(localStorage.getItem('familias') || '[]');
-  const _vis = JSON.parse(localStorage.getItem('visitas') || '[]');
-
-  const ranking = _fam.map(f => {
-    const vF = _vis.filter(v => v.familiaId == f.id).sort((a,b) => new Date(b.data)-new Date(a.data));
-    const ul = vF.length ? new Date(vF[0].data) : null;
-    const atraso = ul ? Math.ceil(Math.abs(new Date()-ul)/86400000) : 9999;
-    return { id:f.id, nome:f.responsavel, numero:f.numeroFamilia, atraso, dataStr: ul ? ul.toLocaleDateString('pt-BR') : 'Nunca' };
-  }).sort((a,b) => b.atraso - a.atraso).slice(0, 3);
-
-  listaUI.innerHTML = ranking.map(f => {
-    let cor, badgeTxt;
-    if (f.atraso >= 9999 || f.atraso > 30) { cor='#742a2a'; badgeTxt=f.atraso>=9999?'Nunca':f.atraso+'d'; }
-    else if (f.atraso > 15) { cor='#744210'; badgeTxt=f.atraso+'d'; }
-    else { cor='#2b6cb0'; badgeTxt=f.atraso+'d'; }
-
-    return `
-      <li class="home-urgente-item" onclick="event.stopPropagation(); abrirFamilia(${f.id})">
-        <span>Fam. ${f.numero} — ${f.nome}</span>
-        <span class="home-urgente-item-dias" style="color:${cor};">${badgeTxt}</span>
-      </li>`;
-  }).join('');
-}
-
-// ── TEMA ESCURO ──
-function toggleTemaEscuro() {
-  const ativo = document.body.classList.toggle('tema-escuro');
-  localStorage.setItem('temaEscuro', ativo?'1':'0');
-  const btn = document.getElementById('btnTemaEscuro');
-  if (btn) btn.textContent = ativo ? '☀️' : '🌙';
-}
-
-// ── FECHAR BUSCA AO CLICAR FORA ──
-document.addEventListener('click', e => {
-  const wrap = document.getElementById('buscaWrap');
-  if (wrap && !e.target.closest('#buscaWrap') && !e.target.closest('[onclick*="buscaWrap"]')) {
-    wrap.style.display = 'none';
-  }
-});
-
-// ── LOAD ──
-window.addEventListener('load', () => {
-  atualizarMiniResumo();
-  if (localStorage.getItem('temaEscuro') === '1') {
-    document.body.classList.add('tema-escuro');
-    const btn = document.getElementById('btnTemaEscuro');
-    if (btn) btn.textContent = '☀️';
-  }
-});
-</script>
-
-<nav class="bottom-nav no-print">
-  <a href="index.html" class="nav-item active">🏠<span>Início</span></a>
-  <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
-  <a href="visitas.html" class="nav-item" style="position:relative;">
-    <span style="background:#e53e3e;color:white;font-size:20px;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-18px;box-shadow:0 4px 12px rgba(229,62,62,0.4);">➕</span>
-    <span>Nova visita</span>
-  </a>
-  <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
-</nav>
 
 </body>
 </html>
