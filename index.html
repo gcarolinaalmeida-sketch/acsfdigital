@@ -9,440 +9,8 @@
 <title>ACS Digital</title>
 <link rel="stylesheet" href="style.css" />
 <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#ffffff" />
+<meta name="theme-color" content="#1a365d" />
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" />
-<style>
-/* ── RESET CLEAN ── */
-* { box-sizing: border-box; }
-
-/* ── TOPBAR ── */
-.topbar-clean {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 18px 12px;
-  gap: 12px;
-  background: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-body.tema-escuro .topbar-clean {
-  background: #1a202c;
-  border-bottom-color: #2d3748;
-}
-
-.topbar-clean .saudacao-txt {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a202c;
-  line-height: 1.2;
-}
-
-body.tema-escuro .topbar-clean .saudacao-txt { color: #e2e8f0; }
-
-.topbar-clean .data-txt {
-  font-size: 12px;
-  color: #a0aec0;
-  margin-top: 2px;
-}
-
-.topbar-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.icon-btn-clean {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid #e8e8e8;
-  background: #fafafa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  cursor: pointer;
-  position: relative;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-
-.icon-btn-clean:hover { background: #f0f0f0; }
-
-body.tema-escuro .icon-btn-clean {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-
-/* ── STATS ── */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding: 16px 16px 0;
-}
-
-.stat-card-clean {
-  background: #fff;
-  border: 1px solid #f0f0f0;
-  border-radius: 12px;
-  padding: 14px 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-
-.stat-card-clean:hover { border-color: #d0d0d0; }
-
-body.tema-escuro .stat-card-clean {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-
-.stat-val {
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.stat-val.verde { color: #22543d; }
-.stat-val.laranja { color: #744210; }
-.stat-val.azul { color: #2b6cb0; }
-
-.stat-lbl {
-  font-size: 10px;
-  font-weight: 700;
-  color: #a0aec0;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  margin-top: 4px;
-}
-
-/* ── ALERTA ── */
-.alerta-clean {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fffbeb;
-  border: 1px solid #f6e05e;
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin: 14px 16px 0;
-  font-size: 12px;
-  font-weight: 600;
-  color: #744210;
-}
-
-.alerta-clean .alerta-acao {
-  background: #744210;
-  color: white;
-  border: none;
-  border-radius: 7px;
-  padding: 5px 11px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  margin-left: auto;
-}
-
-.alerta-fechar {
-  background: none;
-  border: none;
-  color: #a0aec0;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 0 2px;
-  line-height: 1;
-}
-
-/* ── CARD PAINEL ── */
-.painel-card {
-  background: #fff;
-  border: 1px solid #f0f0f0;
-  border-radius: 14px;
-  padding: 16px;
-  margin: 14px 16px 0;
-}
-
-body.tema-escuro .painel-card {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-
-.painel-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.painel-card-titulo {
-  font-size: 13px;
-  font-weight: 700;
-  color: #2c5282;
-}
-
-body.tema-escuro .painel-card-titulo { color: #90cdf4; }
-
-.painel-card-link {
-  font-size: 11px;
-  font-weight: 700;
-  color: #a0aec0;
-  text-decoration: none;
-}
-
-.painel-card-link:hover { color: #718096; }
-
-/* ── META BARRA ── */
-.meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.meta-subtitulo {
-  font-size: 11px;
-  color: #a0aec0;
-  margin-top: 1px;
-}
-
-.meta-pct {
-  font-size: 28px;
-  font-weight: 800;
-  color: #1a202c;
-}
-
-body.tema-escuro .meta-pct { color: #e2e8f0; }
-
-.meta-track {
-  background: #edf2f7;
-  border-radius: 999px;
-  height: 6px;
-  overflow: hidden;
-}
-
-body.tema-escuro .meta-track { background: #4a5568; }
-
-.meta-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: #38a169;
-  width: 0%;
-  transition: width 0.8s cubic-bezier(.4,0,.2,1);
-}
-
-.meta-footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 7px;
-}
-
-.meta-hint { font-size: 11px; color: #a0aec0; }
-
-/* ── BUSCA ATIVA ── */
-.busca-item {
-  padding: 10px 0;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-body.tema-escuro .busca-item { border-bottom-color: #4a5568; }
-
-.busca-item:last-child { border-bottom: none; }
-
-.busca-item-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.busca-item-nome {
-  font-size: 13px;
-  font-weight: 700;
-  color: #2c5282;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-  min-width: 0;
-}
-
-body.tema-escuro .busca-item-nome { color: #90cdf4; }
-
-.busca-item-sub {
-  font-size: 11px;
-  color: #a0aec0;
-  margin-top: 2px;
-}
-
-.busca-btns {
-  display: flex;
-  gap: 6px;
-  margin-top: 7px;
-}
-
-.busca-btn {
-  flex: 1;
-  background: #f7fafc;
-  color: #2c5282;
-  border: 1px solid #e8e8e8;
-  padding: 7px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.busca-btn:hover { background: #edf2f7; }
-
-body.tema-escuro .busca-btn {
-  background: #4a5568;
-  border-color: #718096;
-  color: #e2e8f0;
-}
-
-/* ── GRUPOS PRIORITÁRIOS ── */
-.prio-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 0;
-  border-bottom: 1px solid #f5f5f5;
-  font-size: 13px;
-}
-
-body.tema-escuro .prio-item { border-bottom-color: #4a5568; }
-
-.prio-item:last-child { border-bottom: none; }
-
-/* ── ESTATÍSTICAS ── */
-.estat-card {
-  border-radius: 10px;
-  padding: 12px;
-  text-align: center;
-}
-
-.estat-lbl {
-  font-size: 10px;
-  color: #a0aec0;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.estat-val {
-  font-size: 24px;
-  font-weight: 800;
-}
-
-/* ── ANIVERSARIANTES ── */
-.aniv-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-body.tema-escuro .aniv-card { border-bottom-color: #4a5568; }
-
-.aniv-card:last-child { border-bottom: none; }
-
-.aniv-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #e6fffa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: #234e52;
-  flex-shrink: 0;
-}
-
-.aniv-nome {
-  font-size: 13px;
-  font-weight: 700;
-  color: #2c5282;
-}
-
-body.tema-escuro .aniv-nome { color: #90cdf4; }
-
-.aniv-sub {
-  font-size: 11px;
-  color: #a0aec0;
-  margin-top: 2px;
-}
-
-.aniv-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 10px;
-  font-weight: 700;
-  background: #fffbeb;
-  color: #744210;
-  border-radius: 99px;
-  padding: 2px 8px;
-  margin-top: 3px;
-}
-
-/* ── GRÁFICO CARD ── */
-.grafico-card {
-  background: #fff;
-  border: 1px solid #f0f0f0;
-  border-radius: 14px;
-  padding: 16px;
-  margin: 14px 16px 0;
-}
-
-body.tema-escuro .grafico-card {
-  background: #2d3748;
-  border-color: #4a5568;
-}
-
-/* ── BUSCA GLOBAL ── */
-.busca-global-wrap {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 44px;
-  width: 300px;
-  z-index: 999;
-}
-
-.busca-global-wrap.visivel { display: block; }
-
-.busca-input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
-  box-sizing: border-box;
-}
-
-/* ── TEMA ESCURO base ── */
-body.tema-escuro { background: #1a202c !important; color: #e2e8f0 !important; }
-body.tema-escuro .main { background: #1a202c; }
-body.tema-escuro .alerta-clean { background: #2d3748; border-color: #744210; }
-body.tema-escuro .stat-card-clean:hover { border-color: #718096; }
-body.tema-escuro .meta-track { background: #4a5568; }
-body.tema-escuro .bottom-nav { background: #2d3748; border-top: 1px solid #4a5568; }
-body.tema-escuro .bottom-nav .nav-item { color: #a0aec0; }
-body.tema-escuro .bottom-nav .nav-item.active { color: #63b3ed; }
-body.tema-escuro .icon-btn-clean:hover { background: #4a5568; }
-body.tema-escuro .busca-input { background: #2d3748; color: #e2e8f0; border-color: #4a5568; }
-</style>
 </head>
 <body>
 
@@ -455,43 +23,49 @@ body.tema-escuro .busca-input { background: #2d3748; color: #e2e8f0; border-colo
   <nav>
     <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
     <button onclick="window.location.href='notificacoes.html'" id="btn_notif" style="position:relative;">🔔 Notificações <span id="badgeNotif" style="display:none;background:#e53e3e;color:white;font-size:10px;font-weight:bold;border-radius:99px;padding:1px 6px;margin-left:4px;">0</span></button>
+
     <div class="nav-divisor"></div>
+
+    <!-- CAMPO -->
     <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')"><span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_familias">
-        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
-        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
-        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
-        <button onclick="window.location.href='receitas.html'">💊 Controle de Receitas</button>
-        <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
-        <button onclick="window.location.href='bolsa_familia.html'">💰 Bolsa Família</button>
-      </div>
-    </div>
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')"><span>📅 Visitas</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_visitas">
-        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
-        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
-        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
-      </div>
-    </div>
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')"><span>📊 Relatórios e Metas</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_relatorios">
-        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
-        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
-      </div>
-    </div>
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_planejamento">
-        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
-        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
+      <button class="nav-grupo-btn" id="btn_campo" onclick="toggleGrupo('campo')"><span>📍 Campo</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_campo">
         <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
+        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
         <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
       </div>
     </div>
+
+    <!-- PESSOAS -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_pessoas" onclick="toggleGrupo('pessoas')"><span>👨‍👩‍👧 Pessoas</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_pessoas">
+        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
+        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
+        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
+        <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
+        <button onclick="window.location.href='receitas.html'">💊 Controle de Receitas</button>
+        <button onclick="window.location.href='bolsa_familia.html'">💰 Bolsa Família</button>
+      </div>
+    </div>
+
+    <!-- GESTÃO -->
+    <div class="nav-grupo">
+      <button class="nav-grupo-btn" id="btn_gestao" onclick="toggleGrupo('gestao')"><span>📊 Gestão</span><span class="seta">›</span></button>
+      <div class="nav-submenu" id="sub_gestao">
+        <button onclick="window.location.href='metas.html'">🎯 Metas e Grupos</button>
+        <button onclick="window.location.href='relatorios.html'">📈 Desempenho</button>
+        <button onclick="window.location.href='relatorios_mensal.html'">📊 Relatório Consolidado</button>
+        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
+        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
+        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
+        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
+      </div>
+    </div>
+
     <div class="nav-divisor"></div>
+
+    <!-- CONFIGURAÇÕES -->
     <div class="nav-grupo">
       <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
       <div class="nav-submenu" id="sub_config">
@@ -501,6 +75,7 @@ body.tema-escuro .busca-input { background: #2d3748; color: #e2e8f0; border-colo
       </div>
     </div>
   </nav>
+
   <div class="user">
     <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
     <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
@@ -509,127 +84,142 @@ body.tema-escuro .busca-input { background: #2d3748; color: #e2e8f0; border-colo
 
 <main class="main" style="padding:0 0 90px;">
 
-  <!-- ── TOPBAR CLEAN ── -->
-  <header class="topbar-clean">
+  <!-- ── TOPBAR ── -->
+  <header class="home-header">
     <div>
-      <div class="saudacao-txt" id="saudacao">Olá!</div>
-      <div class="data-txt" id="dataHoje">—</div>
+      <div class="home-greeting" id="saudacao">Olá! 👋</div>
+      <div class="home-date" id="dataHoje">—</div>
     </div>
-    <div class="topbar-actions">
+    <div class="home-header-actions">
+      <!-- Chip aniversariante: alertasAutomaticos injeta o conteúdo via JS, mantido como container -->
+      <div id="alertasAutomaticos" style="display:flex; align-items:center; gap:8px;"></div>
+
       <!-- Busca global -->
       <div style="position:relative;">
-        <button onclick="document.getElementById('buscaWrap').classList.toggle('visivel')"
-          class="icon-btn-clean" aria-label="Buscar">🔍</button>
-        <div id="buscaWrap" class="busca-global-wrap">
+        <button class="home-icon-btn" aria-label="Buscar" onclick="document.getElementById('buscaWrap').classList.toggle('visivel')">🔍</button>
+        <div id="buscaWrap" style="display:none;position:absolute;right:0;top:44px;width:300px;z-index:999;">
           <input type="text" id="inputBuscaGlobal" placeholder="Buscar família ou cidadão..."
             oninput="buscaGlobal(this.value)"
-            class="busca-input">
+            style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,0.12);box-sizing:border-box;">
           <div id="resultadoBuscaGlobal" onmousedown="event.preventDefault()"
-            style="background:white;border:1px solid #e2e8f0;border-radius:10px;margin-top:4px;max-height:300px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.10);"></div>
+            style="background:white;border:1px solid #e2e8f0;border-radius:10px;margin-top:4px;max-height:300px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
         </div>
       </div>
+
       <!-- Tema escuro -->
-      <button id="btnTemaEscuro" onclick="toggleTemaEscuro()" class="icon-btn-clean" aria-label="Alternar tema">🌙</button>
+      <button id="btnTemaEscuro" class="home-icon-btn" aria-label="Alternar tema" onclick="toggleTemaEscuro()">🌙</button>
+
       <!-- Notificações -->
-      <a href="notificacoes.html" class="icon-btn-clean" aria-label="Notificações" style="position:relative;">
-        🔔<span id="badgeNotifTop" style="display:none;position:absolute;top:5px;right:5px;width:7px;height:7px;background:#e53e3e;border-radius:50%;"></span>
+      <a href="notificacoes.html" class="home-icon-btn" aria-label="Notificações">
+        🔔<span id="badgeNotif" style="display:none;position:absolute;top:4px;right:4px;background:#e53e3e;color:white;font-size:9px;font-weight:800;border-radius:99px;min-width:16px;height:16px;padding:0 3px;line-height:16px;text-align:center;">0</span>
       </a>
     </div>
   </header>
 
-  <!-- ── MINI RESUMO 3 NÚMEROS ── -->
-  <div class="stats-grid">
-    <div class="stat-card-clean" onclick="window.location.href='visitas_lista.html'" role="button">
-      <div class="stat-val verde" id="miniVisitasHoje">0</div>
-      <div class="stat-lbl">Hoje</div>
-    </div>
-    <div class="stat-card-clean" onclick="window.location.href='pendencias.html'" role="button">
-      <div class="stat-val laranja" id="miniPendencias">0</div>
-      <div class="stat-lbl">Pendências</div>
-    </div>
-    <div class="stat-card-clean">
-      <div class="stat-val azul" id="miniFamiliasAtivas">0</div>
-      <div class="stat-lbl">Fam. ativas</div>
-    </div>
-  </div>
+  <!-- ── ALERTAS DISCRETOS (backup) ── -->
+  <div id="alertasTopBar" style="padding:0 16px 12px;display:flex;flex-direction:column;gap:6px;"></div>
 
-  <!-- ── ALERTAS DISCRETOS ── -->
-  <div id="alertasTopBar"></div>
-
-  <!-- ── BARRA DE META ── -->
-  <div class="painel-card">
-    <div class="meta-row">
-      <div>
-        <div class="painel-card-titulo">🎯 Meta do mês</div>
-        <div class="meta-subtitulo" id="metaFracao">— de — famílias</div>
-      </div>
-      <div class="meta-pct" id="metaPorcentagem">—%</div>
+  <!-- ── PERCURSO DO DIA ── -->
+  <div class="home-percurso-card">
+    <div class="home-percurso-top">
+      <span class="home-percurso-label">🚶 Percurso de hoje</span>
+      <span class="home-percurso-count" id="metaFracao">— de — famílias</span>
     </div>
-    <div class="meta-track">
-      <div class="meta-fill" id="metaBarra"></div>
+    <div class="home-percurso-bar-track">
+      <div id="metaBarra" class="home-percurso-bar-fill" style="width:0%;"></div>
     </div>
-    <div class="meta-footer">
-      <div class="meta-hint" id="metaAlerta">—</div>
-      <a href="metas.html" class="painel-card-link" style="color:#2b6cb0;">Ver metas →</a>
+    <button class="home-btn-iniciar" onclick="window.location.href='percurso.html'">▶ Iniciar percurso</button>
+    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+      <div style="font-size:11px;color:#a0aec0;" id="metaAlerta">—</div>
+      <div style="font-size:11px;font-weight:800;" id="metaPorcentagem">—%</div>
     </div>
     <div id="metaCountdown" style="display:none;"></div>
   </div>
 
-  <!-- ── ANIVERSARIANTES ── -->
-  <div id="alertasAutomaticos"></div>
-
-  <!-- ── BUSCA ATIVA ── -->
-  <div class="painel-card">
-    <div class="painel-card-header">
-      <div class="painel-card-titulo">🚨 Busca Ativa</div>
-      <a href="familias_lista.html" class="painel-card-link">Ver todas →</a>
+  <!-- ── MINI RESUMO 3 NÚMEROS ── -->
+  <div class="home-resumo-grid">
+    <div class="home-resumo-item" onclick="window.location.href='visitas_lista.html'" role="button">
+      <div class="home-resumo-valor" style="color:#22543d;" id="miniVisitasHoje">0</div>
+      <div class="home-resumo-label">Hoje</div>
     </div>
-    <ul id="listaBuscaAtiva" style="list-style:none;margin:0;padding:0;"></ul>
+    <div class="home-resumo-item" onclick="window.location.href='pendencias.html'" role="button">
+      <div class="home-resumo-valor" style="color:#744210;" id="miniPendencias">0</div>
+      <div class="home-resumo-label">Pendências</div>
+    </div>
+    <div class="home-resumo-item">
+      <div class="home-resumo-valor" style="color:#2b6cb0;" id="miniFamiliasAtivas">0</div>
+      <div class="home-resumo-label">Fam. ativas</div>
+    </div>
   </div>
 
-  <!-- ── GRUPOS PRIORITÁRIOS ── -->
-  <div class="painel-card">
-    <div class="painel-card-header">
-      <div class="painel-card-titulo">🩺 Grupos Prioritários</div>
-      <a href="metas.html" class="painel-card-link">Metas →</a>
+  <!-- ── ATENÇÃO URGENTE + COLUNA LATERAL ── -->
+  <div class="home-grid-2">
+
+    <!-- Card vermelho: Busca Ativa (a lista é a mesma que script.js já preenche via carregarBuscaAtiva) -->
+    <div class="home-urgente-card" onclick="window.location.href='familias_lista.html'">
+      <div class="home-urgente-header">
+        <span class="home-urgente-title">🚨 Atenção urgente</span>
+      </div>
+      <ul id="listaBuscaAtiva" class="home-urgente-lista"></ul>
+      <button class="home-urgente-ver-todos" onclick="event.stopPropagation(); window.location.href='familias_lista.html'">Ver todas →</button>
     </div>
-    <ul class="list" id="listaPrioridades" style="margin:0;padding:0;"></ul>
+
+    <!-- Coluna lateral: pendências (resumo), e atalho para metas -->
+    <div class="home-side-stack">
+      <div class="home-metric-card">
+        <div class="home-metric-label">Pendências</div>
+        <div class="home-metric-value" id="resumoPendencias">—</div>
+      </div>
+      <a href="metas.html" class="home-nav-card">
+        <span>🎯 Metas e grupos</span>
+        <span>›</span>
+      </a>
+      <a href="relatorios.html" class="home-nav-card">
+        <span>📈 Desempenho</span>
+        <span>›</span>
+      </a>
+    </div>
+
   </div>
 
-  <!-- ── PENDÊNCIAS ── -->
-  <div class="painel-card">
-    <div class="painel-card-header">
-      <div class="painel-card-titulo" style="color:#744210;">⚠️ Pendências</div>
-      <a href="pendencias.html" class="painel-card-link">Ver todas →</a>
-    </div>
-    <div style="font-size:12px;color:#a0aec0;margin-bottom:10px;" id="resumoPendencias">—</div>
-    <div id="listaPendencias"></div>
-  </div>
+  <!-- listaPendencias e listaPrioridades seguem existindo no DOM (ocultos),
+       pois script.js pode referenciar esses IDs em outras funções.
+       Caso confirmem que nada além da Home os usa, podem ser removidos com segurança. -->
+  <div id="listaPendencias" style="display:none;"></div>
+  <ul id="listaPrioridades" style="display:none;"></ul>
 
-  <!-- ── ESTATÍSTICAS ── -->
-  <div class="painel-card">
-    <div class="painel-card-header">
-      <div class="painel-card-titulo">📈 Suas Estatísticas</div>
-      <select id="periodoEstat" onchange="renderizarEstatisticas()"
-        style="font-size:12px;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;color:#4a5568;background:transparent;">
-        <option value="semana">Semana</option>
-        <option value="mes" selected>Mês</option>
-        <option value="total">Total</option>
-      </select>
-    </div>
-    <div id="estatisticasConteudo" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
-    <div id="recordeMensagem" style="margin-top:10px;font-size:12px;color:#718096;text-align:center;"></div>
-  </div>
-
-  <!-- ── GRÁFICO SEMANA ── -->
-  <div class="grafico-card">
-    <div class="painel-card-titulo" style="margin-bottom:10px;">📊 Visitas por Semana</div>
-    <canvas id="graficoVisitasSemana" height="120" style="width:100%;"></canvas>
+  <!-- ── ATALHOS RÁPIDOS ── -->
+  <div class="home-shortcuts-grid">
+    <a href="visitas.html" class="home-shortcut"><span class="home-shortcut-icon">➕</span>Nova visita</a>
+    <a href="familias_lista.html" class="home-shortcut"><span class="home-shortcut-icon">👥</span>Famílias</a>
+    <a href="mapa.html" class="home-shortcut"><span class="home-shortcut-icon">🗺️</span>Mapa</a>
+    <a href="relatorios.html" class="home-shortcut"><span class="home-shortcut-icon">📈</span>Desempenho</a>
   </div>
 
 </main>
 
+<!-- CSS TEMA ESCURO (mantido do original) -->
+<style>
+body.tema-escuro { background:#1a202c !important; color:#e2e8f0 !important; }
+body.tema-escuro .main { background:#1a202c; }
+body.tema-escuro .box, body.tema-escuro .card { background:#2d3748 !important; color:#e2e8f0 !important; }
+body.tema-escuro h1, body.tema-escuro h2, body.tema-escuro h3 { color:#e2e8f0 !important; }
+body.tema-escuro p, body.tema-escuro span, body.tema-escuro label { color:#a0aec0; }
+body.tema-escuro strong, body.tema-escuro b { color:#e2e8f0; }
+body.tema-escuro input, body.tema-escuro select { background:#4a5568; color:#e2e8f0; border-color:#718096; }
+body.tema-escuro .bottom-nav { background:#2d3748; border-top:1px solid #4a5568; }
+body.tema-escuro .bottom-nav .nav-item { color:#a0aec0; }
+body.tema-escuro .bottom-nav .nav-item.active { color:#63b3ed; }
+body.tema-escuro [style*="background:white"] { background:#2d3748 !important; }
+body.tema-escuro [style*="color:#1a365d"] { color:#e2e8f0 !important; }
+body.tema-escuro [style*="color:#4a5568"] { color:#a0aec0 !important; }
+body.tema-escuro [style*="color:#718096"] { color:#718096 !important; }
+body.tema-escuro [style*="color:#2c5282"] { color:#90cdf4 !important; }
+</style>
+
 <script src="script.js?v=3"></script>
+
+<!-- Sentinela: impede o script.js de injetar o botão de tema duplicado -->
 <div id="btnToggleTema" style="display:none;" aria-hidden="true"></div>
 
 <script>
@@ -666,20 +256,20 @@ if ('serviceWorker' in navigator) {
     const temDados = localStorage.getItem('familias');
     if (temDados && JSON.parse(temDados).length > 0) {
       if (!ub) {
-        alertas.push({ texto:'Você nunca fez backup dos dados.', id:'backup' });
+        alertas.push({ icone:'💾', texto:'Você nunca fez backup dos dados.', cor:'#744210', bg:'#fffbeb', acao:`window.location.href='configuracoes.html'`, label:'Fazer backup', id:'backup' });
       } else {
         const dias = Math.floor((new Date() - new Date(ub)) / 86400000);
-        if (dias >= 7) alertas.push({ texto:`Backup há ${dias} dias.`, id:'backup' });
+        if (dias >= 7) alertas.push({ icone:'💾', texto:`Backup há ${dias} dias.`, cor:'#744210', bg:'#fffbeb', acao:`window.location.href='configuracoes.html'`, label:'Fazer backup', id:'backup' });
       }
     }
   }
 
   container.innerHTML = alertas.map(a => `
-    <div class="alerta-clean">
-      <span>💾</span>
-      <span style="flex:1;">${a.texto}</span>
-      <button class="alerta-acao" onclick="window.location.href='configuracoes.html'">Fazer backup</button>
-      <button class="alerta-fechar" onclick="localStorage.setItem('backupDispensado','${hoje}');this.parentElement.remove()">×</button>
+    <div style="display:flex;align-items:center;gap:10px;background:${a.bg};border-radius:10px;padding:10px 14px;border:1px solid rgba(0,0,0,0.06);">
+      <span style="font-size:18px;">${a.icone}</span>
+      <span style="flex:1;font-size:12px;font-weight:600;color:${a.cor};">${a.texto}</span>
+      <button onclick="${a.acao}" style="background:${a.cor};color:white;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">${a.label}</button>
+      <button onclick="localStorage.setItem('backupDispensado','${hoje}');this.parentElement.remove()" style="background:none;border:none;color:#a0aec0;cursor:pointer;font-size:16px;padding:0 2px;">×</button>
     </div>`).join('');
 })();
 
@@ -688,12 +278,14 @@ function atualizarMiniResumo() {
   const hoje = new Date().toISOString().split('T')[0];
   const _vis = JSON.parse(localStorage.getItem('visitas') || '[]');
   const visitasHoje = _vis.filter(v => v.data === hoje && v.desfecho === 'Visita Realizada').length;
+
   let pend = 0;
   _vis.forEach(v => {
     ['pendenciaReceita','pendenciaMarcacao','pendenciaPreventivo','pendenciaEcg'].forEach(c => {
       if (v[c] && (v['status_'+c]||'aberta')==='aberta') pend++;
     });
   });
+
   const mes = new Date();
   const famAtivas = new Set(_vis.filter(v => {
     const d = new Date(v.data);
@@ -705,87 +297,37 @@ function atualizarMiniResumo() {
   if (el('miniPendencias')) el('miniPendencias').textContent = pend;
   if (el('miniFamiliasAtivas')) el('miniFamiliasAtivas').textContent = famAtivas;
 
-  // badge notificações
-  const badgeTop = document.getElementById('badgeNotifTop');
-  if (badgeTop && pend > 0) badgeTop.style.display = 'block';
+  // Resumo de pendências na coluna lateral (novo elemento da Home reformulada)
+  const resumoEl = el('resumoPendencias');
+  if (resumoEl) resumoEl.textContent = pend;
 }
 
-// ── BUSCA ATIVA ──
+// ── BUSCA ATIVA (mesma lógica original, agora populando o card "Atenção urgente") ──
 function carregarBuscaAtiva() {
   const listaUI = document.getElementById('listaBuscaAtiva');
   if (!listaUI) return;
   const _fam = JSON.parse(localStorage.getItem('familias') || '[]');
   const _vis = JSON.parse(localStorage.getItem('visitas') || '[]');
+
   const ranking = _fam.map(f => {
     const vF = _vis.filter(v => v.familiaId == f.id).sort((a,b) => new Date(b.data)-new Date(a.data));
     const ul = vF.length ? new Date(vF[0].data) : null;
     const atraso = ul ? Math.ceil(Math.abs(new Date()-ul)/86400000) : 9999;
     return { id:f.id, nome:f.responsavel, numero:f.numeroFamilia, atraso, dataStr: ul ? ul.toLocaleDateString('pt-BR') : 'Nunca' };
-  }).sort((a,b) => b.atraso - a.atraso).slice(0, 5);
+  }).sort((a,b) => b.atraso - a.atraso).slice(0, 3);
 
   listaUI.innerHTML = ranking.map(f => {
-    let cor, badgeTxt, icone;
-    if (f.atraso >= 9999 || f.atraso > 30) { cor='#c53030'; badgeTxt=f.atraso>=9999?'Nunca':f.atraso+'d'; icone='🔴'; }
-    else if (f.atraso > 15) { cor='#744210'; badgeTxt=f.atraso+'d'; icone='🟡'; }
-    else { cor='#2b6cb0'; badgeTxt=f.atraso+'d'; icone='🔵'; }
+    let cor, badgeTxt;
+    if (f.atraso >= 9999 || f.atraso > 30) { cor='#742a2a'; badgeTxt=f.atraso>=9999?'Nunca':f.atraso+'d'; }
+    else if (f.atraso > 15) { cor='#744210'; badgeTxt=f.atraso+'d'; }
+    else { cor='#2b6cb0'; badgeTxt=f.atraso+'d'; }
+
     return `
-    <li class="busca-item">
-      <div class="busca-item-top">
-        <span style="font-size:13px;">${icone}</span>
-        <div style="flex:1;min-width:0;">
-          <div class="busca-item-nome">Fam. ${f.numero} — ${f.nome}</div>
-          <div class="busca-item-sub">Última visita: ${f.dataStr}</div>
-        </div>
-        <span style="font-size:11px;font-weight:800;color:${cor};white-space:nowrap;">${badgeTxt}</span>
-      </div>
-      <div class="busca-btns">
-        <button class="busca-btn" onclick="localStorage.setItem('agendarFamiliaRapida',${f.id});window.location.href='percurso.html'">📅 Agendar</button>
-        <button class="busca-btn" onclick="abrirFamilia(${f.id})">📋 Ver ficha</button>
-      </div>
-    </li>`;
+      <li class="home-urgente-item" onclick="event.stopPropagation(); abrirFamilia(${f.id})">
+        <span>Fam. ${f.numero} — ${f.nome}</span>
+        <span class="home-urgente-item-dias" style="color:${cor};">${badgeTxt}</span>
+      </li>`;
   }).join('');
-}
-
-// ── ESTATÍSTICAS ──
-function renderizarEstatisticas() {
-  const periodo = document.getElementById('periodoEstat')?.value || 'mes';
-  const _vis = JSON.parse(localStorage.getItem('visitas') || '[]');
-  const hoje = new Date();
-  const fil = _vis.filter(v => {
-    const d = new Date(v.data);
-    if (periodo==='semana') { const s=new Date(hoje); s.setDate(hoje.getDate()-hoje.getDay()); return d>=s; }
-    if (periodo==='mes') return d.getMonth()===hoje.getMonth() && d.getFullYear()===hoje.getFullYear();
-    return true;
-  });
-  const real = fil.filter(v=>v.desfecho==='Visita Realizada').length;
-  const dias = new Set(fil.filter(v=>v.desfecho==='Visita Realizada').map(v=>v.data)).size;
-  const ause = fil.filter(v=>v.desfecho==='Ausente').length;
-  const recu = fil.filter(v=>v.desfecho==='Visita Recusada').length;
-  const meses = {};
-  _vis.filter(v=>v.desfecho==='Visita Realizada').forEach(v=>{ const d=new Date(v.data),k=`${d.getFullYear()}-${d.getMonth()}`; meses[k]=(meses[k]||0)+1; });
-  const rec = Object.values(meses).length ? Math.max(...Object.values(meses)) : 0;
-  const mesK = `${hoje.getFullYear()}-${hoje.getMonth()}`;
-  const mesV = meses[mesK]||0;
-
-  const el = document.getElementById('estatisticasConteudo');
-  if (el) el.innerHTML = [
-    {l:'Realizadas', v:real, c:'#22543d', bg:'#f0fff4', i:'✅'},
-    {l:'Dias ativos', v:dias, c:'#2b6cb0', bg:'#ebf8ff', i:'📅'},
-    {l:'Ausentes',   v:ause, c:'#744210', bg:'#fffbeb', i:'⚠️'},
-    {l:'Recusadas',  v:recu, c:'#742a2a', bg:'#fff5f5', i:'❌'},
-  ].map(s=>`<div class="estat-card" style="background:${s.bg};">
-    <div class="estat-lbl">${s.i} ${s.l}</div>
-    <div class="estat-val" style="color:${s.c};">${s.v}</div>
-  </div>`).join('');
-
-  const relEl = document.getElementById('recordeMensagem');
-  if (relEl && rec>0) {
-    relEl.textContent = periodo==='mes' && mesV>=rec && mesV>0
-      ? `🏆 Recorde batido! ${mesV} visitas este mês.`
-      : periodo==='mes' && rec>mesV
-      ? `🎯 Recorde: ${rec} visitas. Faltam ${rec-mesV}!`
-      : `🏆 Recorde mensal: ${rec} visitas`;
-  }
 }
 
 // ── TEMA ESCURO ──
@@ -800,14 +342,13 @@ function toggleTemaEscuro() {
 document.addEventListener('click', e => {
   const wrap = document.getElementById('buscaWrap');
   if (wrap && !e.target.closest('#buscaWrap') && !e.target.closest('[onclick*="buscaWrap"]')) {
-    wrap.classList.remove('visivel');
+    wrap.style.display = 'none';
   }
 });
 
 // ── LOAD ──
 window.addEventListener('load', () => {
   atualizarMiniResumo();
-  renderizarEstatisticas();
   if (localStorage.getItem('temaEscuro') === '1') {
     document.body.classList.add('tema-escuro');
     const btn = document.getElementById('btnTemaEscuro');
