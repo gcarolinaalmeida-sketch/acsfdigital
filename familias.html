@@ -1,668 +1,168 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ACS Digital">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
-<meta charset="UTF-8">
-<title>Nova Família</title>
-<link rel="stylesheet" href="style.css">
-<style>
-/* ── IMC ── */
-.imc-resultado {
-  display: none;
-  align-items: center;
-  gap: 10px;
-  margin-top: 8px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  border: 1px solid transparent;
-}
-.imc-resultado.visivel { display: flex; }
-.imc-resultado.azul    { background:#ebf8ff; border-color:#bee3f8; color:#2b6cb0; }
-.imc-resultado.verde   { background:#f0fff4; border-color:#9ae6b4; color:#276749; }
-.imc-resultado.laranja { background:#fffbeb; border-color:#f6ad55; color:#744210; }
-.imc-resultado.vermelho{ background:#fff5f5; border-color:#fc8181; color:#742a2a; }
-.imc-valor { font-size: 22px; font-weight: 800; }
-
-/* ── Auto-save indicator ── */
-.autosave-badge {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #718096;
-  padding: 4px 10px;
-  background: #f0fff4;
-  border: 1px solid #9ae6b4;
-  border-radius: 999px;
-  margin-bottom: 10px;
-}
-.autosave-badge.visivel  { display: inline-flex; }
-.autosave-badge.salvando { background:#ebf8ff; border-color:#bee3f8; color:#2b6cb0; }
-
-/* ── Bolsa Família toggle ── */
-.bolsa-toggle-wrap {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #fffbeb;
-  border: 1px solid #f6ad55;
-  border-radius: 10px;
-  padding: 14px 16px;
-}
-.bolsa-toggle-wrap.ativo {
-  background: #f0fff4;
-  border-color: #9ae6b4;
-}
-.bolsa-toggle-label {
-  flex: 1;
-  font-size: 14px;
-  font-weight: 600;
-  color: #744210;
-}
-.bolsa-toggle-wrap.ativo .bolsa-toggle-label { color: #276749; }
-.bolsa-toggle-label span {
-  display: block;
-  font-size: 12px;
-  font-weight: 400;
-  color: #a0aec0;
-  margin-top: 2px;
-}
-.toggle-btn {
-  width: 48px; height: 26px;
-  border-radius: 13px;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-.toggle-btn.on  { background: #38a169; }
-.toggle-btn.off { background: #e2e8f0; }
-.toggle-btn::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: white;
-  transition: left 0.2s;
-}
-.toggle-btn.on::after  { left: 26px; }
-.toggle-btn.off::after { left: 4px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Famílias e Pacientes - ACS Digital</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Ícones minimalistas (Phosphor Icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
-<div class="container">
-  <div class="page-actions">
-    <h1 class="page-title" style="margin:0;">NOVA FAMÍLIA</h1>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <span class="autosave-badge" id="autosaveBadge">💾 Rascunho salvo</span>
-      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
+    <div class="app-container">
+        
+        <!-- SIDEBAR MINIMALISTA (20%) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="ph-bold ph-heart-beat"></i></div>
+                <div>
+                    <h1>ACS Digital</h1>
+                    <span class="subtitle">Microárea 03 - Guarda-Mor</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Navegação Principal</span>
+                <a href="index.html" class="nav-item"><i class="ph ph-house"></i> Dashboard</a>
+                <a href="familias.html" class="nav-item active"><i class="ph ph-users"></i> Famílias</a>
+                <a href="visitas.html" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
+                <a href="metas.html" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
+                
+                <span class="nav-section-title">Atalhos Rápidos</span>
+                <a href="saude_cidadao.html" class="nav-item"><i class="ph ph-user-plus"></i> Novo Cadastro</a>
+                <a href="notificacoes.html" class="nav-item"><i class="ph ph-bell"></i> Notificações</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="configuracoes.html" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
+                <div class="sync-status">
+                    <i class="ph-bold ph-cloud-check"></i>
+                    <span>Sincronizado (Offline)</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL (80%) -->
+        <main class="main-content">
+            
+            <header class="main-header" style="margin-bottom: 16px;">
+                <div class="welcome-zone">
+                    <h2>Cadastros da Microárea 03</h2>
+                    <p class="current-date">Gerenciamento de domicílios e indivíduos</p>
+                </div>
+                <a href="saude_cidadao.html" style="text-decoration: none;">
+                    <button class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-plus"></i> Novo Cadastro
+                    </button>
+                </a>
+            </header>
+
+            <!-- NAVEGAÇÃO DAS ABAS (TABS) -->
+            <div class="tabs-container">
+                <button class="tab-button active" onclick="openTab(event, 'tab-familias')">Famílias (Domicílios)</button>
+                <button class="tab-button" onclick="openTab(event, 'tab-pacientes')">Pacientes (Cidadãos)</button>
+            </div>
+
+            <!-- CONTEÚDO DA ABA 1: FAMÍLIAS -->
+            <div id="tab-familias" class="tab-content active">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Responsável Familiar</th>
+                                <th>Endereço</th>
+                                <th>Membros</th>
+                                <th>Última Visita</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Ana Souza Ramos</strong><br><span class="text-muted text-sm">Prontuário: 10293</span></td>
+                                <td>Rua das Flores, 12 - Casa 1</td>
+                                <td>4</td>
+                                <td>15/05/2026</td>
+                                <td><button class="btn-text">Abrir Ficha</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">Prontuário: 10294</span></td>
+                                <td>Rua das Flores, 44 - Apto 2</td>
+                                <td>2</td>
+                                <td class="text-alert">10/04/2026</td>
+                                <td><button class="btn-text">Abrir Ficha</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maria José Silva</strong><br><span class="text-muted text-sm">Prontuário: 10295</span></td>
+                                <td>Beco do Sol, 10</td>
+                                <td>5</td>
+                                <td>02/06/2026</td>
+                                <td><button class="btn-text">Abrir Ficha</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONTEÚDO DA ABA 2: PACIENTES -->
+            <div id="tab-pacientes" class="tab-content">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome do Paciente</th>
+                                <th>Idade</th>
+                                <th>Condições / Grupos</th>
+                                <th>Família (Responsável)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Júlia Ramos Silva</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0001</span></td>
+                                <td>28 anos</td>
+                                <td><span class="badge-priority high" style="margin-right: 6px;"></span>Gestante</td>
+                                <td>Ana Souza Ramos</td>
+                                <td><button class="btn-text">Ver Cidadão</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0002</span></td>
+                                <td>65 anos</td>
+                                <td><span class="badge-priority medium" style="margin-right: 6px;"></span>Hipertenso</td>
+                                <td>Carlos Eduardo Mendes</td>
+                                <td><button class="btn-text">Ver Cidadão</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lucas Ramos Silva</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0003</span></td>
+                                <td>4 anos</td>
+                                <td><span class="badge-priority low" style="margin-right: 6px;"></span>Criança (Vacinação)</td>
+                                <td>Ana Souza Ramos</td>
+                                <td><button class="btn-text">Ver Cidadão</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
     </div>
-  </div>
 
-  <div class="card">
-    <h2>Cadastro Domiciliar</h2>
-    <form id="formCadastro" class="form-grid">
-
-      <div class="form-group">
-        <label>Número da Família</label>
-        <input type="number" id="numeroFamilia" min="1" required>
-      </div>
-
-      <div class="form-group">
-        <label>Data do Cadastro</label>
-        <input type="date" id="dataCadastro" required>
-      </div>
-
-      <div class="form-group span-2">
-        <label>Responsável pela família</label>
-        <input type="text" id="responsavel" required>
-      </div>
-
-      <div class="form-group">
-        <label>Telefone</label>
-        <input type="tel" id="telefone" placeholder="(00) 00000-0000">
-      </div>
-
-      <div class="form-group">
-        <label>Nº de moradores</label>
-        <input type="number" id="moradores">
-      </div>
-
-      <div class="form-group span-2">
-        <label>📋 Número do Prontuário</label>
-        <input type="text" id="numeroProntuario" placeholder="Ex: 00234 (número do prontuário na UBS)...">
-      </div>
-
-      <hr class="span-full divisor">
-
-      <div class="form-group span-2">
-        <label>Logradouro</label>
-        <input type="text" id="logradouro" list="lista-ruas" placeholder="Digite ou selecione a rua..." required>
-        <datalist id="lista-ruas">
-          <option value="Rua Afonso Marcelino da Silveira">
-          <option value="Rua Armênio Reis">
-          <option value="Rua Comandante José Flores">
-          <option value="Rua Francisco Assis Cunha">
-          <option value="Rua José Antônio da Silva">
-          <option value="Rua José Eulálio da Silva">
-          <option value="Rua Lourival José dos Santos">
-          <option value="Rua Orlando Paiva Ribeiro">
-          <option value="Rua Sebastião Horácio">
-          <option value="Rua Vereador Vicente Cantelmo">
-        </datalist>
-      </div>
-
-      <div class="form-group span-full">
-        <label>📸 Foto da Fachada / Domicílio</label>
-        <div style="display:flex;flex-direction:column;gap:10px;align-items:center;border:2px dashed #cbd5e0;padding:15px;border-radius:8px;">
-          <input type="file" id="fotoFamilia" accept="image/*" capture="environment" onchange="preVisualizarFotoFamilia(this)" style="font-size:14px;">
-          <img id="previewFotoFamilia" src="" style="max-width:100%;max-height:200px;display:none;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-          <button type="button" id="btnRemoverFotoFam" onclick="removerFotoFamilia()" style="display:none;background:#feb2b2;color:#9b2c2c;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">✖ Remover Foto</button>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Número</label>
-        <input type="text" id="numero" required>
-      </div>
-
-      <div class="form-group">
-        <label>Bairro</label>
-        <input type="text" id="bairro" value="Guarda-Mor" required>
-      </div>
-
-      <div class="form-group">
-        <label>Situação da Moradia</label>
-        <input type="text" id="situacao" list="lista-situacao" placeholder="Selecione ou digite..." required>
-        <datalist id="lista-situacao">
-          <option value="Própria">
-          <option value="Alugada">
-          <option value="Cedida">
-        </datalist>
-      </div>
-
-      <div class="form-group">
-        <label>Tipo de Domicílio</label>
-        <input type="text" id="tipoDomicilio" list="lista-domicilio" placeholder="Selecione ou digite..." required>
-        <datalist id="lista-domicilio">
-          <option value="Casa">
-          <option value="Apartamento">
-          <option value="Outro">
-        </datalist>
-      </div>
-
-      <div class="form-group radio-group-container">
-        <label>Localização</label>
-        <div class="radio-options">
-          <label class="radio-label"><input type="radio" name="localizacao" value="Urbana" required> Urbana</label>
-          <label class="radio-label"><input type="radio" name="localizacao" value="Rural"> Rural</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Animais no domicílio</label>
-        <input type="text" id="animais" placeholder="Ex: 2 cães, 1 gato">
-      </div>
-
-      <!-- ══════════════════════════════════════════
-           BOLSA FAMÍLIA
-           ══════════════════════════════════════════ -->
-      <div class="form-group span-full">
-        <label>💰 Bolsa Família</label>
-        <div class="bolsa-toggle-wrap" id="bolsaToggleWrap">
-          <div class="bolsa-toggle-label">
-            Beneficiária do Bolsa Família?
-            <span>Ative para acompanhar as condicionalidades desta família</span>
-          </div>
-          <button type="button" class="toggle-btn off" id="bolsaToggleBtn" onclick="toggleBolsa()"></button>
-        </div>
-        <input type="hidden" id="bolsaFamilia" value="Não">
-      </div>
-
-      <div class="form-group span-full">
-        <label>Observações</label>
-        <textarea id="observacoes" rows="3" placeholder="Anotações importantes..."></textarea>
-      </div>
-
-      <div class="form-group span-full">
-        <button type="submit" class="btn-salvar">Salvar Cadastro</button>
-      </div>
-
-    </form>
-  </div>
-
-  <!-- ══════════════════════════════════════════
-       MEMBROS
-       ══════════════════════════════════════════ -->
-  <div id="secaoMembros" class="card" style="margin-top:20px;display:none;">
-    <h2>Membro da Família (Cadastro Individual)</h2>
-    <form id="formMembro" class="form-grid">
-
-      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:10px;">
-        1. Identificação Cidadão
-      </h3>
-
-      <div class="form-group span-2">
-        <label>Nome Completo</label>
-        <input type="text" id="nomeMembro" required>
-      </div>
-
-      <div class="form-group">
-        <label>CNS (Cartão SUS)</label>
-        <input type="text" id="cnsMembro" placeholder="Ex: 123 4567...">
-      </div>
-
-      <div class="form-group">
-        <label>CPF</label>
-        <input type="text" id="cpfMembro" placeholder="000.000.000-00">
-      </div>
-
-      <div class="form-group">
-        <label>Data de Nascimento</label>
-        <input type="date" id="nascimentoMembro" required>
-      </div>
-
-      <div class="form-group">
-        <label>Sexo</label>
-        <select id="sexoMembro" required>
-          <option value="">Selecione...</option>
-          <option value="Masculino">Masculino</option>
-          <option value="Feminino">Feminino</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Raça/Cor</label>
-        <select id="racaMembro">
-          <option value="">Selecione...</option>
-          <option value="Branca">Branca</option>
-          <option value="Preta">Preta</option>
-          <option value="Parda">Parda</option>
-          <option value="Amarela">Amarela</option>
-          <option value="Indígena">Indígena</option>
-        </select>
-      </div>
-
-      <div class="form-group span-2">
-        <label>Nome da Mãe</label>
-        <input type="text" id="maeMembro" required>
-      </div>
-
-      <div class="form-group span-2">
-        <label>Nome do Pai</label>
-        <input type="text" id="paiMembro" placeholder="(Opcional)">
-      </div>
-
-      <div class="form-group">
-        <label>Nacionalidade</label>
-        <select id="nacionalidadeMembro">
-          <option value="Brasileira">Brasileira</option>
-          <option value="Naturalizado">Naturalizado(a)</option>
-          <option value="Estrangeira">Estrangeira</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Município de Nascimento</label>
-        <input type="text" id="municipioNascMembro">
-      </div>
-
-      <div class="form-group">
-        <label>UF</label>
-        <input type="text" id="ufNascMembro" maxlength="2" placeholder="Ex: MG">
-      </div>
-
-      <div class="form-group">
-        <label>Celular</label>
-        <input type="tel" id="celularMembro" placeholder="(00) 00000-0000">
-      </div>
-
-      <div class="form-group span-2">
-        <label>Parentesco (com responsável)</label>
-        <select id="parentescoMembro" required>
-          <option value="">Selecione...</option>
-          <option value="Responsável">É o Responsável Familiar</option>
-          <option value="Cônjuge/Companheiro(a)">Cônjuge/Companheiro(a)</option>
-          <option value="Filho(a)">Filho(a)</option>
-          <option value="Enteado(a)">Enteado(a)</option>
-          <option value="Neto(a)/Bisneto(a)">Neto(a)/Bisneto(a)</option>
-          <option value="Pai/Mãe">Pai/Mãe</option>
-          <option value="Sogro(a)">Sogro(a)</option>
-          <option value="Outro Parente">Outro Parente</option>
-          <option value="Não Parente">Não Parente</option>
-        </select>
-      </div>
-
-      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:15px;">
-        2. Informações Sociodemográficas
-      </h3>
-
-      <div class="form-group span-2">
-        <label>Ocupação</label>
-        <input type="text" id="ocupacaoMembro">
-      </div>
-
-      <div class="form-group">
-        <label>Frequenta Escola/Creche?</label>
-        <select id="escolaMembro">
-          <option value="">Selecione...</option>
-          <option value="Sim">Sim</option>
-          <option value="Não">Não</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Escolaridade</label>
-        <select id="escolaridadeMembro">
-          <option value="">Selecione...</option>
-          <option value="Creche">Creche</option>
-          <option value="Pré-escola">Pré-escola</option>
-          <option value="Ensino Fundamental">Ensino Fundamental</option>
-          <option value="Ensino Médio">Ensino Médio</option>
-          <option value="Ensino Superior">Ensino Superior</option>
-          <option value="Nenhum">Nenhum</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Situação no Mercado de Trabalho</label>
-        <select id="mercadoTrabalhoMembro">
-          <option value="">Selecione...</option>
-          <option value="Empregado">Empregado</option>
-          <option value="Desempregado">Desempregado</option>
-          <option value="Aposentado/Pensionista">Aposentado/Pensionista</option>
-          <option value="Autônomo">Autônomo</option>
-          <option value="Não trabalha">Não trabalha</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Orientação Sexual</label>
-        <select id="orientacaoMembro">
-          <option value="">Selecione...</option>
-          <option value="Heterossexual">Heterossexual</option>
-          <option value="Homossexual">Homossexual</option>
-          <option value="Bissexual">Bissexual</option>
-          <option value="Outro">Outro</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Identidade de Gênero</label>
-        <select id="generoMembro">
-          <option value="">Selecione...</option>
-          <option value="Homem Cisgênero">Homem Cisgênero</option>
-          <option value="Mulher Cisgênero">Mulher Cisgênero</option>
-          <option value="Homem Trans">Homem Trans</option>
-          <option value="Mulher Trans">Mulher Trans</option>
-          <option value="Outro">Outro</option>
-        </select>
-      </div>
-
-      <h3 class="span-full" style="color:#2c5282;border-bottom:1px solid #edf2f7;padding-bottom:5px;font-size:16px;margin-top:15px;">
-        3. Condições de Saúde e Hábitos
-      </h3>
-
-      <div class="form-group span-2">
-        <label>Possui Deficiência?</label>
-        <input type="text" id="deficienciaMembro" placeholder="Qual? (Deixe em branco se não possui)">
-      </div>
-
-      <div class="form-group">
-        <label>Gestante?</label>
-        <select id="gestanteMembro">
-          <option value="Não">Não</option>
-          <option value="Sim">Sim</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Peso (kg)</label>
-        <input type="number" id="pesoKgMembro" placeholder="Ex: 70.5" step="0.1" min="1" max="300" oninput="calcularIMC()">
-      </div>
-
-      <div class="form-group">
-        <label>Altura (cm)</label>
-        <input type="number" id="alturaCmMembro" placeholder="Ex: 165" step="1" min="30" max="250" oninput="calcularIMC()">
-      </div>
-
-      <div class="span-full">
-        <div class="imc-resultado" id="imcResultado">
-          <span class="imc-valor" id="imcValor">—</span>
-          <div>
-            <div id="imcClassificacao" style="font-size:14px;font-weight:700;"></div>
-            <div id="imcDica" style="font-size:12px;font-weight:400;margin-top:2px;opacity:0.8;"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Situação do Peso (resumo)</label>
-        <select id="pesoMembro">
-          <option value="">Selecione...</option>
-          <option value="Adequado">Adequado</option>
-          <option value="Abaixo do peso">Abaixo do peso</option>
-          <option value="Acima do peso">Acima do peso</option>
-          <option value="Obesidade">Obesidade</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Fumante?</label>
-        <select id="fumaMembro"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-      </div>
-
-      <div class="form-group">
-        <label>Uso de Álcool?</label>
-        <select id="alcoolMembro"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-      </div>
-
-      <div class="form-group">
-        <label>Uso de Outras Drogas?</label>
-        <select id="drogasMembro"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-      </div>
-
-      <div class="form-group span-full">
-        <label style="margin-bottom:10px;">Doenças e Condições (Marque todas que se aplicam):</label>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#f8fafc;padding:15px;border-radius:6px;border:1px solid #cbd5e0;">
-          <label class="radio-label"><input type="checkbox" value="Hipertensão"> Hipertensão</label>
-          <label class="radio-label"><input type="checkbox" value="Diabetes"> Diabetes</label>
-          <label class="radio-label"><input type="checkbox" value="AVC/Derrame"> AVC/Derrame</label>
-          <label class="radio-label"><input type="checkbox" value="Infarto"> Infarto</label>
-          <label class="radio-label"><input type="checkbox" value="Doença Cardíaca"> Doença Cardíaca</label>
-          <label class="radio-label"><input type="checkbox" value="Doença Renal"> Doença Renal</label>
-          <label class="radio-label"><input type="checkbox" value="Doença Respiratória"> Doença Respiratória</label>
-          <label class="radio-label"><input type="checkbox" value="Hanseníase"> Hanseníase</label>
-          <label class="radio-label"><input type="checkbox" value="Tuberculose"> Tuberculose</label>
-          <label class="radio-label"><input type="checkbox" value="Câncer"> Câncer</label>
-          <label class="radio-label"><input type="checkbox" value="Problema Mental"> Problema Mental</label>
-          <label class="radio-label"><input type="checkbox" value="Acamado"> Acamado</label>
-          <label class="radio-label"><input type="checkbox" value="Domiciliado"> Domiciliado</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Internação nos últimos 12 meses?</label>
-        <select id="internacaoMembro">
-          <option value="Não">Não</option>
-          <option value="Sim">Sim</option>
-        </select>
-      </div>
-
-      <div class="form-group span-2">
-        <label>Se internado, qual a causa?</label>
-        <input type="text" id="causaInternacaoMembro" placeholder="Descreva a causa">
-      </div>
-
-      <div class="form-group span-full">
-        <label>Outras condições de saúde</label>
-        <input type="text" id="outrasCondicoesMembro" placeholder="Descreva outras condições ou observações médicas...">
-      </div>
-
-      <div class="form-group span-full">
-        <button type="submit" class="btn-salvar" style="background-color:#2b6cb0;margin-top:20px;">+ Adicionar Membro</button>
-      </div>
-
-    </form>
-
-    <div id="listaMembros" style="margin-top:20px;"></div>
-
-    <div class="form-group span-full" style="text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #e2e8f0;">
-      <button type="button" onclick="limparRascunhoMembro(); window.location.href='familias_lista.html'" class="btn btn-dark" style="padding:12px 30px;font-size:16px;">
-        ✅ Concluir e Voltar para a Lista
-      </button>
-    </div>
-  </div>
-
-</div>
-
-<script src="script.js"></script>
-<script>
-
-// ── BOLSA FAMÍLIA TOGGLE ──
-function toggleBolsa() {
-  const btn = document.getElementById('bolsaToggleBtn');
-  const wrap = document.getElementById('bolsaToggleWrap');
-  const hidden = document.getElementById('bolsaFamilia');
-  const ativo = btn.classList.contains('on');
-  btn.classList.toggle('on', !ativo);
-  btn.classList.toggle('off', ativo);
-  wrap.classList.toggle('ativo', !ativo);
-  hidden.value = !ativo ? 'Sim' : 'Não';
-}
-
-// Ao editar família existente, restaurar valor do Bolsa Família
-document.addEventListener('DOMContentLoaded', () => {
-  // script.js carrega os dados da família no formCadastro quando familiaAtual existe
-  // Aguarda um tick para o script.js preencher os campos
-  setTimeout(() => {
-    const famId = localStorage.getItem('familiaAtual');
-    if (famId) {
-      const familias = JSON.parse(localStorage.getItem('familias') || '[]');
-      const fam = familias.find(f => String(f.id) === String(famId));
-      if (fam && fam.bolsaFamilia === 'Sim') {
-        const btn = document.getElementById('bolsaToggleBtn');
-        const wrap = document.getElementById('bolsaToggleWrap');
-        const hidden = document.getElementById('bolsaFamilia');
-        btn.classList.replace('off', 'on');
-        wrap.classList.add('ativo');
-        hidden.value = 'Sim';
-      }
-    }
-  }, 300);
-});
-
-// ── CALCULADORA DE IMC ──
-function calcularIMC() {
-  const peso    = parseFloat(document.getElementById('pesoKgMembro')?.value);
-  const altura  = parseFloat(document.getElementById('alturaCmMembro')?.value);
-  const resultado = document.getElementById('imcResultado');
-  const elValor   = document.getElementById('imcValor');
-  const elClass   = document.getElementById('imcClassificacao');
-  const elDica    = document.getElementById('imcDica');
-  const elPeso    = document.getElementById('pesoMembro');
-
-  if (!peso || !altura || peso < 1 || altura < 30) {
-    resultado.classList.remove('visivel');
-    return;
-  }
-
-  const alturaM = altura / 100;
-  const imc = peso / (alturaM * alturaM);
-  elValor.textContent = imc.toFixed(1);
-
-  resultado.classList.remove('azul','verde','laranja','vermelho','visivel');
-  resultado.classList.add('visivel');
-
-  let classe, dica, cor, pesoSugerido;
-  if      (imc < 18.5) { classe='🔵 Abaixo do peso';    dica='Risco de desnutrição — acompanhar';              cor='azul';    pesoSugerido='Abaixo do peso'; }
-  else if (imc < 25)   { classe='✅ Peso adequado';       dica='IMC dentro da faixa saudável';                   cor='verde';   pesoSugerido='Adequado'; }
-  else if (imc < 30)   { classe='🟡 Sobrepeso';           dica='Risco aumentado — orientar hábitos';             cor='laranja'; pesoSugerido='Acima do peso'; }
-  else if (imc < 35)   { classe='🔴 Obesidade Grau I';   dica='Acompanhamento nutricional indicado';            cor='vermelho';pesoSugerido='Obesidade'; }
-  else if (imc < 40)   { classe='🔴 Obesidade Grau II';  dica='Encaminhamento especializado recomendado';       cor='vermelho';pesoSugerido='Obesidade'; }
-  else                 { classe='🔴 Obesidade Grau III'; dica='Obesidade mórbida — acompanhamento urgente';     cor='vermelho';pesoSugerido='Obesidade'; }
-
-  resultado.classList.add(cor);
-  elClass.textContent = classe;
-  elDica.textContent  = dica;
-  if (elPeso) elPeso.value = pesoSugerido;
-}
-
-// ── AUTO-SAVE DO FORMULÁRIO DE MEMBRO ──
-const RASCUNHO_KEY = 'rascunhoMembro';
-let autoSaveTimer = null;
-
-function salvarRascunho() {
-  const badge = document.getElementById('autosaveBadge');
-  if (badge) { badge.classList.add('visivel','salvando'); badge.textContent = '⏳ Salvando rascunho...'; }
-
-  const campos = [
-    'nomeMembro','cnsMembro','cpfMembro','nascimentoMembro','sexoMembro','racaMembro',
-    'maeMembro','paiMembro','nacionalidadeMembro','municipioNascMembro','ufNascMembro',
-    'celularMembro','parentescoMembro','ocupacaoMembro','escolaMembro','escolaridadeMembro',
-    'mercadoTrabalhoMembro','orientacaoMembro','generoMembro','deficienciaMembro',
-    'gestanteMembro','pesoKgMembro','alturaCmMembro','pesoMembro','fumaMembro',
-    'alcoolMembro','drogasMembro','internacaoMembro','causaInternacaoMembro','outrasCondicoesMembro'
-  ];
-
-  const dados = {};
-  campos.forEach(id => { const el = document.getElementById(id); if (el) dados[id] = el.value; });
-  dados._doencas      = Array.from(document.querySelectorAll('#formMembro input[type="checkbox"]:checked')).map(c => c.value);
-  dados._familiaAtual = localStorage.getItem('familiaAtual');
-  dados._timestamp    = Date.now();
-  localStorage.setItem(RASCUNHO_KEY, JSON.stringify(dados));
-
-  setTimeout(() => { if (badge) { badge.classList.remove('salvando'); badge.textContent = '💾 Rascunho salvo'; } }, 600);
-}
-
-function restaurarRascunho() {
-  const raw = localStorage.getItem(RASCUNHO_KEY);
-  if (!raw) return;
-  const dados = JSON.parse(raw);
-  const famAtual = localStorage.getItem('familiaAtual');
-  if (dados._familiaAtual !== famAtual) return;
-  if (!dados.nomeMembro) return;
-  const mins = Math.floor((Date.now() - dados._timestamp) / 60000);
-  if (mins > 60) { localStorage.removeItem(RASCUNHO_KEY); return; }
-  if (!confirm(`📋 Encontramos um rascunho de "${dados.nomeMembro}" salvo há ${mins} minuto(s). Deseja restaurar?`)) { localStorage.removeItem(RASCUNHO_KEY); return; }
-  const campos = Object.keys(dados).filter(k => !k.startsWith('_'));
-  campos.forEach(id => { const el = document.getElementById(id); if (el) el.value = dados[id] || ''; });
-  if (dados._doencas?.length > 0) {
-    document.querySelectorAll('#formMembro input[type="checkbox"]').forEach(c => { c.checked = dados._doencas.includes(c.value); });
-  }
-  calcularIMC();
-  const badge = document.getElementById('autosaveBadge');
-  if (badge) { badge.classList.add('visivel'); badge.textContent = '✅ Rascunho restaurado'; }
-}
-
-function limparRascunhoMembro() { localStorage.removeItem(RASCUNHO_KEY); }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const formMembro   = document.getElementById('formMembro');
-  const secaoMembros = document.getElementById('secaoMembros');
-  if (!formMembro) return;
-
-  const observer = new MutationObserver(() => {
-    if (secaoMembros.style.display !== 'none') { restaurarRascunho(); observer.disconnect(); }
-  });
-  if (secaoMembros) observer.observe(secaoMembros, { attributes: true, attributeFilter: ['style'] });
-
-  formMembro.addEventListener('input',  () => { clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(salvarRascunho, 1500); });
-  formMembro.addEventListener('change', () => { clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(salvarRascunho, 1500); });
-  formMembro.addEventListener('submit', () => {
-    setTimeout(limparRascunhoMembro, 500);
-    const badge = document.getElementById('autosaveBadge');
-    if (badge) badge.classList.remove('visivel');
-  });
-});
-</script>
+    <!-- SCRIPT PARA ALTERNAR AS ABAS -->
+    <script>
+        function openTab(evt, tabName) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+    </script>
 </body>
 </html>
