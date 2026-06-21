@@ -1,102 +1,87 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<!-- Força o modo tela cheia no iOS -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ACS Digital">
-<!-- Ícone para a tela de início do iPad -->
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
-  <meta charset="UTF-8">
-  <title>Detalhe da Família</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Detalhe da Família - ACS Digital</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
-
 <body>
-<button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()">☰</button>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
 
-<aside class="sidebar">
-  <div class="logo">💚 ACS Digital</div>
-  <nav>
-    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
-    <button onclick="window.location.href='notificacoes.html'" id="btn_notif" style="position:relative;">🔔 Notificações <span id="badgeNotif" style="display:none;background:#e53e3e;color:white;font-size:10px;font-weight:bold;border-radius:99px;padding:1px 6px;margin-left:4px;">0</span></button>
-    <div class="nav-divisor"></div>
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')"><span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_familias">
-        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
-        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
-        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
-        <button onclick="window.location.href='vacinacao.html'">💉 Vacinação</button>
-        <button onclick="window.location.href='bolsa_familia.html'">💰 Bolsa Família</button>
-      </div>
-    </div>
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')"><span>📅 Visitas</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_visitas">
-        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
-        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
-        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
-      </div>
-    </div>
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')"><span>📊 Relatórios e Metas</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_relatorios">
-        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
-        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
-      </div>
-    </div>
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')"><span>🗓️ Planejamento</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_planejamento">
-        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
-        <button onclick="window.location.href='calendario.html'">📆 Calendário</button>
-        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
-        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
-      </div>
-    </div>
-    <div class="nav-divisor"></div>
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')"><span>⚙️ Configurações</span><span class="seta">›</span></button>
-      <div class="nav-submenu" id="sub_config">
-        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
-        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
-        <button onclick="window.location.href='pin.html'">🔒 Alterar PIN</button>
-      </div>
-    </div>
-  </nav>
-  <div class="user">
-    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
-    <div><strong id="sidebarNomePerfil">Gabriela Almeida</strong><span id="sidebarMicroarea">Microárea 03</span></div>
-  </div>
-</aside>
-<div class="main">
-  <div class="page-actions">
-    <h1>Detalhes da família</h1>
-    <div class="page-actions-btns">
-      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
-      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
-    </div>
-  </div>
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="ph-bold ph-heart-beat"></i></div>
+                <div>
+                    <h1>ACS Digital</h1>
+                    <span class="subtitle">Microárea 03 - Guarda-Mor</span>
+                </div>
+            </div>
 
-  <div id="dadosFamilia" class="box"></div>
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Navegação Principal</span>
+                <a href="index.html" class="nav-item"><i class="ph ph-house"></i> Dashboard</a>
+                <a href="familias.html" class="nav-item active"><i class="ph ph-users"></i> Famílias</a>
+                <a href="visitas.html" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
+                <a href="metas.html" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
+            </nav>
 
-  <div class="box">
-    <h3>Membros da família</h3>
-    <div id="listaMembros"></div>
-  </div>
+            <div class="sidebar-footer">
+                <a href="configuracoes.html" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
+                <div class="sync-status">
+                    <i class="ph-bold ph-cloud-check"></i>
+                    <span>Sincronizado (Offline)</span>
+                </div>
+            </div>
+        </aside>
 
-  <div class="box" style="margin-top: 20px; border-top: 4px solid #3182ce;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px;">
-      <h3 style="margin: 0; color: #2c5282;">📋 Histórico de Visitas</h3>
-      <button id="btnNovaVisitaDetalhe" class="btn btn-success" style="font-size: 13px; padding: 7px 14px;">▶ Nova Visita</button>
-    </div>
-    <div id="historicoVisitasFamilia"></div>
-  </div>
+        <main class="main-content">
+            
+            <header class="main-header" style="margin-bottom: 24px;">
+                <div class="welcome-zone" style="display: flex; align-items: center; gap: 16px;">
+                    <button onclick="window.history.back()" class="btn-secondary" style="padding: 8px 12px;">
+                        <i class="ph-bold ph-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2>Detalhes da Família</h2>
+                        <p class="current-date">Prontuário e histórico do domicílio</p>
+                    </div>
+                </div>
+            </header>
 
-</div>
+            <div id="dadosFamilia" class="compact-card" style="padding: 24px;">
+                <p style="color: var(--text-muted);">Carregando detalhes...</p>
+            </div>
 
-<script src="script.js"></script>
+            <section class="split-section" style="margin-top: 32px; gap: 32px;">
+                
+                <div class="split-block" style="flex: 1;">
+                    <div class="section-header" style="margin-bottom: 16px;">
+                        <h3>Composição Familiar</h3>
+                    </div>
+                    <div id="listaMembros" class="table-container"></div>
+                </div>
+
+                <div class="split-block" style="flex: 1;">
+                    <div class="section-header" style="margin-bottom: 16px;">
+                        <h3>Histórico de Visitas</h3>
+                        <button id="btnNovaVisitaDetalhe" class="btn-secondary" style="padding: 6px 12px;">
+                            <i class="ph-bold ph-plus"></i> Nova Visita
+                        </button>
+                    </div>
+                    <div id="historicoVisitasFamilia" class="priority-list"></div>
+                </div>
+            </section>
+
+        </main>
+    </div> <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof mostrarFamiliaDetalhe === 'function') mostrarFamiliaDetalhe();
+            if (typeof renderizarMembrosDetalhe === 'function') renderizarMembrosDetalhe();
+        });
+    </script>
 </body>
 </html>
