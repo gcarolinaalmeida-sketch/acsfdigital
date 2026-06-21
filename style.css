@@ -516,3 +516,198 @@ body {
     font-weight: 600;
     cursor: pointer;
 }
+/* --- COMPONENTES DA FICHA DE FAMÍLIA --- */
+.btn-icon-only {
+    background: var(--bg-sidebar);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-icon-only:hover {
+    background: var(--border-color);
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+    background: var(--bg-card);
+}
+
+.tool-btn.pocket { color: #4a5568; }
+.tool-btn.pocket:hover { background: #edf2f7; }
+.tool-btn.sun { color: #d69e2e; }
+.tool-btn.sun:hover { background: #fffff0; border-color: #fbd38d; }
+.tool-btn.sun.active { background: #1a202c; color: #fff; border-color: #1a202c; }
+
+/* --- CARD PRINCIPAL DE INFORMAÇÃO --- */
+.info-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.info-card h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.info-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+/* --- LISTA DE MEMBROS --- */
+.member-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* --- TIMELINE DE VISITAS --- */
+.timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-left: 12px;
+    border-left: 2px solid var(--border-color);
+    margin-left: 8px;
+}
+
+/* --- MODO BOLSO (OVERLAY) --- */
+.pocket-mode-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 17, 17, 0.95);
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.pocket-mode-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.pocket-icon {
+    font-size: 64px;
+    margin-bottom: 24px;
+    color: var(--border-color);
+}
+
+.pocket-mode-overlay h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.pocket-mode-overlay p {
+    font-size: 15px;
+    color: #a0aec0;
+    margin-bottom: 32px;
+}
+
+.pocket-countdown {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--prio-high);
+}
+
+.pocket-label {
+    font-size: 13px;
+    color: #718096;
+    margin-bottom: 32px;
+}
+
+.btn-unlock {
+    background: #fff;
+    color: #111;
+    border: none;
+    padding: 16px 32px;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.1s;
+}
+
+.btn-unlock:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-unlock:not(:disabled):active {
+    transform: scale(0.96);
+}
+
+/* --- MODO SOL (ALTO CONTRASTE) --- */
+body.sun-mode {
+    --bg-global: #ffffff;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --border-color: #000000;
+    --text-main: #000000;
+    --text-muted: #111111;
+    --text-link: #000000;
+    --color-primary: #000000;
+    --color-hover: #f0f0f0;
+}
+
+body.sun-mode * {
+    font-weight: 600 !important;
+}
+
+body.sun-mode h1, 
+body.sun-mode h2, 
+body.sun-mode h3 {
+    font-weight: 900 !important;
+    letter-spacing: -0.5px;
+}
+
+body.sun-mode .compact-card,
+body.sun-mode .info-card,
+body.sun-mode .split-block {
+    border: 2px solid #000 !important;
+    box-shadow: 4px 4px 0px #000 !important;
+}
+
+body.sun-mode .sidebar {
+    border-right: 2px solid #000;
+}
