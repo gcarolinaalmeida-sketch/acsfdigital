@@ -24,17 +24,17 @@
             <nav class="sidebar-nav">
                 <span class="nav-section-title">Navegação Principal</span>
                 <a href="#dashboard" class="nav-item active"><i class="ph ph-house"></i> Dashboard</a>
-                <a href="#familias" class="nav-item"><i class="ph ph-users"></i> Famílias</a>
-                <a href="#visitas" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
-                <a href="#indicadores" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
+                <a href="familias_lista.html" class="nav-item"><i class="ph ph-users"></i> Famílias</a>
+                <a href="visitas_lista.html" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
+                <a href="metas.html" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
                 
                 <span class="nav-section-title">Atalhos Rápidos</span>
-                <a href="#novo-cadastro" class="nav-item"><i class="ph ph-user-plus"></i> Novo Cadastro</a>
-                <a href="#sintomas" class="nav-item"><i class="ph ph-clipboard-text"></i> Ficha de Sintomas</a>
+                <a href="saude_cidadao.html" class="nav-item"><i class="ph ph-user-plus"></i> Novo Cadastro</a>
+                <a href="saude_cidadao.html" class="nav-item"><i class="ph ph-clipboard-text"></i> Ficha de Sintomas</a>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="#configuracoes" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
+                <a href="configuracoes.html" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
                 <div class="sync-status">
                     <i class="ph-bold ph-cloud-check"></i>
                     <span>Sincronizado (Offline)</span>
@@ -70,39 +70,6 @@
                 </section>
             </div>
 
-            <!-- FAMÍLIAS -->
-            <div id="familias" class="page-section" style="display: none;">
-                <header class="main-header" style="margin-bottom: 16px;">
-                    <div class="welcome-zone">
-                        <h2>Cadastros da Microárea 03</h2>
-                    </div>
-                </header>
-
-                <div class="tabs-container">
-                    <button class="tab-button active" data-target="tab-familias">Famílias (Domicílios)</button>
-                </div>
-
-                <div id="tab-familias" class="tab-content active">
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nº Família</th>
-                                    <th>Responsável Familiar</th>
-                                    <th>Endereço</th>
-                                    <th>Membros</th>
-                                    <th>Última Visita</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <!-- AQUI É ONDE O SCRIPT VAI INJETAR SUAS FAMÍLIAS -->
-                            <tbody id="listaFamilias">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
         </main>
     </div>
 
@@ -110,11 +77,6 @@
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicia a navegação e carrega os dados
-            if (typeof filtrarFamilias === 'function') {
-                filtrarFamilias();
-            }
-            
             // Navegação entre abas e seções
             const menuLinks = document.querySelectorAll('.nav-item');
             const pageSections = document.querySelectorAll('.page-section');
