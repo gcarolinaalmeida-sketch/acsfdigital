@@ -52,52 +52,20 @@
                         <h2>Bom dia.</h2>
                         <p class="current-date" id="live-date">Sábado, 20 de Junho</p>
                     </div>
-                    <div class="search-zone">
-                        <i class="ph ph-magnifying-glass search-icon"></i>
-                        <input type="text" placeholder="Busca rápida por nome, CPF ou rua..." class="search-input">
-                    </div>
                 </header>
 
                 <section class="overview-section">
                     <div class="compact-card">
                         <span class="card-label">Famílias</span>
-                        <span class="card-value">142</span>
-                        <span class="card-subtext positive">+2 este mês</span>
+                        <span class="card-value" id="totalFamilias">0</span>
                     </div>
                     <div class="compact-card">
-                        <span class="card-label">Visitas Mês</span>
-                        <span class="card-value">45 <span class="goal">/ 150</span></span>
-                        <span class="card-subtext">Meta: 30% concluída</span>
+                        <span class="card-label">Cidadãos</span>
+                        <span class="card-value" id="totalCidadaos">0</span>
                     </div>
                     <div class="compact-card">
-                        <span class="card-label">Gestantes</span>
-                        <span class="card-value">8</span>
-                        <span class="card-subtext highlight">2 no 3º trimestre</span>
-                    </div>
-                    <div class="compact-card">
-                        <span class="card-label">Pendências</span>
-                        <span class="card-value text-alert">5</span>
-                        <span class="card-subtext">Atualizar hoje</span>
-                    </div>
-                </section>
-
-                <section class="priority-section">
-                    <div class="section-header">
-                        <h3>Visitas Prioritárias</h3>
-                        <button class="btn-secondary"><i class="ph ph-plus"></i> Nova Visita</button>
-                    </div>
-
-                    <div class="priority-list">
-                        <div class="priority-item">
-                            <div class="item-left">
-                                <span class="badge-priority high"></span>
-                                <div class="patient-info">
-                                    <span class="patient-condition">Gestante 3º Trimestre</span>
-                                    <span class="patient-meta">Ana Silva — Rua A, 12</span>
-                                </div>
-                            </div>
-                            <button class="btn-action">Iniciar</button>
-                        </div>
+                        <span class="card-label">Visitas</span>
+                        <span class="card-value" id="totalVisitas">0</span>
                     </div>
                 </section>
             </div>
@@ -107,21 +75,13 @@
                 <header class="main-header" style="margin-bottom: 16px;">
                     <div class="welcome-zone">
                         <h2>Cadastros da Microárea 03</h2>
-                        <p class="current-date">Gerenciamento de domicílios e indivíduos</p>
                     </div>
-                    <a href="#novo-cadastro" class="tab-trigger-link" style="text-decoration: none;">
-                        <button class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
-                            <i class="ph ph-plus"></i> Novo Cadastro
-                        </button>
-                    </a>
                 </header>
 
                 <div class="tabs-container">
                     <button class="tab-button active" data-target="tab-familias">Famílias (Domicílios)</button>
-                    <button class="tab-button" data-target="tab-pacientes">Pacientes (Cidadãos)</button>
                 </div>
 
-                <!-- Conteúdo Aba 1: Lista de Famílias -->
                 <div id="tab-familias" class="tab-content active">
                     <div class="table-container">
                         <table class="data-table">
@@ -135,55 +95,8 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>001</strong></td>
-                                    <td><strong>Ana Souza Ramos</strong><br><span class="text-muted text-sm">Prontuário: 10293</span></td>
-                                    <td>Rua das Flores, 12 - Casa 1</td>
-                                    <td>4</td>
-                                    <td>15/05/2026</td>
-                                    <td><button class="btn-text" onclick="abrirFamilia(10293)">Abrir Ficha</button></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>002</strong></td>
-                                    <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">Prontuário: 10294</span></td>
-                                    <td>Rua das Flores, 44 - Apto 2</td>
-                                    <td>2</td>
-                                    <td class="text-alert">10/04/2026</td>
-                                    <td><button class="btn-text" onclick="abrirFamilia(10294)">Abrir Ficha</button></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>003</strong></td>
-                                    <td><strong>Maria José Silva</strong><br><span class="text-muted text-sm">Prontuário: 10295</span></td>
-                                    <td>Beco do Sol, 10</td>
-                                    <td>5</td>
-                                    <td>02/06/2026</td>
-                                    <td><button class="btn-text" onclick="abrirFamilia(10295)">Abrir Ficha</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Conteúdo Aba 2: Lista de Pacientes -->
-                <div id="tab-pacientes" class="tab-content">
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nome do Paciente</th>
-                                    <th>Idade</th>
-                                    <th>Condições / Grupos</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Júlia Ramos Silva</strong></td>
-                                    <td>28 anos</td>
-                                    <td><span class="badge-priority high" style="margin-right: 6px;"></span>Gestante</td>
-                                    <td><button class="btn-text">Ver Cidadão</button></td>
-                                </tr>
+                            <!-- AQUI É ONDE O SCRIPT VAI INJETAR SUAS FAMÍLIAS -->
+                            <tbody id="listaFamilias">
                             </tbody>
                         </table>
                     </div>
@@ -193,38 +106,35 @@
         </main>
     </div>
 
-    <!-- Scripts de navegação -->
+    <!-- SCRIPT DE CARREGAMENTO -->
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Inicia a navegação e carrega os dados
+            if (typeof filtrarFamilias === 'function') {
+                filtrarFamilias();
+            }
+            
+            // Navegação entre abas e seções
             const menuLinks = document.querySelectorAll('.nav-item');
             const pageSections = document.querySelectorAll('.page-section');
 
             function navigateTo(targetId) {
                 const targetSection = document.querySelector(targetId);
                 if (!targetSection) return;
-                pageSections.forEach(section => { section.style.display = 'none'; section.classList.remove('active'); });
+                pageSections.forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
                 targetSection.style.display = 'block';
                 setTimeout(() => targetSection.classList.add('active'), 10);
-                menuLinks.forEach(item => { item.classList.remove('active'); if (item.getAttribute('href') === targetId) item.classList.add('active'); });
+                menuLinks.forEach(item => { 
+                    item.classList.remove('active'); 
+                    if (item.getAttribute('href') === targetId) item.classList.add('active'); 
+                });
             }
 
             menuLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
                     const targetId = this.getAttribute('href');
                     if (targetId.startsWith('#')) { event.preventDefault(); navigateTo(targetId); }
-                });
-            });
-
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const targetTabId = this.getAttribute('data-target');
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    this.classList.add('active');
-                    document.getElementById(targetTabId).classList.add('active');
                 });
             });
         });
