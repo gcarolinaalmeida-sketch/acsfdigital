@@ -1,268 +1,185 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ACS Digital">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
-  <meta charset="UTF-8">
-  <title>Detalhe da Família</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* ── MODO BOLSO ── */
-    .btn-bolso {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #4a5568;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-bolso:hover { background: #2d3748; }
-    .btn-bolso.ativo { background: #e53e3e; }
-
-    /* Sobreposição de modo bolso */
-    #modoBolsoOverlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 9998;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      text-align: center;
-      padding: 40px 24px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-    }
-    #modoBolsoOverlay.ativo { display: flex; }
-    #modoBolsoOverlay .bolso-emoji { font-size: 64px; margin-bottom: 20px; animation: balance 3s ease-in-out infinite; }
-    @keyframes balance { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
-    #modoBolsoOverlay h2 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
-    #modoBolsoOverlay p  { font-size: 15px; color: rgba(255,255,255,0.7); margin-bottom: 30px; }
-    #modoBolsoOverlay .contador-bolso {
-      font-size: 56px;
-      font-weight: 800;
-      color: #fc8181;
-      line-height: 1;
-      margin-bottom: 6px;
-      font-variant-numeric: tabular-nums;
-    }
-    #modoBolsoOverlay .label-contador { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 28px; }
-    #modoBolsoOverlay .btn-desbloquear {
-      background: white;
-      color: #1a365d;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 30px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-bottom: 12px;
-      width: 100%;
-      max-width: 280px;
-      transition: background 0.2s, transform 0.15s;
-    }
-    #modoBolsoOverlay .btn-desbloquear:hover { background: #ebf8ff; transform: scale(1.02); }
-
-    /* ── MODO CONTRASTE ALTO / SOL ── */
-    body.modo-sol {
-      background: white !important;
-      color: black !important;
-    }
-    body.modo-sol .box,
-    body.modo-sol .card,
-    body.modo-sol .btn {
-      background: white !important;
-      color: black !important;
-      border: 2px solid black !important;
-    }
-    body.modo-sol h1, body.modo-sol h2, body.modo-sol h3,
-    body.modo-sol strong, body.modo-sol b { color: black !important; font-weight: 900 !important; }
-    body.modo-sol p, body.modo-sol span, body.modo-sol label { color: #111 !important; font-weight: 700 !important; }
-    body.modo-sol .sidebar { background: #000 !important; }
-    body.modo-sol .topbar h1 { color: #000 !important; }
-    body.modo-sol .page-actions h1 { color: #000 !important; }
-    body.modo-sol button { border: 2px solid #000 !important; font-weight: 900 !important; }
-
-    .btn-sol {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #ed8936;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-sol:hover { background: #c05621; }
-    .btn-sol.ativo { background: #1a365d; }
-
-    /* Barra de ações extras no topo */
-    .barra-extras {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Detalhe da Família - ACS Digital</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
-
 <body>
 
-<!-- ════════════════════════════════════════════
-     SOBREPOSIÇÃO MODO BOLSO
-════════════════════════════════════════════ -->
-<div id="modoBolsoOverlay">
-  <div class="bolso-emoji">🔒</div>
-  <h2>Tela bloqueada</h2>
-  <p>Modo bolso ativo — toques acidentais bloqueados</p>
-  <div class="contador-bolso" id="contadorBolso">5</div>
-  <div class="label-contador">segundos para desbloquear</div>
-  <button class="btn-desbloquear" id="btnDesbloquear" onclick="desbloquearBolso()" disabled>
-    🔓 Desbloquear tela
-  </button>
-  <p style="font-size:12px;color:rgba(255,255,255,0.4);">Aguarde o contador para poder desbloquear</p>
-</div>
-
-<div class="main" style="margin-left:0;width:100%;">
-  <div class="page-actions">
-    <h1>Detalhes da família</h1>
-    <div class="page-actions-btns">
-      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
-      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
+    <!-- OVERLAY MODO BOLSO -->
+    <div id="modoBolsoOverlay" class="pocket-mode-overlay">
+        <i class="ph-fill ph-lock-key pocket-icon"></i>
+        <h2>Tela bloqueada</h2>
+        <p>Modo bolso ativo para evitar toques acidentais durante a caminhada.</p>
+        <div class="pocket-countdown" id="contadorBolso">5</div>
+        <div class="pocket-label">segundos para liberar</div>
+        <button class="btn-unlock" id="btnDesbloquear" onclick="desbloquearBolso()" disabled>
+            <i class="ph-bold ph-lock-open"></i> Desbloquear tela
+        </button>
     </div>
-  </div>
 
-  <!-- Barra de ferramentas extras -->
-  <div class="barra-extras">
-    <button class="btn-bolso" id="btnBolso" onclick="ativarModoBolso()" title="Bloqueia a tela contra toques acidentais">
-      🔒 Modo Bolso
-    </button>
-    <button class="btn-sol" id="btnSol" onclick="toggleModoSol()" title="Aumenta contraste para uso ao sol">
-      ☀️ Modo Sol
-    </button>
-  </div>
+    <div class="app-container">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar no-print">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="ph-bold ph-heart-beat"></i></div>
+                <div>
+                    <h1>ACS Digital</h1>
+                    <span class="subtitle">Microárea 03 - Guarda-Mor</span>
+                </div>
+            </div>
 
-  <div id="dadosFamilia" class="box"></div>
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Navegação Principal</span>
+                <a href="index.html" class="nav-item"><i class="ph ph-house"></i> Dashboard</a>
+                <a href="familias.html" class="nav-item active"><i class="ph ph-users"></i> Famílias</a>
+                <a href="visitas.html" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
+                <a href="metas.html" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
+                
+                <span class="nav-section-title">Atalhos Rápidos</span>
+                <a href="saude_cidadao.html" class="nav-item"><i class="ph ph-user-plus"></i> Novo Cadastro</a>
+                <a href="notificacoes.html" class="nav-item"><i class="ph ph-bell"></i> Notificações</a>
+            </nav>
 
-  <div class="box">
-    <h3>Membros da família</h3>
-    <div id="listaMembros"></div>
-  </div>
+            <div class="sidebar-footer">
+                <a href="configuracoes.html" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
+                <div class="sync-status">
+                    <i class="ph-bold ph-cloud-check"></i>
+                    <span>Sincronizado (Offline)</span>
+                </div>
+            </div>
+        </aside>
 
-  <div class="box" style="margin-top:20px;border-top:4px solid #3182ce;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;border-bottom:1px solid #edf2f7;padding-bottom:10px;">
-      <h3 style="margin:0;color:#2c5282;">📋 Histórico de Visitas</h3>
-      <button id="btnNovaVisitaDetalhe" class="btn btn-success" style="font-size:13px;padding:7px 14px;">▶ Nova Visita</button>
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            
+            <header class="main-header" style="margin-bottom: 24px;">
+                <div class="welcome-zone" style="display: flex; align-items: center; gap: 16px;">
+                    <button onclick="window.history.back()" class="btn-icon-only" title="Voltar">
+                        <i class="ph-bold ph-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2>Prontuário Familiar</h2>
+                        <p class="current-date">Detalhes e histórico do domicílio</p>
+                    </div>
+                </div>
+                
+                <!-- BARRA DE FERRAMENTAS EXTRAS -->
+                <div class="toolbar-actions no-print">
+                    <button class="tool-btn pocket" id="btnBolso" onclick="ativarModoBolso()" title="Bloqueia a tela contra toques acidentais">
+                        <i class="ph-bold ph-lock-key"></i> <span>Modo Bolso</span>
+                    </button>
+                    <button class="tool-btn sun" id="btnSol" onclick="toggleModoSol()" title="Aumenta contraste para uso ao sol">
+                        <i class="ph-bold ph-sun"></i> <span>Modo Sol</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- DADOS DA FAMÍLIA (Injetado via JS) -->
+            <div id="dadosFamilia" class="info-card fade-in"></div>
+
+            <section class="split-section" style="margin-top: 32px; gap: 32px;">
+                <!-- COLUNA ESQUERDA: MEMBROS -->
+                <div class="split-block" style="flex: 1;">
+                    <div class="section-header" style="margin-bottom: 16px;">
+                        <h3>Composição Familiar</h3>
+                    </div>
+                    <div id="listaMembros" class="member-list-container"></div>
+                </div>
+
+                <!-- COLUNA DIREITA: VISITAS -->
+                <div class="split-block" style="flex: 1;">
+                    <div class="section-header" style="margin-bottom: 16px;">
+                        <h3>Histórico de Visitas</h3>
+                        <button id="btnNovaVisitaDetalhe" class="btn-primary" style="padding: 6px 12px; font-size: 13px;">
+                            <i class="ph-bold ph-plus"></i> Nova Visita
+                        </button>
+                    </div>
+                    <div id="historicoVisitasFamilia" class="timeline-container"></div>
+                </div>
+            </section>
+
+        </main>
     </div>
-    <div id="historicoVisitasFamilia"></div>
-  </div>
 
-</div>
+    <script src="script.js"></script>
+    <script>
+        // ----------------------------------------------------
+        // LÓGICA DO MODO BOLSO E MODO SOL
+        // ----------------------------------------------------
+        let bolsoTimer = null;
+        let bolsoAtivo = false;
 
-<script src="script.js"></script>
-<script>
-// ════════════════════════════════════════════
-//  MODO BOLSO
-// ════════════════════════════════════════════
-let bolsoTimer = null;
-let bolsoAtivo = false;
+        function ativarModoBolso() {
+            bolsoAtivo = true;
+            const overlay = document.getElementById('modoBolsoOverlay');
+            const btnDesbloquear = document.getElementById('btnDesbloquear');
+            const contador = document.getElementById('contadorBolso');
 
-function ativarModoBolso() {
-    bolsoAtivo = true;
-    const overlay = document.getElementById('modoBolsoOverlay');
-    const btnDesbloquear = document.getElementById('btnDesbloquear');
-    const contador = document.getElementById('contadorBolso');
-    const btn = document.getElementById('btnBolso');
+            overlay.classList.add('active');
+            
+            let secs = 5;
+            btnDesbloquear.disabled = true;
+            contador.textContent = secs;
 
-    overlay.classList.add('ativo');
-    btn.classList.add('ativo');
-    btn.textContent = '🔒 Bloqueado';
-
-    // Conta regressiva de 5 segundos antes de permitir desbloquear
-    let secs = 5;
-    btnDesbloquear.disabled = true;
-    contador.textContent = secs;
-
-    bolsoTimer = setInterval(() => {
-        secs--;
-        contador.textContent = secs;
-        if (secs <= 0) {
-            clearInterval(bolsoTimer);
-            btnDesbloquear.disabled = false;
-            contador.textContent = '✅';
-            document.querySelector('#modoBolsoOverlay .label-contador').textContent = 'Pode desbloquear agora';
+            bolsoTimer = setInterval(() => {
+                secs--;
+                contador.textContent = secs;
+                if (secs <= 0) {
+                    clearInterval(bolsoTimer);
+                    btnDesbloquear.disabled = false;
+                    contador.innerHTML = '<i class="ph-bold ph-check"></i>';
+                    document.querySelector('#modoBolsoOverlay .pocket-label').textContent = 'Pronto para desbloquear';
+                }
+            }, 1000);
         }
-    }, 1000);
 
-    // Bloqueia scroll do body
-    document.body.style.overflow = 'hidden';
-}
+        function desbloquearBolso() {
+            bolsoAtivo = false;
+            clearInterval(bolsoTimer);
+            document.getElementById('modoBolsoOverlay').classList.remove('active');
+            document.getElementById('contadorBolso').textContent = '5';
+            document.querySelector('#modoBolsoOverlay .pocket-label').textContent = 'segundos para liberar';
+        }
 
-function desbloquearBolso() {
-    bolsoAtivo = false;
-    clearInterval(bolsoTimer);
-    const overlay = document.getElementById('modoBolsoOverlay');
-    const btn = document.getElementById('btnBolso');
-    overlay.classList.remove('ativo');
-    btn.classList.remove('ativo');
-    btn.textContent = '🔒 Modo Bolso';
-    document.body.style.overflow = '';
+        // Impede cliques vazados no modo bolso
+        document.addEventListener('click', (e) => {
+            if (bolsoAtivo && !e.target.closest('#modoBolsoOverlay')) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
 
-    // Reseta o contador para próxima vez
-    document.getElementById('contadorBolso').textContent = '5';
-    document.querySelector('#modoBolsoOverlay .label-contador').textContent = 'segundos para desbloquear';
-}
+        // MODO SOL (Alto Contraste)
+        function toggleModoSol() {
+            const ativo = document.body.classList.toggle('sun-mode');
+            const btn = document.getElementById('btnSol');
+            localStorage.setItem('modoSol', ativo ? '1' : '0');
+            
+            if (ativo) {
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="ph-bold ph-moon"></i> <span>Modo Normal</span>';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="ph-bold ph-sun"></i> <span>Modo Sol</span>';
+            }
+        }
 
-// Impede cliques enquanto modo bolso está ativo (exceto no overlay)
-document.addEventListener('click', (e) => {
-    if (bolsoAtivo && !e.target.closest('#modoBolsoOverlay')) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-}, true);
-
-// ════════════════════════════════════════════
-//  MODO SOL (Contraste Alto)
-// ════════════════════════════════════════════
-function toggleModoSol() {
-    const ativo = document.body.classList.toggle('modo-sol');
-    const btn = document.getElementById('btnSol');
-    localStorage.setItem('modoSol', ativo ? '1' : '0');
-    if (ativo) {
-        btn.classList.add('ativo');
-        btn.textContent = '🌙 Modo Normal';
-        btn.title = 'Voltar ao modo normal';
-    } else {
-        btn.classList.remove('ativo');
-        btn.textContent = '☀️ Modo Sol';
-        btn.title = 'Aumenta contraste para uso ao sol';
-    }
-}
-
-// Restaura modo sol ao carregar
-document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('modoSol') === '1') {
-        document.body.classList.add('modo-sol');
-        const btn = document.getElementById('btnSol');
-        if (btn) { btn.classList.add('ativo'); btn.textContent = '🌙 Modo Normal'; }
-    }
-});
-</script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('modoSol') === '1') {
+                document.body.classList.add('sun-mode');
+                const btn = document.getElementById('btnSol');
+                if (btn) {
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="ph-bold ph-moon"></i> <span>Modo Normal</span>';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
