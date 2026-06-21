@@ -11,6 +11,7 @@
 
     <div class="app-container">
         
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon"><i class="ph-bold ph-heart-beat"></i></div>
@@ -41,8 +42,10 @@
             </div>
         </aside>
 
+        <!-- CONTEÚDO PRINCIPAL -->
         <main class="main-content">
             
+            <!-- DASHBOARD -->
             <div id="dashboard" class="page-section active">
                 <header class="main-header">
                     <div class="welcome-zone">
@@ -148,6 +151,7 @@
                 </section>
             </div>
 
+            <!-- FAMÍLIAS -->
             <div id="familias" class="page-section" style="display: none;">
                 <header class="main-header" style="margin-bottom: 16px;">
                     <div class="welcome-zone">
@@ -177,7 +181,7 @@
                                     <th>Última Visita</th>
                                     <th>Ações</th>
                                 </tr>
-                            </table>
+                            </thead>
                             <tbody>
                                 <tr>
                                     <td><strong>Ana Souza Ramos</strong><br><span class="text-muted text-sm">Prontuário: 10293</span></td>
@@ -245,6 +249,7 @@
                 </div>
             </div>
 
+            <!-- VISITAS -->
             <div id="visitas" class="page-section" style="display: none;">
                 <header class="main-header" style="margin-bottom: 32px;">
                     <div class="welcome-zone">
@@ -257,6 +262,7 @@
                 </div>
             </div>
 
+            <!-- INDICADORES -->
             <div id="indicadores" class="page-section" style="display: none;">
                 <header class="main-header" style="margin-bottom: 32px;">
                     <div class="welcome-zone">
@@ -269,6 +275,7 @@
                 </div>
             </div>
 
+            <!-- NOVO CADASTRO -->
             <div id="novo-cadastro" class="page-section" style="display: none;">
                 <header class="main-header" style="margin-bottom: 32px;">
                     <div class="welcome-zone">
@@ -321,6 +328,7 @@
                 </form>
             </div>
 
+            <!-- FICHA DE SINTOMAS -->
             <div id="sintomas" class="page-section" style="display: none;">
                 <header class="main-header" style="margin-bottom: 32px;">
                     <div class="welcome-zone">
@@ -387,7 +395,6 @@
             document.querySelectorAll('.back-to-dash').forEach(btn => {
                 btn.addEventListener('click', () => navigateTo('#dashboard'));
             });
-
 
             // 2. Navegação Secundária (Abas Internas de Famílias)
             const tabButtons = document.querySelectorAll('.tab-button');
