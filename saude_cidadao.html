@@ -13,31 +13,35 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon"><i class="ph-bold ph-heart-beat"></i></div>
-                <div><h1>ACS Digital</h1><span class="subtitle">Microárea 03</span></div>
+                <div>
+                    <h1>ACS Digital</h1>
+                    <span class="subtitle">Microárea 03 - Guarda-Mor</span>
+                </div>
             </div>
             <nav class="sidebar-nav">
                 <a href="index.html" class="nav-item"><i class="ph ph-house"></i> Dashboard</a>
                 <a href="familias.html" class="nav-item"><i class="ph ph-users"></i> Famílias</a>
                 <a href="visitas.html" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
             </nav>
+            <div class="sidebar-footer">
+                <a href="configuracoes.html" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
+            </div>
         </aside>
 
         <main class="main-content">
-            <header class="main-header" style="margin-bottom: 24px;">
-                <div class="welcome-zone" style="display: flex; align-items: center; gap: 16px;">
-                    <button onclick="window.history.back()" class="btn-secondary" style="padding: 8px 12px;">
-                        <i class="ph-bold ph-arrow-left"></i>
+            
+            <header class="main-header">
+                <div class="welcome-zone">
+                    <button onclick="window.history.back()" class="btn-secondary" style="margin-bottom: 12px;">
+                        <i class="ph ph-arrow-left"></i> Voltar
                     </button>
-                    <div>
-                        <h2>Prontuário do Cidadão</h2>
-                        <p class="current-date">Saúde e acompanhamento</p>
-                    </div>
+                    <h2>Prontuário do Cidadão</h2>
                 </div>
             </header>
 
-            <div class="info-card" style="margin-bottom: 24px; padding: 24px;">
+            <div class="compact-card" style="padding: 24px;">
                 <div id="cidadaoHeader">
-                    <h3>Carregando dados...</h3>
+                    <p style="color: var(--text-muted);">Carregando dados...</p>
                 </div>
             </div>
 
@@ -67,19 +71,11 @@
                     <div id="listaExames"></div>
                 </div>
             </div>
-
         </main>
-    </div>
-
-    <div id="modalSinais" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Registrar Sinais Vitais</h3>
-            </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // Função de trocar abas que você já usava
         function trocarTab(tab) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tsb').forEach(b => b.classList.remove('active'));
