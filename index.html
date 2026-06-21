@@ -2,8 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACS Digital - Painel de Controle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Detalhe da Família - ACS Digital</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
@@ -23,18 +24,14 @@
 
             <nav class="sidebar-nav">
                 <span class="nav-section-title">Navegação Principal</span>
-                <a href="#dashboard" class="nav-item active"><i class="ph ph-house"></i> Dashboard</a>
-                <a href="#familias" class="nav-item"><i class="ph ph-users"></i> Famílias</a>
-                <a href="#visitas" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
-                <a href="#indicadores" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
-                
-                <span class="nav-section-title">Atalhos Rápidos</span>
-                <a href="#novo-cadastro" class="nav-item"><i class="ph ph-user-plus"></i> Novo Cadastro</a>
-                <a href="#sintomas" class="nav-item"><i class="ph ph-clipboard-text"></i> Ficha de Sintomas</a>
+                <a href="index.html" class="nav-item"><i class="ph ph-house"></i> Dashboard</a>
+                <a href="familias.html" class="nav-item active"><i class="ph ph-users"></i> Famílias</a>
+                <a href="visitas.html" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
+                <a href="metas.html" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="#configuracoes" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
+                <a href="configuracoes.html" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
                 <div class="sync-status">
                     <i class="ph-bold ph-cloud-check"></i>
                     <span>Sincronizado (Offline)</span>
@@ -45,367 +42,64 @@
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="main-content">
             
-            <!-- DASHBOARD -->
-            <div id="dashboard" class="page-section active">
-                <header class="main-header">
-                    <div class="welcome-zone">
-                        <h2>Bom dia.</h2>
-                        <p class="current-date" id="live-date">Sábado, 20 de Junho</p>
+            <header class="main-header" style="margin-bottom: 24px;">
+                <div class="welcome-zone" style="display: flex; align-items: center; gap: 16px;">
+                    <button onclick="window.history.back()" class="btn-secondary" style="padding: 8px 12px;">
+                        <i class="ph-bold ph-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2>Detalhes da Família</h2>
+                        <p class="current-date">Prontuário e histórico do domicílio</p>
                     </div>
-                    <div class="search-zone">
-                        <i class="ph ph-magnifying-glass search-icon"></i>
-                        <input type="text" placeholder="Busca rápida por nome, CPF ou rua..." class="search-input">
-                    </div>
-                </header>
+                </div>
+            </header>
 
-                <section class="overview-section">
-                    <div class="compact-card">
-                        <span class="card-label">Famílias</span>
-                        <span class="card-value">142</span>
-                        <span class="card-subtext positive">+2 este mês</span>
-                    </div>
-                    <div class="compact-card">
-                        <span class="card-label">Visitas Mês</span>
-                        <span class="card-value">45 <span class="goal">/ 150</span></span>
-                        <span class="card-subtext">Meta: 30% concluída</span>
-                    </div>
-                    <div class="compact-card">
-                        <span class="card-label">Gestantes</span>
-                        <span class="card-value">8</span>
-                        <span class="card-subtext highlight">2 no 3º trimestre</span>
-                    </div>
-                    <div class="compact-card">
-                        <span class="card-label">Pendências</span>
-                        <span class="card-value text-alert">5</span>
-                        <span class="card-subtext">Atualizar hoje</span>
-                    </div>
-                </section>
-
-                <section class="priority-section">
-                    <div class="section-header">
-                        <h3>Visitas Prioritárias</h3>
-                        <button class="btn-secondary"><i class="ph ph-plus"></i> Nova Visita</button>
-                    </div>
-
-                    <div class="priority-list">
-                        <div class="priority-item">
-                            <div class="item-left">
-                                <span class="badge-priority high"></span>
-                                <div class="patient-info">
-                                    <span class="patient-condition">Gestante 3º Trimestre</span>
-                                    <span class="patient-meta">Ana Silva — Rua A, 12</span>
-                                </div>
-                            </div>
-                            <button class="btn-action">Iniciar</button>
-                        </div>
-
-                        <div class="priority-item">
-                            <div class="item-left">
-                                <span class="badge-priority medium"></span>
-                                <div class="patient-info">
-                                    <span class="patient-condition">Hipertenso - Atrasado</span>
-                                    <span class="patient-meta">João Costa — Rua B, 44</span>
-                                </div>
-                            </div>
-                            <button class="btn-action">Iniciar</button>
-                        </div>
-
-                        <div class="priority-item">
-                            <div class="item-left">
-                                <span class="badge-priority low"></span>
-                                <div class="patient-info">
-                                    <span class="patient-condition">Rotina Mensal</span>
-                                    <span class="patient-meta">Maria José — Rua C, 10</span>
-                                </div>
-                            </div>
-                            <button class="btn-action">Iniciar</button>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="split-section">
-                    <div class="split-block map-block">
-                        <h4>Contexto Geoespacial</h4>
-                        <div class="map-placeholder">
-                            <i class="ph ph-map-trifold"></i>
-                            <p>Exibindo 3 visitas prioritárias no raio atual</p>
-                        </div>
-                    </div>
-                    <div class="split-block indicators-block">
-                        <h4>Indicadores da Semana</h4>
-                        <ul class="indicator-ranking">
-                            <li>
-                                <span class="indicator-name">Vacinação Infantil</span>
-                                <span class="indicator-percent">90%</span>
-                            </li>
-                            <li>
-                                <span class="indicator-name">Controle Glicêmico</span>
-                                <span class="indicator-percent">75%</span>
-                            </li>
-                            <li>
-                                <span class="indicator-name">Pré-Natal Iniciado</span>
-                                <span class="indicator-percent">100%</span>
-                            </li>
-                        </ul>
-                    </div>
-                </section>
+            <!-- Card de Dados da Família -->
+            <div id="dadosFamilia" class="compact-card" style="padding: 24px;">
+                <!-- O conteúdo aqui é preenchido automaticamente pelo seu script.js -->
+                <p style="color: var(--text-muted);">Carregando detalhes da família...</p>
             </div>
 
-            <!-- FAMÍLIAS -->
-            <div id="familias" class="page-section" style="display: none;">
-                <header class="main-header" style="margin-bottom: 16px;">
-                    <div class="welcome-zone">
-                        <h2>Cadastros da Microárea 03</h2>
-                        <p class="current-date">Gerenciamento de domicílios e indivíduos</p>
+            <!-- Colunas de Membros e Visitas -->
+            <section class="split-section" style="margin-top: 32px; gap: 32px;">
+                
+                <!-- COLUNA ESQUERDA: MEMBROS -->
+                <div class="split-block" style="flex: 1;">
+                    <div class="section-header" style="margin-bottom: 16px;">
+                        <h3>Composição Familiar</h3>
                     </div>
-                    <a href="#novo-cadastro" class="tab-trigger-link" style="text-decoration: none;">
-                        <button class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
-                            <i class="ph ph-plus"></i> Novo Cadastro
+                    <div id="listaMembros" class="table-container">
+                        <!-- O conteúdo aqui é preenchido automaticamente pelo seu script.js -->
+                    </div>
+                </div>
+
+                <!-- COLUNA DIREITA: VISITAS -->
+                <div class="split-block" style="flex: 1;">
+                    <div class="section-header" style="margin-bottom: 16px;">
+                        <h3>Histórico de Visitas</h3>
+                        <button id="btnNovaVisitaDetalhe" class="btn-secondary" style="padding: 6px 12px; font-size: 13px;">
+                            <i class="ph-bold ph-plus"></i> Nova Visita
                         </button>
-                    </a>
-                </header>
-
-                <div class="tabs-container">
-                    <button class="tab-button active" data-target="tab-familias">Famílias (Domicílios)</button>
-                    <button class="tab-button" data-target="tab-pacientes">Pacientes (Cidadãos)</button>
-                </div>
-
-                
-                            <tbody>
-                                <tr>
-                                    <td><strong>001</strong></td>
-                                    <td><strong>Ana Souza Ramos</strong><br><span class="text-muted text-sm">Prontuário: 10293</span></td>
-                                    <td>Rua das Flores, 12 - Casa 1</td>
-                                    <td>4</td>
-                                    <td>15/05/2026</td>
-                                    <td><button class="btn-text" onclick="window.location.href='familia_detalhe.html'">Abrir Ficha</button></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>002</strong></td>
-                                    <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">Prontuário: 10294</span></td>
-                                    <td>Rua das Flores, 44 - Apto 2</td>
-                                    <td>2</td>
-                                    <td class="text-alert">10/04/2026</td>
-                                    <td><button class="btn-text" onclick="window.location.href='familia_detalhe.html'">Abrir Ficha</button></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>003</strong></td>
-                                    <td><strong>Maria José Silva</strong><br><span class="text-muted text-sm">Prontuário: 10295</span></td>
-                                    <td>Beco do Sol, 10</td>
-                                    <td>5</td>
-                                    <td>02/06/2026</td>
-                                    <td><button class="btn-text" onclick="window.location.href='familia_detalhe.html'">Abrir Ficha</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    </div>
+                    <div id="historicoVisitasFamilia" class="priority-list">
+                        <!-- O conteúdo aqui é preenchido automaticamente pelo seu script.js -->
                     </div>
                 </div>
-
-                <!-- Conteúdo Aba 2: Lista de Pacientes -->
-                <div id="tab-pacientes" class="tab-content">
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nome do Paciente</th>
-                                    <th>Idade</th>
-                                    <th>Condições / Grupos</th>
-                                    <th>Família (Responsável)</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Júlia Ramos Silva</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0001</span></td>
-                                    <td>28 anos</td>
-                                    <td><span class="badge-priority high" style="margin-right: 6px;"></span>Gestante</td>
-                                    <td>Ana Souza Ramos</td>
-                                    <td><button class="btn-text">Ver Cidadão</button></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0002</span></td>
-                                    <td>65 anos</td>
-                                    <td><span class="badge-priority medium" style="margin-right: 6px;"></span>Hipertenso</td>
-                                    <td>Carlos Eduardo Mendes</td>
-                                    <td><button class="btn-text">Ver Cidadão</button></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Lucas Ramos Silva</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0003</span></td>
-                                    <td>4 anos</td>
-                                    <td><span class="badge-priority low" style="margin-right: 6px;"></span>Criança (Vacinação)</td>
-                                    <td>Ana Souza Ramos</td>
-                                    <td><button class="btn-text">Ver Cidadão</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VISITAS -->
-            <div id="visitas" class="page-section" style="display: none;">
-                <header class="main-header" style="margin-bottom: 32px;">
-                    <div class="welcome-zone">
-                        <h2>Controle de Visitas</h2>
-                        <p class="current-date">Agenda e Retornos</p>
-                    </div>
-                </header>
-                <div class="compact-card">
-                    <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">O calendário de visitas será exibido aqui.</p>
-                </div>
-            </div>
-
-            <!-- INDICADORES -->
-            <div id="indicadores" class="page-section" style="display: none;">
-                <header class="main-header" style="margin-bottom: 32px;">
-                    <div class="welcome-zone">
-                        <h2>Indicadores Previne Brasil</h2>
-                        <p class="current-date">Metas e Desempenho</p>
-                    </div>
-                </header>
-                <div class="compact-card">
-                    <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">Os gráficos e relatórios serão exibidos aqui.</p>
-                </div>
-            </div>
-
-            <!-- NOVO CADASTRO -->
-            <div id="novo-cadastro" class="page-section" style="display: none;">
-                <header class="main-header" style="margin-bottom: 32px;">
-                    <div class="welcome-zone">
-                        <h2>Novo Cadastro</h2>
-                        <p class="current-date">Adicionar nova família ou indivíduo na Microárea 03</p>
-                    </div>
-                </header>
-                
-                <form class="modern-form">
-                    <div class="form-section">
-                        <h4>Dados do Responsável</h4>
-                        <div class="form-grid">
-                            <div class="input-group full-width">
-                                <label>Nome Completo</label>
-                                <input type="text" placeholder="Ex: João da Silva">
-                            </div>
-                            <div class="input-group">
-                                <label>Data de Nascimento</label>
-                                <input type="date">
-                            </div>
-                            <div class="input-group">
-                                <label>Cartão do SUS / CPF</label>
-                                <input type="text" placeholder="000.000.000-00">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h4>Endereço</h4>
-                        <div class="form-grid">
-                            <div class="input-group full-width">
-                                <label>Rua / Beco</label>
-                                <input type="text" placeholder="Ex: Rua A">
-                            </div>
-                            <div class="input-group">
-                                <label>Número</label>
-                                <input type="text" placeholder="Ex: 12">
-                            </div>
-                            <div class="input-group">
-                                <label>Complemento</label>
-                                <input type="text" placeholder="Casa, Apto...">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary back-to-dash">Cancelar</button>
-                        <button type="button" class="btn-primary">Salvar Cadastro</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- FICHA DE SINTOMAS -->
-            <div id="sintomas" class="page-section" style="display: none;">
-                <header class="main-header" style="margin-bottom: 32px;">
-                    <div class="welcome-zone">
-                        <h2>Ficha de Sintomas</h2>
-                        <p class="current-date">Triagem rápida em visitas</p>
-                    </div>
-                </header>
-                <div class="compact-card">
-                    <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">O formulário de triagem epidemiológica será exibido aqui.</p>
-                </div>
-            </div>
+            </section>
 
         </main>
     </div>
 
+    <script src="script.js"></script>
     <script>
+        // Garante que o histórico e os membros sejam renderizados ao abrir
         document.addEventListener('DOMContentLoaded', () => {
-            const menuLinks = document.querySelectorAll('.nav-item');
-            const pageSections = document.querySelectorAll('.page-section');
-
-            // 1. Navegação Principal (Sidebar)
-            function navigateTo(targetId) {
-                const targetSection = document.querySelector(targetId);
-                if (!targetSection) return;
-
-                // Esconde todas as seções principais
-                pageSections.forEach(section => {
-                    section.style.display = 'none';
-                    section.classList.remove('active');
-                });
-
-                // Mostra a seção desejada
-                targetSection.style.display = 'block';
-                setTimeout(() => targetSection.classList.add('active'), 10);
-
-                // Atualiza o estado visual do menu lateral
-                menuLinks.forEach(item => {
-                    item.classList.remove('active');
-                    if (item.getAttribute('href') === targetId) {
-                        item.classList.add('active');
-                    }
-                });
+            if (typeof mostrarFamiliaDetalhe === 'function') {
+                mostrarFamiliaDetalhe();
             }
-
-            menuLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    const targetId = this.getAttribute('href');
-                    if (targetId.startsWith('#')) {
-                        event.preventDefault();
-                        navigateTo(targetId);
-                    }
-                });
-            });
-
-            // Links alternativos dentro de páginas que mudam de seção
-            document.querySelectorAll('.tab-trigger-link').forEach(trigger => {
-                trigger.addEventListener('click', function(e) {
-                    const targetId = this.getAttribute('href');
-                    e.preventDefault();
-                    navigateTo(targetId);
-                });
-            });
-
-            document.querySelectorAll('.back-to-dash').forEach(btn => {
-                btn.addEventListener('click', () => navigateTo('#dashboard'));
-            });
-
-            // 2. Navegação Secundária (Abas Internas de Famílias)
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
-
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const targetTabId = this.getAttribute('data-target');
-
-                    // Desativa botões e esconde conteúdos das abas
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
-
-                    // Ativa aba atual
-                    this.classList.add('active');
-                    document.getElementById(targetTabId).classList.add('active');
-                });
-            });
+            if (typeof renderizarMembrosDetalhe === 'function') {
+                renderizarMembrosDetalhe();
+            }
         });
     </script>
 </body>
