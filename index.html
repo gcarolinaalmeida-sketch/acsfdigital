@@ -49,7 +49,7 @@
             <div id="dashboard" class="page-section active">
                 <header class="main-header">
                     <div class="welcome-zone">
-                        <h2>Bom dia, Gabi.</h2>
+                        <h2>Bom dia.</h2>
                         <p class="current-date" id="live-date">Sábado, 20 de Junho</p>
                     </div>
                     <div class="search-zone">
@@ -170,11 +170,13 @@
                     <button class="tab-button" data-target="tab-pacientes">Pacientes (Cidadãos)</button>
                 </div>
 
+                <!-- Conteúdo Aba 1: Lista de Famílias (Agora com Nº da Família) -->
                 <div id="tab-familias" class="tab-content active">
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th>Nº Família</th>
                                     <th>Responsável Familiar</th>
                                     <th>Endereço</th>
                                     <th>Membros</th>
@@ -184,6 +186,7 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><strong>001</strong></td>
                                     <td><strong>Ana Souza Ramos</strong><br><span class="text-muted text-sm">Prontuário: 10293</span></td>
                                     <td>Rua das Flores, 12 - Casa 1</td>
                                     <td>4</td>
@@ -191,6 +194,7 @@
                                     <td><button class="btn-text">Abrir Ficha</button></td>
                                 </tr>
                                 <tr>
+                                    <td><strong>002</strong></td>
                                     <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">Prontuário: 10294</span></td>
                                     <td>Rua das Flores, 44 - Apto 2</td>
                                     <td>2</td>
@@ -198,6 +202,7 @@
                                     <td><button class="btn-text">Abrir Ficha</button></td>
                                 </tr>
                                 <tr>
+                                    <td><strong>003</strong></td>
                                     <td><strong>Maria José Silva</strong><br><span class="text-muted text-sm">Prontuário: 10295</span></td>
                                     <td>Beco do Sol, 10</td>
                                     <td>5</td>
@@ -209,6 +214,7 @@
                     </div>
                 </div>
 
+                <!-- Conteúdo Aba 2: Lista de Pacientes -->
                 <div id="tab-pacientes" class="tab-content">
                     <div class="table-container">
                         <table class="data-table">
