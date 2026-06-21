@@ -2,9 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Detalhe da Família - ACS Digital</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACS Digital - Painel de Controle</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
@@ -24,14 +23,18 @@
 
             <nav class="sidebar-nav">
                 <span class="nav-section-title">Navegação Principal</span>
-                <a href="index.html" class="nav-item"><i class="ph ph-house"></i> Dashboard</a>
-                <a href="familias.html" class="nav-item active"><i class="ph ph-users"></i> Famílias</a>
-                <a href="visitas.html" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
-                <a href="metas.html" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
+                <a href="#dashboard" class="nav-item active"><i class="ph ph-house"></i> Dashboard</a>
+                <a href="#familias" class="nav-item"><i class="ph ph-users"></i> Famílias</a>
+                <a href="#visitas" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
+                <a href="#indicadores" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
+                
+                <span class="nav-section-title">Atalhos Rápidos</span>
+                <a href="#novo-cadastro" class="nav-item"><i class="ph ph-user-plus"></i> Novo Cadastro</a>
+                <a href="#sintomas" class="nav-item"><i class="ph ph-clipboard-text"></i> Ficha de Sintomas</a>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="configuracoes.html" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
+                <a href="#configuracoes" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
                 <div class="sync-status">
                     <i class="ph-bold ph-cloud-check"></i>
                     <span>Sincronizado (Offline)</span>
@@ -42,64 +45,188 @@
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="main-content">
             
-            <header class="main-header" style="margin-bottom: 24px;">
-                <div class="welcome-zone" style="display: flex; align-items: center; gap: 16px;">
-                    <button onclick="window.history.back()" class="btn-secondary" style="padding: 8px 12px;">
-                        <i class="ph-bold ph-arrow-left"></i>
-                    </button>
-                    <div>
-                        <h2>Detalhes da Família</h2>
-                        <p class="current-date">Prontuário e histórico do domicílio</p>
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="page-section active">
+                <header class="main-header">
+                    <div class="welcome-zone">
+                        <h2>Bom dia.</h2>
+                        <p class="current-date" id="live-date">Sábado, 20 de Junho</p>
                     </div>
-                </div>
-            </header>
+                    <div class="search-zone">
+                        <i class="ph ph-magnifying-glass search-icon"></i>
+                        <input type="text" placeholder="Busca rápida por nome, CPF ou rua..." class="search-input">
+                    </div>
+                </header>
 
-            <!-- Card de Dados da Família -->
-            <div id="dadosFamilia" class="compact-card" style="padding: 24px;">
-                <!-- O conteúdo aqui é preenchido automaticamente pelo seu script.js -->
-                <p style="color: var(--text-muted);">Carregando detalhes da família...</p>
+                <section class="overview-section">
+                    <div class="compact-card">
+                        <span class="card-label">Famílias</span>
+                        <span class="card-value">142</span>
+                        <span class="card-subtext positive">+2 este mês</span>
+                    </div>
+                    <div class="compact-card">
+                        <span class="card-label">Visitas Mês</span>
+                        <span class="card-value">45 <span class="goal">/ 150</span></span>
+                        <span class="card-subtext">Meta: 30% concluída</span>
+                    </div>
+                    <div class="compact-card">
+                        <span class="card-label">Gestantes</span>
+                        <span class="card-value">8</span>
+                        <span class="card-subtext highlight">2 no 3º trimestre</span>
+                    </div>
+                    <div class="compact-card">
+                        <span class="card-label">Pendências</span>
+                        <span class="card-value text-alert">5</span>
+                        <span class="card-subtext">Atualizar hoje</span>
+                    </div>
+                </section>
+
+                <section class="priority-section">
+                    <div class="section-header">
+                        <h3>Visitas Prioritárias</h3>
+                        <button class="btn-secondary"><i class="ph ph-plus"></i> Nova Visita</button>
+                    </div>
+
+                    <div class="priority-list">
+                        <div class="priority-item">
+                            <div class="item-left">
+                                <span class="badge-priority high"></span>
+                                <div class="patient-info">
+                                    <span class="patient-condition">Gestante 3º Trimestre</span>
+                                    <span class="patient-meta">Ana Silva — Rua A, 12</span>
+                                </div>
+                            </div>
+                            <button class="btn-action">Iniciar</button>
+                        </div>
+                    </div>
+                </section>
             </div>
 
-            <!-- Colunas de Membros e Visitas -->
-            <section class="split-section" style="margin-top: 32px; gap: 32px;">
-                
-                <!-- COLUNA ESQUERDA: MEMBROS -->
-                <div class="split-block" style="flex: 1;">
-                    <div class="section-header" style="margin-bottom: 16px;">
-                        <h3>Composição Familiar</h3>
+            <!-- FAMÍLIAS -->
+            <div id="familias" class="page-section" style="display: none;">
+                <header class="main-header" style="margin-bottom: 16px;">
+                    <div class="welcome-zone">
+                        <h2>Cadastros da Microárea 03</h2>
+                        <p class="current-date">Gerenciamento de domicílios e indivíduos</p>
                     </div>
-                    <div id="listaMembros" class="table-container">
-                        <!-- O conteúdo aqui é preenchido automaticamente pelo seu script.js -->
+                    <a href="#novo-cadastro" class="tab-trigger-link" style="text-decoration: none;">
+                        <button class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-plus"></i> Novo Cadastro
+                        </button>
+                    </a>
+                </header>
+
+                <div class="tabs-container">
+                    <button class="tab-button active" data-target="tab-familias">Famílias (Domicílios)</button>
+                    <button class="tab-button" data-target="tab-pacientes">Pacientes (Cidadãos)</button>
+                </div>
+
+                <!-- Conteúdo Aba 1: Lista de Famílias -->
+                <div id="tab-familias" class="tab-content active">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nº Família</th>
+                                    <th>Responsável Familiar</th>
+                                    <th>Endereço</th>
+                                    <th>Membros</th>
+                                    <th>Última Visita</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>001</strong></td>
+                                    <td><strong>Ana Souza Ramos</strong><br><span class="text-muted text-sm">Prontuário: 10293</span></td>
+                                    <td>Rua das Flores, 12 - Casa 1</td>
+                                    <td>4</td>
+                                    <td>15/05/2026</td>
+                                    <td><button class="btn-text" onclick="abrirFamilia(10293)">Abrir Ficha</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>002</strong></td>
+                                    <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">Prontuário: 10294</span></td>
+                                    <td>Rua das Flores, 44 - Apto 2</td>
+                                    <td>2</td>
+                                    <td class="text-alert">10/04/2026</td>
+                                    <td><button class="btn-text" onclick="abrirFamilia(10294)">Abrir Ficha</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>003</strong></td>
+                                    <td><strong>Maria José Silva</strong><br><span class="text-muted text-sm">Prontuário: 10295</span></td>
+                                    <td>Beco do Sol, 10</td>
+                                    <td>5</td>
+                                    <td>02/06/2026</td>
+                                    <td><button class="btn-text" onclick="abrirFamilia(10295)">Abrir Ficha</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- COLUNA DIREITA: VISITAS -->
-                <div class="split-block" style="flex: 1;">
-                    <div class="section-header" style="margin-bottom: 16px;">
-                        <h3>Histórico de Visitas</h3>
-                        <button id="btnNovaVisitaDetalhe" class="btn-secondary" style="padding: 6px 12px; font-size: 13px;">
-                            <i class="ph-bold ph-plus"></i> Nova Visita
-                        </button>
-                    </div>
-                    <div id="historicoVisitasFamilia" class="priority-list">
-                        <!-- O conteúdo aqui é preenchido automaticamente pelo seu script.js -->
+                <!-- Conteúdo Aba 2: Lista de Pacientes -->
+                <div id="tab-pacientes" class="tab-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome do Paciente</th>
+                                    <th>Idade</th>
+                                    <th>Condições / Grupos</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Júlia Ramos Silva</strong></td>
+                                    <td>28 anos</td>
+                                    <td><span class="badge-priority high" style="margin-right: 6px;"></span>Gestante</td>
+                                    <td><button class="btn-text">Ver Cidadão</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </section>
+            </div>
 
         </main>
     </div>
 
+    <!-- Scripts de navegação -->
     <script src="script.js"></script>
     <script>
-        // Garante que o histórico e os membros sejam renderizados ao abrir
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof mostrarFamiliaDetalhe === 'function') {
-                mostrarFamiliaDetalhe();
+            const menuLinks = document.querySelectorAll('.nav-item');
+            const pageSections = document.querySelectorAll('.page-section');
+
+            function navigateTo(targetId) {
+                const targetSection = document.querySelector(targetId);
+                if (!targetSection) return;
+                pageSections.forEach(section => { section.style.display = 'none'; section.classList.remove('active'); });
+                targetSection.style.display = 'block';
+                setTimeout(() => targetSection.classList.add('active'), 10);
+                menuLinks.forEach(item => { item.classList.remove('active'); if (item.getAttribute('href') === targetId) item.classList.add('active'); });
             }
-            if (typeof renderizarMembrosDetalhe === 'function') {
-                renderizarMembrosDetalhe();
-            }
+
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId.startsWith('#')) { event.preventDefault(); navigateTo(targetId); }
+                });
+            });
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetTabId = this.getAttribute('data-target');
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(targetTabId).classList.add('active');
+                });
+            });
         });
     </script>
 </body>
