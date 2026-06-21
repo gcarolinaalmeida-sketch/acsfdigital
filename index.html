@@ -149,14 +149,99 @@
             </div>
 
             <div id="familias" class="page-section" style="display: none;">
-                <header class="main-header" style="margin-bottom: 32px;">
+                <header class="main-header" style="margin-bottom: 16px;">
                     <div class="welcome-zone">
-                        <h2>Cadastro de Famílias</h2>
-                        <p class="current-date">Gerenciamento da Microárea 03</p>
+                        <h2>Cadastros da Microárea 03</h2>
+                        <p class="current-date">Gerenciamento de domicílios e indivíduos</p>
                     </div>
+                    <a href="#novo-cadastro" class="tab-trigger-link" style="text-decoration: none;">
+                        <button class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-plus"></i> Novo Cadastro
+                        </button>
+                    </a>
                 </header>
-                <div class="compact-card">
-                    <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">A lista de famílias será exibida aqui.</p>
+
+                <div class="tabs-container">
+                    <button class="tab-button active" data-target="tab-familias">Famílias (Domicílios)</button>
+                    <button class="tab-button" data-target="tab-pacientes">Pacientes (Cidadãos)</button>
+                </div>
+
+                <div id="tab-familias" class="tab-content active">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Responsável Familiar</th>
+                                    <th>Endereço</th>
+                                    <th>Membros</th>
+                                    <th>Última Visita</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </table>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Ana Souza Ramos</strong><br><span class="text-muted text-sm">Prontuário: 10293</span></td>
+                                    <td>Rua das Flores, 12 - Casa 1</td>
+                                    <td>4</td>
+                                    <td>15/05/2026</td>
+                                    <td><button class="btn-text">Abrir Ficha</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">Prontuário: 10294</span></td>
+                                    <td>Rua das Flores, 44 - Apto 2</td>
+                                    <td>2</td>
+                                    <td class="text-alert">10/04/2026</td>
+                                    <td><button class="btn-text">Abrir Ficha</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Maria José Silva</strong><br><span class="text-muted text-sm">Prontuário: 10295</span></td>
+                                    <td>Beco do Sol, 10</td>
+                                    <td>5</td>
+                                    <td>02/06/2026</td>
+                                    <td><button class="btn-text">Abrir Ficha</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-pacientes" class="tab-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome do Paciente</th>
+                                    <th>Idade</th>
+                                    <th>Condições / Grupos</th>
+                                    <th>Família (Responsável)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Júlia Ramos Silva</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0001</span></td>
+                                    <td>28 anos</td>
+                                    <td><span class="badge-priority high" style="margin-right: 6px;"></span>Gestante</td>
+                                    <td>Ana Souza Ramos</td>
+                                    <td><button class="btn-text">Ver Cidadão</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0002</span></td>
+                                    <td>65 anos</td>
+                                    <td><span class="badge-priority medium" style="margin-right: 6px;"></span>Hipertenso</td>
+                                    <td>Carlos Eduardo Mendes</td>
+                                    <td><button class="btn-text">Ver Cidadão</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Lucas Ramos Silva</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0003</span></td>
+                                    <td>4 anos</td>
+                                    <td><span class="badge-priority low" style="margin-right: 6px;"></span>Criança (Vacinação)</td>
+                                    <td>Ana Souza Ramos</td>
+                                    <td><button class="btn-text">Ver Cidadão</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -186,52 +271,4 @@
 
             <div id="novo-cadastro" class="page-section" style="display: none;">
                 <header class="main-header" style="margin-bottom: 32px;">
-                    <h2>Novo Cadastro</h2>
-                </header>
-            </div>
-
-            <div id="sintomas" class="page-section" style="display: none;">
-                <header class="main-header" style="margin-bottom: 32px;">
-                    <h2>Ficha de Sintomas</h2>
-                </header>
-            </div>
-
-        </main>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const menuLinks = document.querySelectorAll('.nav-item');
-            const pageSections = document.querySelectorAll('.page-section');
-
-            menuLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    const targetId = this.getAttribute('href');
-
-                    if (targetId.startsWith('#')) {
-                        event.preventDefault(); 
-
-                        // 1. Atualiza visual do menu
-                        menuLinks.forEach(item => item.classList.remove('active'));
-                        this.classList.add('active');
-
-                        // 2. Esconde todas as seções
-                        pageSections.forEach(section => {
-                            section.style.display = 'none';
-                            section.classList.remove('active');
-                        });
-
-                        // 3. Mostra a seção desejada
-                        const activeSection = document.querySelector(targetId);
-                        if (activeSection) {
-                            activeSection.style.display = 'block';
-                            // Pequeno delay para garantir que a renderização do bloco termine antes de adicionar a classe ativa (útil para animações futuras)
-                            setTimeout(() => activeSection.classList.add('active'), 10);
-                        }
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+                    <div class="welcome-zone
