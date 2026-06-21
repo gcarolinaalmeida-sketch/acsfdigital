@@ -711,3 +711,35 @@ body.sun-mode .split-block {
 body.sun-mode .sidebar {
     border-right: 2px solid #000;
 }
+/* --- AJUSTE DE CONTENEDOR DE TABELA --- */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Isso impede que a tabela quebre o layout */
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-top: 16px;
+    -webkit-overflow-scrolling: touch; /* Suaviza o scroll no iPad */
+}
+
+/* --- ESTILO DA TABELA --- */
+.data-table {
+    width: 100%;
+    min-width: 600px; /* Garante que as colunas não fiquem espremidas demais */
+    border-collapse: collapse;
+}
+
+.data-table th, .data-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap; /* Impede que textos quebrem a linha de forma estranha */
+}
+
+.data-table th {
+    background-color: #f8fafc;
+    color: #4a5568;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
