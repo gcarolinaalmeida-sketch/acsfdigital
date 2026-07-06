@@ -1,610 +1,324 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Planejamento - ACS Digital</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .agenda-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: start;
-    }
-    @media (max-width: 768px) {
-      .agenda-grid { grid-template-columns: 1fr; }
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Agenda - ACS Digital</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>protegerPagina();</script>
+<script src="branding.js"></script>
+<script src="roteiro.js"></script>
 
-    .escala-sticky {
-      position: sticky;
-      top: 16px;
-      max-height: calc(100vh - 32px);
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #cbd5e0 transparent;
-    }
-    .escala-sticky::-webkit-scrollbar { width: 4px; }
-    .escala-sticky::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    @media (max-width: 768px) {
-      .escala-sticky {
-        position: static;
-        max-height: none;
-        overflow-y: visible;
-      }
-    }
+<style>
+:root {
+  --bg-app: #f9fafb;
+  --bg-card: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 16px;
+  --primary: #0ea5e9;
+  --primary-light: #e0f2fe;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+}
 
-    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-    .status-aguardando { background: #feebc8; color: #744210; }
-    .status-concluida  { background: #c6f6d5; color: #22543d; }
+* { 
+  margin: 0; padding: 0; box-sizing: border-box; 
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
 
-    .input-mini { width: 60px !important; display: inline-block; padding: 4px !important; text-align: center; }
+body { 
+  display: flex; background: var(--bg-app); color: var(--text-main); 
+  height: 100vh; overflow: hidden; 
+}
 
-    /* ── Chips do calendário ── */
-    .day-chip { width:34px;height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;border:1px solid #e2e8f0;background:#f7fafc;font-size:11px;color:#718096;user-select:none;transition:transform 0.1s; }
-    .day-chip:active { transform:scale(0.92); }
-    .day-chip .dn { font-size:9px;font-weight:600; }
-    .day-chip.campo   { background:#E1F5EE;border-color:#5DCAA5;color:#0F6E56; }
-    .day-chip.ubs     { background:#E6F1FB;border-color:#85B7EB;color:#185FA5; }
-    .day-chip.reuniao { background:#EEEDFE;border-color:#AFA9EC;color:#3C3489; }
-    .day-chip.fora    { background:#FAEEDA;border-color:#EF9F27;color:#854F0B; }
-    .day-chip.falta   { background:#FCEBEB;border-color:#F09595;color:#A32D2D; }
-    .day-chip.folga   { background:#F1EFE8;border-color:#B4B2A9;color:#5F5E5A; }
-    /* NOVO: Feriado */
-    .day-chip.feriado { background:#FEF3C7;border-color:#F59E0B;color:#92400E; }
+/* SIDEBAR - Padrão iPad */
+.sidebar {
+  width: 260px; background: var(--bg-card); border-right: 1px solid var(--border);
+  padding: 30px 20px; display: flex; flex-direction: column; flex-shrink: 0;
+  z-index: 10;
+}
+.sidebar h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.sidebar span { font-size: 13px; color: var(--text-muted); margin-top: 2px; display: block; }
+.nav-links { margin-top: 30px; display: flex; flex-direction: column; gap: 8px; list-style: none;}
+.nav-links a {
+  text-decoration: none; font-size: 14px; font-weight: 500; color: var(--text-muted);
+  padding: 10px 14px; border-radius: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s;
+}
+.nav-links a i { font-size: 20px; }
+.nav-links a:hover { background: #f3f4f6; color: var(--text-main); }
+.nav-links a.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-links a.active i { font-family: "Phosphor-Fill"; }
+.nav-divider { height: 1px; background: var(--border); margin: 8px 4px; list-style: none; }
 
-    .btn-toggle-realizadas {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #f0fff4;
-      color: #22543d;
-      border: 1.5px solid #9ae6b4;
-      border-radius: 20px;
-      padding: 5px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-      margin-bottom: 10px;
-    }
-    .btn-toggle-realizadas:hover { background: #c6f6d5; border-color: #68d391; }
-    .btn-toggle-realizadas.oculto {
-      background: #fff5f5;
-      color: #742a2a;
-      border-color: #fc8181;
-    }
-    .btn-toggle-realizadas.oculto:hover { background: #fed7d7; }
+/* MAIN CONTAINER (Split View) */
+.main-content {
+  flex: 1; display: flex; overflow: hidden;
+}
 
-    .roteiro-item {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 12px 0;
-      border-bottom: 1px solid #edf2f7;
-      transition: opacity 0.25s, max-height 0.3s;
-      overflow: hidden;
-    }
-    .roteiro-item.realizada-oculta {
-      display: none;
-    }
+/* PAINEL ESQUERDO: Calendário */
+.calendar-panel {
+  flex: 1; max-width: 55%; border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; background: var(--bg-app);
+}
+.calendar-header { padding: 30px 40px 20px; }
+.page-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.page-title h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em;}
 
-    .badge-realizadas-ocultas {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      color: #22543d;
-      background: #c6f6d5;
-      border-radius: 12px;
-      padding: 2px 8px;
-      font-weight: 700;
-      margin-left: 6px;
-    }
-  </style>
+.month-nav { display: flex; align-items: center; gap: 12px; }
+.month-nav button { 
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; 
+  width: 36px; height: 36px; font-size: 18px; cursor: pointer; color: var(--text-muted); transition: 0.2s;
+}
+.month-nav button:hover { border-color: var(--primary); color: var(--primary); }
+.month-label { font-size: 16px; font-weight: 600; min-width: 140px; text-align: center; text-transform: capitalize; }
+.btn-hoje { 
+  background: var(--primary-light); color: var(--primary); border: none; 
+  border-radius: 8px; padding: 0 16px; font-size: 13px; font-weight: 600; cursor: pointer; height: 36px;
+}
+
+.calendar-card {
+  margin: 0 40px 40px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.weekday-row { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 12px; }
+.weekday-row span { text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;}
+.days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.day-cell {
+  aspect-ratio: 1; border-radius: 12px; border: 1px solid transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; cursor: pointer; font-size: 14px; color: var(--text-main); position: relative;
+  transition: 0.2s; font-weight: 500;
+}
+.day-cell:hover { background: var(--bg-app); border-color: var(--border); }
+.day-cell.outro-mes { color: #d1d5db; pointer-events: none; }
+.day-cell.hoje { border-color: var(--primary); font-weight: 700; color: var(--primary); }
+.day-cell.selecionado { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2); border-color: var(--primary);}
+.day-cell.selecionado .day-dot { background: white; }
+.day-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--success); }
+.day-cell.futuro { color: var(--text-muted); }
+
+.legend-row { display: flex; gap: 16px; margin-top: 24px; font-size: 12px; color: var(--text-muted); justify-content: center;}
+.legend-row span { display: flex; align-items: center; gap: 6px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* PAINEL DIREITO: Detalhes do Dia */
+.day-panel {
+  flex: 1; background: var(--bg-card); display: flex; flex-direction: column; overflow-y: auto; padding: 40px;
+}
+.day-panel-header { margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px;}
+.day-panel-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; text-transform: capitalize; }
+.day-panel-sub { font-size: 14px; color: var(--text-muted); }
+
+.panel-section-label { 
+  font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; 
+  letter-spacing: 0.05em; margin: 24px 0 12px; display: flex; align-items: center; gap: 8px;
+}
+.estado-vazio { font-size: 14px; color: var(--text-muted); padding: 20px; text-align: center; border: 1px dashed var(--border); border-radius: 12px; background: var(--bg-app);}
+.estado-vazio-futuro { font-size: 14px; color: var(--text-muted); background: var(--bg-app); border-radius: 12px; padding: 24px; text-align: center; border: 1px solid var(--border);}
+
+.visit-item { 
+  display: flex; gap: 14px; padding: 16px; border: 1px solid var(--border); 
+  border-radius: 12px; margin-bottom: 10px; text-decoration: none; color: var(--text-main); transition: 0.2s;
+}
+.visit-item:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(14, 165, 233, 0.05); transform: translateY(-1px);}
+.visit-icon { 
+  width: 36px; height: 36px; border-radius: 10px; background: var(--bg-app); 
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; color: var(--text-muted);
+}
+.visit-icon.done { background: var(--success-light); color: var(--success); }
+.visit-icon.pending { background: var(--warning-light); color: var(--warning); }
+.visit-content { flex: 1; }
+.visit-name { font-size: 14px; font-weight: 600; display: block; margin-bottom: 2px;}
+.visit-sub { font-size: 13px; color: var(--text-muted); }
+.visit-obs { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-style: italic; background: var(--bg-app); padding: 8px; border-radius: 8px; border: 1px solid var(--border);}
+</style>
 </head>
 <body>
 
-<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
-
 <aside class="sidebar">
-  <div class="logo">💚 ACS Digital</div>
-  <nav>
-    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
-    <div class="nav-divisor"></div>
-
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')">
-        <span>👨‍👩‍👧 Famílias e Cidadãos</span><span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_familias">
-        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
-        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
-        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
-      </div>
-    </div>
-
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')">
-        <span>📅 Visitas</span><span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_visitas">
-        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
-        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
-        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
-      </div>
-    </div>
-
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')">
-        <span>📊 Relatórios e Metas</span><span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_relatorios">
-        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
-        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
-      </div>
-    </div>
-
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')">
-        <span>🗓️ Planejamento</span><span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_planejamento">
-        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
-        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
-        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
-      </div>
-    </div>
-
-    <div class="nav-divisor"></div>
-
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')">
-        <span>⚙️ Configurações</span><span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_config">
-        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
-        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
-      </div>
-    </div>
-  </nav>
-
-  <div class="user">
-    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto"
-         style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
-    <div>
-      <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
-      <span id="sidebarMicroarea">Microárea 03</span>
-    </div>
+  <div class="sidebar-header">
+    <h2>ACS Digital</h2>
+    <span>Microárea 02</span>
   </div>
+  <ul class="nav-links">
+    <li><a href="index.html"><i class="ph ph-squares-four"></i> Dashboard</a></li>
+    <li><a href="meu-roteiro.html"><i class="ph ph-map-pin-line"></i> Meu Roteiro</a></li>
+    <li><a href="agenda.html" class="active"><i class="ph ph-calendar-blank"></i> Agenda</a></li>
+    <li><a href="nova-visita.html"><i class="ph ph-clipboard-text"></i> Visitas</a></li>
+    <li><a href="familias.html"><i class="ph ph-users"></i> Famílias</a></li>
+    <li><a href="mapa.html"><i class="ph ph-map-trifold"></i> Mapa</a></li>
+    <li><a href="indicadores.html"><i class="ph ph-chart-line-up"></i> Indicadores</a></li>
+    <li class="nav-divider"></li>
+    <li><a href="busca.html"><i class="ph ph-magnifying-glass"></i> Busca</a></li>
+    <li><a href="configuracoes.html"><i class="ph ph-gear"></i> Configurações</a></li>
+  </ul>
 </aside>
 
-<main class="main">
-  <header class="topbar">
-    <h1>📅 Planejamento e Percurso</h1>
-    <div class="date-card" id="mesAnoAtual">Maio de 2026</div>
-  </header>
-
-  <section class="cards" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
-    <div class="card">
-      <p>Dias Úteis</p>
-      <h2 id="cardDiasUteis">0</h2>
-    </div>
-    <div class="card">
-      <p>Recepção/UBS</p>
-      <input type="number" id="inputRecepcao" class="input-mini" value="0" onchange="atualizarAgenda()">
-    </div>
-    <div class="card">
-      <p>Dias de Campo</p>
-      <h2 id="cardDiasCampo">0</h2>
-    </div>
-    <div class="card" style="border-left: 4px solid #2b6cb0;">
-      <p>Meta Diária</p>
-      <h2 id="cardMetaDiaria">0</h2>
-    </div>
-  </section>
-
-  <div class="agenda-grid">
-
-    <!-- ── COLUNA ESQUERDA: Roteiro ── -->
-    <div class="box">
-      <h3>🚶 Roteiro do Dia (Percurso)</h3>
-      <div style="margin-bottom: 15px; display: flex; gap: 10px;">
-        <input type="date" id="dataRota" style="flex: 1;">
-        <button onclick="adicionarAoRoteiro()"
-                style="background: #2b6cb0; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">
-          + Add
-        </button>
-      </div>
-
-      <div id="containerRoteiro">
-        <select id="selectFamiliaRota" class="form-group" style="margin-bottom: 10px;">
-          <option value="">Selecione uma família...</option>
-        </select>
-
-        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px;">
-          <button class="btn-toggle-realizadas" id="btnToggleRealizadas" onclick="toggleRealizadas()">
-            👁️ Ocultar realizadas
-          </button>
-          <span class="badge-realizadas-ocultas" id="badgeRealizadasOcultas" style="display:none;"></span>
-        </div>
-
-        <ul class="activities" id="listaRoteiroDiario" style="padding:0;list-style:none;margin:0;"></ul>
-      </div>
-    </div>
-
-    <!-- ── COLUNA DIREITA: Escala — sticky ── -->
-    <div class="escala-sticky">
-      <div class="box">
-        <h3>🏥 Escala e Observações</h3>
-
-        <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">
-          📆 Calendário do mês
-          <span style="font-weight:400;color:#a0aec0;font-size:11px;">(clique para alternar)</span>
-        </p>
-        <div style="display:flex;flex-wrap:wrap;gap:5px;" id="calEscala"></div>
-
-        <!-- Legenda — agora inclui Feriado -->
-        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;">
-          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E1F5EE;color:#0F6E56;">📍 Campo</span>
-          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#E6F1FB;color:#185FA5;">🏥 UBS/Recepção</span>
-          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#EEEDFE;color:#3C3489;">👥 Reunião</span>
-          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FAEEDA;color:#854F0B;">🚪 Fora da Unidade</span>
-          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FCEBEB;color:#A32D2D;">⚠️ Falta</span>
-          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#F1EFE8;color:#5F5E5A;">🌙 Folga</span>
-          <!-- NOVO -->
-          <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:#FEF3C7;color:#92400E;">🎉 Feriado</span>
-        </div>
-
-        <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
-
-        <p style="font-size:12px;font-weight:600;color:#718096;margin-bottom:8px;">📋 Observações do dia</p>
-        <select id="obsTipo"
-                style="width:100%;margin-bottom:8px;padding:7px 10px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;color:#2d3748;"
-                onchange="salvarAgenda()">
-          <option value="reuniao">Reunião de equipe</option>
-          <option value="atividade">Atividade especial</option>
-          <option value="treinamento">Treinamento</option>
-          <option value="fora">Fora da unidade</option>
-          <option value="outro">Outro</option>
-        </select>
-        <textarea id="obsAgenda" rows="3"
-                  placeholder="Ex: Terça-feira - Reunião de Equipe na UBS..."
-                  onchange="salvarAgenda()"
-                  style="width:100%;resize:none;"></textarea>
-        <div style="display:flex;justify-content:flex-end;margin-top:6px;">
-          <button onclick="adicionarObsAgenda()"
-                  style="background:#2b6cb0;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;">
-            + Adicionar
-          </button>
-        </div>
-        <div id="listaObsAgenda" style="margin-top:10px;"></div>
-
-        <div style="border-top:1px solid #edf2f7;margin:16px 0;"></div>
-
-        <h4 style="margin-bottom:10px;">Resumo do Mês</h4>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E1F5EE;border-radius:8px;">
-            <span style="font-size:13px;color:#0F6E56;font-weight:600;">📍 Dias de campo</span>
-            <span style="font-size:18px;font-weight:600;color:#085041;" id="resumoCampo">0</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#E6F1FB;border-radius:8px;">
-            <span style="font-size:13px;color:#185FA5;font-weight:600;">🏥 Dias na UBS</span>
-            <span style="font-size:18px;font-weight:600;color:#0C447C;" id="resumoUBS">0</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#EEEDFE;border-radius:8px;">
-            <span style="font-size:13px;color:#3C3489;font-weight:600;">👥 Reuniões</span>
-            <span style="font-size:18px;font-weight:600;color:#26215C;" id="resumoReuniao">0</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#FAEEDA;border-radius:8px;">
-            <span style="font-size:13px;color:#854F0B;font-weight:600;">🚪 Fora da unidade</span>
-            <span style="font-size:18px;font-weight:600;color:#633806;" id="resumoFora">0</span>
-          </div>
-          <!-- NOVO: Feriado no resumo -->
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#FEF3C7;border-radius:8px;">
-            <span style="font-size:13px;color:#92400E;font-weight:600;">🎉 Feriados</span>
-            <span style="font-size:18px;font-weight:600;color:#78350F;" id="resumoFeriado">0</span>
-          </div>
+<main class="main-content">
+  <div class="calendar-panel">
+    <div class="calendar-header">
+      <div class="page-title">
+        <h1>Agenda Mensal</h1>
+        <div class="month-nav">
+          <button id="btnMesAnterior"><i class="ph ph-caret-left"></i></button>
+          <span class="month-label" id="mesLabel">—</span>
+          <button id="btnMesProximo"><i class="ph ph-caret-right"></i></button>
+          <button class="btn-hoje" id="btnHoje">Hoje</button>
         </div>
       </div>
     </div>
 
+    <div class="calendar-card">
+      <div class="weekday-row">
+        <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+      </div>
+      <div class="days-grid" id="daysGrid"></div>
+      <div class="legend-row">
+        <span><span class="legend-dot" style="background: var(--success);"></span> Com visitas</span>
+        <span><span class="legend-dot" style="background: var(--primary); border: 2px solid var(--primary-light);"></span> Hoje</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="day-panel" id="dayPanel">
+    <p class="estado-vazio">Selecione uma data no calendário.</p>
   </div>
 </main>
 
-<script src="script.js"></script>
 <script>
-  let realizadasVisiveis = true;
+// Usa carregarFamiliasEnriquecidas() do roteiro.js (mesma fonte de dados do
+// Dashboard e do Mapa) para saber em quais dias houve visita de verdade.
+let dataReferencia = new Date();
+let diaSelecionadoISO = hojeISO();
+let familiasPorId = new Map();
+let visitasPorDia = new Map(); // 'YYYY-MM-DD' -> [visita, ...]
 
-  function toggleRealizadas() {
-    realizadasVisiveis = !realizadasVisiveis;
-    const btn   = document.getElementById('btnToggleRealizadas');
-    const badge = document.getElementById('badgeRealizadasOcultas');
-
-    if (realizadasVisiveis) {
-      btn.textContent = '👁️ Ocultar realizadas';
-      btn.classList.remove('oculto');
-      badge.style.display = 'none';
-    } else {
-      btn.textContent = '👁️ Mostrar realizadas';
-      btn.classList.add('oculto');
-    }
-    renderizarRoteiro();
-  }
-
-  // ─────────────────────────────────────────────
-  //  CORREÇÃO: estadoCal e notasObs declarados
-  //  ANTES do window.load para evitar referência
-  //  antecipada em salvarAgenda()
-  // ─────────────────────────────────────────────
-  const nomesDias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-
-  // CORREÇÃO: feriado adicionado na sequência de cliques
-  const tipoSeqCal = {
-    '':        'campo',
-    'campo':   'ubs',
-    'ubs':     'reuniao',
-    'reuniao': 'fora',
-    'fora':    'falta',
-    'falta':   'folga',
-    'folga':   'feriado',   // ← NOVO
-    'feriado': ''           // ← volta ao neutro
-  };
-
-  let estadoCal = {};
-  let notasObs  = [];
-
-  // ─────────────────────────────────────────────
-  //  CORREÇÃO PRINCIPAL: carrega localStorage
-  //  ANTES de buildCalEscala()
-  // ─────────────────────────────────────────────
-  window.addEventListener('load', function () {
-    // 1. Restaura dados salvos PRIMEIRO
-    const salvos = JSON.parse(localStorage.getItem("dadosAgenda"));
-    if (salvos) {
-      if (document.getElementById('inputRecepcao') && salvos.recepcao)
-        document.getElementById('inputRecepcao').value = salvos.recepcao;
-      if (salvos.estadoCal) estadoCal = salvos.estadoCal;       // ← restaura antes do build
-      if (salvos.notasObs)  { notasObs = salvos.notasObs; renderNotasObs(); }
-    }
-
-    // 2. Só então constrói o calendário (já com estadoCal populado)
-    buildCalEscala();
-
-    // 3. Resto
-    popularSelectFamilias();
-    atualizarAgenda();
-    renderizarRoteiro();
-  });
-
-  function popularSelectFamilias() {
-    const select = document.getElementById('selectFamiliaRota');
-    if (!select) return;
-    if (typeof familias !== 'undefined' && familias.length > 0) {
-      familias.sort((a, b) => a.numeroFamilia - b.numeroFamilia).forEach(f => {
-        const opt = document.createElement('option');
-        opt.value = f.id;
-        opt.textContent = `F. ${f.numeroFamilia} - ${f.responsavel}`;
-        select.appendChild(opt);
-      });
-    }
-  }
-
-  function calcularDiasUteis() {
-    const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = hoje.getMonth();
-    const ultimoDia = new Date(ano, mes + 1, 0).getDate();
-    let uteis = 0;
-    for (let i = 1; i <= ultimoDia; i++) {
-      const dia = new Date(ano, mes, i).getDay();
-      if (dia !== 0 && dia !== 6) uteis++;
-    }
-    return uteis;
-  }
-
-  function atualizarAgenda() {
-    const uteis = calcularDiasUteis();
-    const inputRec = document.getElementById('inputRecepcao');
-    const recepcao = inputRec ? (parseInt(inputRec.value) || 0) : 0;
-    const campo = Math.max(0, uteis - recepcao);
-
-    let metaVisitas = 80;
-    if (typeof familias !== 'undefined') {
-      const config = JSON.parse(localStorage.getItem("metasConfig2")) || { metaVisitasPct: 80 };
-      const totalFamilias = familias.length;
-      metaVisitas = Math.ceil(totalFamilias * (config.metaVisitasPct / 100)) || 80;
-    }
-    const diaria = campo > 0 ? (metaVisitas / campo).toFixed(1) : metaVisitas;
-
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('cardDiasUteis',  uteis);
-    set('cardDiasCampo',  campo);
-    set('cardMetaDiaria', diaria);
-    salvarAgenda();
-  }
-
-  function adicionarAoRoteiro() {
-    const famId = document.getElementById('selectFamiliaRota').value;
-    const data  = document.getElementById('dataRota').value;
-    if (!famId || !data) { alert("Por favor, selecione a família e a data!"); return; }
-
-    const fam = familias.find(f => f.id == famId);
-    if (!fam) return;
-
-    const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
-    roteiro.push({
-      id: Date.now(),
-      familiaId: famId,
-      responsavel: fam.responsavel,
-      rua: fam.logradouro,
-      data: data,
-      status: '⏳ Planejada'
+async function carregarAgenda() {
+  try {
+    const { familiasEnriquecidas, visitas } = await carregarFamiliasEnriquecidas();
+    familiasPorId = new Map(familiasEnriquecidas.map(f => [f.id, f]));
+    visitasPorDia = new Map();
+    visitas.forEach(v => {
+      if (!v.data_visita) return;
+      if (!visitasPorDia.has(v.data_visita)) visitasPorDia.set(v.data_visita, []);
+      visitasPorDia.get(v.data_visita).push(v);
     });
-    localStorage.setItem("roteiroDigital", JSON.stringify(roteiro));
-    renderizarRoteiro();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('dayPanel').innerHTML = '<p class="estado-erro">Não foi possível carregar a agenda. Verifique sua conexão.</p>';
+  }
+  renderizarCalendario();
+  renderizarPainelDia(diaSelecionadoISO);
+}
+
+function renderizarCalendario() {
+  const ano = dataReferencia.getFullYear();
+  const mes = dataReferencia.getMonth();
+  const hoje = hojeISO();
+
+  document.getElementById('mesLabel').textContent = dataReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+  const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+  const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
+  const totalDiasMesAnterior = new Date(ano, mes, 0).getDate();
+
+  const celulas = [];
+  for (let i = primeiroDiaSemana - 1; i >= 0; i--) celulas.push({ numero: totalDiasMesAnterior - i, outroMes: true });
+  for (let d = 1; d <= totalDiasMes; d++) celulas.push({ numero: d, outroMes: false, iso: `${ano}-${String(mes + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}` });
+  while (celulas.length % 7 !== 0) celulas.push({ numero: celulas.length, outroMes: true });
+
+  const grid = document.getElementById('daysGrid');
+  grid.innerHTML = celulas.map(c => {
+    if (c.outroMes) return `<div class="day-cell outro-mes">${c.numero}</div>`;
+    const classes = ['day-cell'];
+    if (c.iso === hoje) classes.push('hoje');
+    if (c.iso === diaSelecionadoISO) classes.push('selecionado');
+    if (c.iso > hoje) classes.push('futuro');
+    const temVisita = (visitasPorDia.get(c.iso) || []).length > 0;
+    return `
+      <div class="${classes.join(' ')}" onclick="selecionarDia('${c.iso}')">
+        ${c.numero}
+        ${temVisita ? '<span class="day-dot"></span>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function selecionarDia(iso) {
+  diaSelecionadoISO = iso;
+  renderizarCalendario();
+  renderizarPainelDia(iso);
+}
+
+function renderizarPainelDia(iso) {
+  const panel = document.getElementById('dayPanel');
+  const hoje = hojeISO();
+  const dataObj = new Date(iso + 'T00:00:00');
+  const labelData = dataObj.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+
+  if (iso > hoje) {
+    panel.innerHTML = `
+      <div class="day-panel-header">
+        <div class="day-panel-title">${labelData}</div>
+        <div class="day-panel-sub">Data futura</div>
+      </div>
+      <p class="estado-vazio-futuro">Ainda não existe um sistema de agendamento por data — o roteiro do dia é montado por prioridade clínica em "Meu Roteiro".</p>
+    `;
+    return;
   }
 
-  function renderizarRoteiro() {
-    const lista = document.getElementById('listaRoteiroDiario');
-    if (!lista) return;
+  const visitasDoDia = visitasPorDia.get(iso) || [];
 
-    const roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
-    lista.innerHTML = "";
+  let html = `
+    <div class="day-panel-header">
+      <div class="day-panel-title">${labelData}</div>
+      <div class="day-panel-sub">${visitasDoDia.length} visita${visitasDoDia.length === 1 ? '' : 's'} registrada${visitasDoDia.length === 1 ? '' : 's'}</div>
+    </div>
+  `;
 
-    const qtdRealizadas = roteiro.filter(i =>
-      i.status && (i.status.includes('✅') || i.status.toLowerCase().includes('realizada'))
-    ).length;
-
-    const badge = document.getElementById('badgeRealizadasOcultas');
-    if (!realizadasVisiveis && qtdRealizadas > 0) {
-      badge.textContent = `${qtdRealizadas} oculta${qtdRealizadas > 1 ? 's' : ''}`;
-      badge.style.display = 'inline-flex';
-    } else {
-      badge.style.display = 'none';
-    }
-
-    const btnToggle = document.getElementById('btnToggleRealizadas');
-    if (btnToggle) btnToggle.style.display = qtdRealizadas > 0 ? 'inline-flex' : 'none';
-
-    roteiro.sort((a, b) => new Date(a.data) - new Date(b.data)).forEach(item => {
-      const isRealizada = item.status && (
-        item.status.includes('✅') || item.status.toLowerCase().includes('realizada')
-      );
-      const statusClass = isRealizada ? 'status-concluida' : 'status-aguardando';
-      const ocultarEste = isRealizada && !realizadasVisiveis;
-
-      lista.innerHTML += `
-        <li class="roteiro-item${ocultarEste ? ' realizada-oculta' : ''}">
-          <div style="display:flex; justify-content:space-between; width:100%;">
-            <strong style="color:#2c5282;">${item.responsavel}</strong>
-            <span class="status-badge ${statusClass}">${item.status}</span>
+  if (visitasDoDia.length === 0) {
+    html += `<p class="estado-vazio">Nenhuma visita registrada nesse dia.</p>`;
+  } else {
+    html += `<div class="panel-section-label"><i class="ph ph-clipboard-text"></i> Visitas do dia</div>`;
+    html += visitasDoDia.map(v => {
+      const f = familiasPorId.get(v.familia_id);
+      const endereco = f ? enderecoDe(f) : 'Família não encontrada';
+      const realizada = v.desfecho === 'Realizada';
+      return `
+        <a class="visit-item" href="${f ? `familias.html?abrir=${f.id}` : '#'}">
+          <div class="visit-icon ${realizada ? 'done' : 'pending'}"><i class="ph ${realizada ? 'ph-check' : 'ph-clock'}"></i></div>
+          <div class="visit-content">
+            <span class="visit-name">${escapeHtml(endereco)}</span>
+            <span class="visit-sub">${escapeHtml(v.desfecho || 'Sem desfecho registrado')}</span>
+            ${v.observacoes ? `<div class="visit-obs">${escapeHtml(v.observacoes)}</div>` : ''}
           </div>
-          <div style="font-size:12px; color:#718096; width:100%; display:flex; justify-content:space-between; margin-top:6px;">
-            <span>📍 ${item.rua} · 📅 ${item.data.split('-').reverse().join('/')}</span>
-            <button onclick="removerDoRoteiro(${item.id})"
-                    style="background:none; border:none; color:#e53e3e; cursor:pointer; font-weight:bold;">
-              Excluir
-            </button>
-          </div>
-        </li>`;
-    });
-
-    if (!realizadasVisiveis && qtdRealizadas === roteiro.length && roteiro.length > 0) {
-      lista.innerHTML += `
-        <li style="padding:20px 0;text-align:center;color:#718096;font-size:13px;list-style:none;">
-          ✅ Todas as visitas do roteiro foram realizadas!
-        </li>`;
-    }
+        </a>
+      `;
+    }).join('');
   }
 
-  function removerDoRoteiro(id) {
-    let roteiro = JSON.parse(localStorage.getItem("roteiroDigital")) || [];
-    roteiro = roteiro.filter(i => i.id !== id);
-    localStorage.setItem("roteiroDigital", JSON.stringify(roteiro));
-    renderizarRoteiro();
-  }
+  panel.innerHTML = html;
+}
 
-  function salvarAgenda() {
-    const inputRec = document.getElementById('inputRecepcao');
-    if (!inputRec) return;
-    localStorage.setItem("dadosAgenda", JSON.stringify({
-      recepcao: inputRec.value,
-      estadoCal: estadoCal,
-      notasObs: notasObs
-    }));
-  }
+document.getElementById('btnMesAnterior').onclick = () => { dataReferencia.setMonth(dataReferencia.getMonth() - 1); renderizarCalendario(); };
+document.getElementById('btnMesProximo').onclick = () => { dataReferencia.setMonth(dataReferencia.getMonth() + 1); renderizarCalendario(); };
+document.getElementById('btnHoje').onclick = () => {
+  dataReferencia = new Date();
+  diaSelecionadoISO = hojeISO();
+  renderizarCalendario();
+  renderizarPainelDia(diaSelecionadoISO);
+};
 
-  function getDiasUteisMes() {
-    const hoje = new Date();
-    const ano = hoje.getFullYear(), mes = hoje.getMonth();
-    const ultimo = new Date(ano, mes + 1, 0).getDate();
-    const dias = [];
-    for (let d = 1; d <= ultimo; d++) {
-      const dow = new Date(ano, mes, d).getDay();
-      if (dow !== 0 && dow !== 6) dias.push({ d, dow });
-    }
-    return dias;
-  }
-
-  function buildCalEscala() {
-    const cal = document.getElementById('calEscala');
-    if (!cal) return;
-    cal.innerHTML = '';
-    getDiasUteisMes().forEach(({ d, dow }) => {
-      const chip = document.createElement('div');
-      chip.className = 'day-chip' + (estadoCal[d] ? ' ' + estadoCal[d] : '');
-      chip.id = 'escChip-' + d;
-      chip.innerHTML = '<span class="dn">' + nomesDias[dow] + '</span><span>' + d + '</span>';
-      chip.title = 'Clique para alternar tipo';
-      chip.onclick = () => toggleCalDia(d);
-      cal.appendChild(chip);
-    });
-    atualizarResumoEscala();
-  }
-
-  function toggleCalDia(d) {
-    const atual = estadoCal[d] || '';
-    estadoCal[d] = tipoSeqCal[atual];
-    const chip = document.getElementById('escChip-' + d);
-    if (chip) chip.className = 'day-chip' + (estadoCal[d] ? ' ' + estadoCal[d] : '');
-    atualizarResumoEscala();
-    salvarAgenda();
-  }
-
-  function atualizarResumoEscala() {
-    let campo = 0, ubs = 0, reuniao = 0, fora = 0, feriado = 0;
-    Object.values(estadoCal).forEach(v => {
-      if (v === 'campo')   campo++;
-      else if (v === 'ubs')     ubs++;
-      else if (v === 'reuniao') reuniao++;
-      else if (v === 'fora')    fora++;
-      else if (v === 'feriado') feriado++;   // ← NOVO
-    });
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('resumoCampo',    campo);
-    set('resumoUBS',      ubs);
-    set('resumoReuniao',  reuniao);
-    set('resumoFora',     fora);
-    set('resumoFeriado',  feriado);  // ← NOVO
-  }
-
-  const corNota = { reuniao:'#7F77DD', atividade:'#1D9E75', treinamento:'#378ADD', fora:'#EF9F27', outro:'#888780' };
-
-  function adicionarObsAgenda() {
-    const tipo  = document.getElementById('obsTipo').value;
-    const texto = document.getElementById('obsAgenda').value.trim();
-    if (!texto) return;
-    notasObs.push({ tipo, texto });
-    renderNotasObs();
-    document.getElementById('obsAgenda').value = '';
-    salvarAgenda();
-  }
-
-  function removerNotaObs(i) {
-    notasObs.splice(i, 1);
-    renderNotasObs();
-    salvarAgenda();
-  }
-
-  function renderNotasObs() {
-    const lista = document.getElementById('listaObsAgenda');
-    if (!lista) return;
-    lista.innerHTML = '';
-    notasObs.forEach((n, i) => {
-      const div = document.createElement('div');
-      div.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #edf2f7;';
-      div.innerHTML =
-        '<div style="width:8px;height:8px;border-radius:50%;background:' + (corNota[n.tipo] || '#888') + ';margin-top:5px;flex-shrink:0;"></div>' +
-        '<span style="font-size:12px;color:#4a5568;flex:1;">' + n.texto + '</span>' +
-        '<button onclick="removerNotaObs(' + i + ')" style="background:none;border:none;cursor:pointer;color:#a0aec0;font-size:14px;padding:0;line-height:1;" title="Remover">\xd7</button>';
-      lista.appendChild(div);
-    });
-  }
+carregarAgenda();
 </script>
 </body>
 </html>

@@ -1,168 +1,458 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Famílias e Pacientes - ACS Digital</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Ícones minimalistas (Phosphor Icons) -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Famílias - ACS Digital iPad</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Os seus scripts de config e auth continuam aqui -->
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>protegerPagina();</script>
+<script src="branding.js"></script>
+
+<!-- Biblioteca Phosphor Icons (Ícones vazados) -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #f9fafb;
+  --bg-card: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 16px;
+  --primary: #0ea5e9;
+  --primary-light: #e0f2fe;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+  --warning: #f59e0b;
+}
+
+* { 
+  margin: 0; padding: 0; box-sizing: border-box; 
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { 
+  display: flex; background: var(--bg-app); color: var(--text-main); 
+  height: 100vh; overflow: hidden; 
+}
+
+/* SIDEBAR - Padrão iPad */
+.sidebar {
+  width: 260px; background: var(--bg-card); border-right: 1px solid var(--border);
+  padding: 30px 20px; display: flex; flex-direction: column; flex-shrink: 0;
+  z-index: 10;
+}
+.sidebar h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.sidebar span { font-size: 13px; color: var(--text-muted); margin-top: 2px; display: block; }
+.nav-links { margin-top: 30px; display: flex; flex-direction: column; gap: 8px; list-style: none;}
+.nav-links a {
+  text-decoration: none; font-size: 14px; font-weight: 500; color: var(--text-muted);
+  padding: 10px 14px; border-radius: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s;
+}
+.nav-links a i { font-size: 20px; }
+.nav-links a:hover { background: #f3f4f6; color: var(--text-main); }
+.nav-links a.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-links a.active i { font-family: "Phosphor-Fill"; }
+.nav-divider { height: 1px; background: var(--border); margin: 8px 4px; list-style: none; }
+
+/* MAIN CONTAINER (Split View) */
+.main-content {
+  flex: 1;
+  display: flex; /* Divide a tela principal em duas */
+  overflow: hidden;
+}
+
+/* PAINEL ESQUERDO: Lista de Famílias */
+.list-panel {
+  flex: 1; /* Ocupa o espaço que sobrar */
+  max-width: 50%; /* Limita a metade da tela */
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-app);
+}
+
+.list-header {
+  padding: 30px 40px 20px;
+  background: var(--bg-app);
+  z-index: 2;
+}
+
+.list-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 20px; }
+
+.search-container { display: flex; gap: 12px; margin-bottom: 20px; }
+.search-box {
+  flex: 1; position: relative; display: flex; align-items: center;
+}
+.search-box i { position: absolute; left: 14px; color: var(--text-muted); font-size: 18px; }
+.search-bar {
+  width: 100%; padding: 12px 16px 12px 40px; border: 1px solid var(--border);
+  border-radius: 12px; font-size: 15px; background: var(--bg-card); outline: none; transition: 0.2s;
+}
+.search-bar:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+
+.btn-primary {
+  background: var(--primary); color: white; border: none; padding: 0 20px;
+  border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; transition: 0.2s;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* Filtros (Chips) */
+.filters-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.filters-scroll::-webkit-scrollbar { display: none; }
+.filter-chip {
+  padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer; color: var(--text-muted);
+}
+.filter-chip.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+
+/* Lista de Cards */
+.family-list-scroll {
+  flex: 1; overflow-y: auto; padding: 0 40px 40px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.family-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 20px; cursor: pointer; transition: 0.2s; position: relative;
+}
+.family-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(14, 165, 233, 0.05); }
+.family-card.selected { border-color: var(--primary); background: var(--primary-light); }
+
+.family-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; color: var(--text-main);}
+.family-info { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+
+.badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge { 
+  padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; 
+  background: #f3f4f6; color: var(--text-muted); display: flex; align-items: center; gap: 4px;
+}
+.badge i { font-size: 14px; }
+.badge.alert { background: var(--danger-light); color: var(--danger); }
+
+/* PAINEL DIREITO: Detalhes da Família (Split View Mágica) */
+.detail-panel {
+  flex: 1;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.detail-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--text-muted); text-align: center; padding: 40px;
+}
+.detail-empty i { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+
+.detail-content { display: none; padding: 40px; }
+.detail-content.active { display: block; }
+
+.detail-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.detail-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.detail-subtitle { font-size: 14px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+.action-bar { display: flex; gap: 12px; margin-top: 20px; }
+.btn-outline {
+  background: transparent; border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px;
+  border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+}
+.btn-outline:hover { background: #f9fafb; }
+.btn-outline.danger { color: var(--danger); border-color: var(--danger-light); }
+.btn-outline.danger:hover { background: var(--danger-light); }
+
+.section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 30px 0 16px; display: flex; justify-content: space-between; align-items: center;}
+
+/* Cidadãos na Lista Detalhe */
+.citizen-item {
+  padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px;
+  display: flex; justify-content: space-between; align-items: center; transition: 0.2s;
+}
+.citizen-item:hover { border-color: #d1d5db; }
+.citizen-info { flex: 1; }
+.citizen-name { font-weight: 600; font-size: 15px; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
+.citizen-cns { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.citizen-actions { display: flex; gap: 8px; }
+.btn-icon { background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 6px;}
+.btn-icon:hover { background: #f3f4f6; color: var(--text-main); }
+.btn-icon.danger:hover { color: var(--danger); background: var(--danger-light); }
+
+/* Overlays e Drawers (Para Formulários, mantemos o conceito, mas modernizado) */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 20; backdrop-filter: blur(4px); }
+.overlay.active { opacity: 1; pointer-events: auto; }
+.drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 500px; height: 100vh; background: var(--bg-card); z-index: 30; transition: right 0.3s ease; display: flex; flex-direction: column; box-shadow: -8px 0 24px rgba(0,0,0,0.05); }
+.drawer.active { right: 0; }
+.drawer-header { padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.drawer-body { padding: 30px; overflow-y: auto; flex: 1; }
+
+</style>
 </head>
 <body>
 
-    <div class="app-container">
-        
-        <!-- SIDEBAR MINIMALISTA (20%) -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-icon"><i class="ph-bold ph-heart-beat"></i></div>
-                <div>
-                    <h1>ACS Digital</h1>
-                    <span class="subtitle">Microárea 03 - Guarda-Mor</span>
-                </div>
-            </div>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>ACS Digital</h2>
+    <span>Microárea 02</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"><i class="ph ph-squares-four"></i> Dashboard</a></li>
+    <li><a href="meu-roteiro.html"><i class="ph ph-map-pin-line"></i> Meu Roteiro</a></li>
+    <li><a href="agenda.html"><i class="ph ph-calendar-blank"></i> Agenda</a></li>
+    <li><a href="nova-visita.html"><i class="ph ph-clipboard-text"></i> Visitas</a></li>
+    <li><a href="familias.html" class="active"><i class="ph ph-users"></i> Famílias</a></li>
+    <li><a href="mapa.html"><i class="ph ph-map-trifold"></i> Mapa</a></li>
+    <li><a href="indicadores.html"><i class="ph ph-chart-line-up"></i> Indicadores</a></li>
+    <li class="nav-divider"></li>
+    <li><a href="busca.html"><i class="ph ph-magnifying-glass"></i> Busca</a></li>
+    <li><a href="configuracoes.html"><i class="ph ph-gear"></i> Configurações</a></li>
+  </ul>
+</aside>
 
-            <nav class="sidebar-nav">
-                <span class="nav-section-title">Navegação Principal</span>
-                <a href="index.html" class="nav-item"><i class="ph ph-house"></i> Dashboard</a>
-                <a href="familias.html" class="nav-item active"><i class="ph ph-users"></i> Famílias</a>
-                <a href="visitas.html" class="nav-item"><i class="ph ph-map-pin"></i> Visitas</a>
-                <a href="metas.html" class="nav-item"><i class="ph ph-chart-bar"></i> Indicadores</a>
-                
-                <span class="nav-section-title">Atalhos Rápidos</span>
-                <a href="saude_cidadao.html" class="nav-item"><i class="ph ph-user-plus"></i> Novo Cadastro</a>
-                <a href="notificacoes.html" class="nav-item"><i class="ph ph-bell"></i> Notificações</a>
-            </nav>
+<!-- MAIN CONTENT (Split View) -->
+<main class="main-content">
+  
+  <!-- PAINEL ESQUERDO: LISTA -->
+  <div class="list-panel">
+    <div class="list-header">
+      <h1>Diretório de Famílias</h1>
+      
+      <div class="search-container">
+        <div class="search-box">
+          <i class="ph ph-magnifying-glass"></i>
+          <input type="text" class="search-bar" id="campoBuscaFamilias" placeholder="Buscar por nome, rua ou CNS...">
+        </div>
+        <button class="btn-primary" onclick="abrirDrawer('drawerNovaFamilia')">
+          <i class="ph ph-plus"></i> Nova Família
+        </button>
+      </div>
 
-            <div class="sidebar-footer">
-                <a href="configuracoes.html" class="nav-item"><i class="ph ph-gear"></i> Configurações</a>
-                <div class="sync-status">
-                    <i class="ph-bold ph-cloud-check"></i>
-                    <span>Sincronizado (Offline)</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- CONTEÚDO PRINCIPAL (80%) -->
-        <main class="main-content">
-            
-            <header class="main-header" style="margin-bottom: 16px;">
-                <div class="welcome-zone">
-                    <h2>Cadastros da Microárea 03</h2>
-                    <p class="current-date">Gerenciamento de domicílios e indivíduos</p>
-                </div>
-                <a href="saude_cidadao.html" style="text-decoration: none;">
-                    <button class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
-                        <i class="ph ph-plus"></i> Novo Cadastro
-                    </button>
-                </a>
-            </header>
-
-            <!-- NAVEGAÇÃO DAS ABAS (TABS) -->
-            <div class="tabs-container">
-                <button class="tab-button active" onclick="openTab(event, 'tab-familias')">Famílias (Domicílios)</button>
-                <button class="tab-button" onclick="openTab(event, 'tab-pacientes')">Pacientes (Cidadãos)</button>
-            </div>
-
-            <!-- CONTEÚDO DA ABA 1: FAMÍLIAS -->
-            <div id="tab-familias" class="tab-content active">
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Responsável Familiar</th>
-                                <th>Endereço</th>
-                                <th>Membros</th>
-                                <th>Última Visita</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Ana Souza Ramos</strong><br><span class="text-muted text-sm">Prontuário: 10293</span></td>
-                                <td>Rua das Flores, 12 - Casa 1</td>
-                                <td>4</td>
-                                <td>15/05/2026</td>
-                                <td><button class="btn-text">Abrir Ficha</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">Prontuário: 10294</span></td>
-                                <td>Rua das Flores, 44 - Apto 2</td>
-                                <td>2</td>
-                                <td class="text-alert">10/04/2026</td>
-                                <td><button class="btn-text">Abrir Ficha</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Maria José Silva</strong><br><span class="text-muted text-sm">Prontuário: 10295</span></td>
-                                <td>Beco do Sol, 10</td>
-                                <td>5</td>
-                                <td>02/06/2026</td>
-                                <td><button class="btn-text">Abrir Ficha</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- CONTEÚDO DA ABA 2: PACIENTES -->
-            <div id="tab-pacientes" class="tab-content">
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nome do Paciente</th>
-                                <th>Idade</th>
-                                <th>Condições / Grupos</th>
-                                <th>Família (Responsável)</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Júlia Ramos Silva</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0001</span></td>
-                                <td>28 anos</td>
-                                <td><span class="badge-priority high" style="margin-right: 6px;"></span>Gestante</td>
-                                <td>Ana Souza Ramos</td>
-                                <td><button class="btn-text">Ver Cidadão</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Carlos Eduardo Mendes</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0002</span></td>
-                                <td>65 anos</td>
-                                <td><span class="badge-priority medium" style="margin-right: 6px;"></span>Hipertenso</td>
-                                <td>Carlos Eduardo Mendes</td>
-                                <td><button class="btn-text">Ver Cidadão</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Lucas Ramos Silva</strong><br><span class="text-muted text-sm">CNS: 700.0000.0000.0003</span></td>
-                                <td>4 anos</td>
-                                <td><span class="badge-priority low" style="margin-right: 6px;"></span>Criança (Vacinação)</td>
-                                <td>Ana Souza Ramos</td>
-                                <td><button class="btn-text">Ver Cidadão</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </main>
+      <div class="filters-scroll">
+        <div class="filter-chip active" data-filtro="todas">Todas</div>
+        <div class="filter-chip" data-filtro="hipertensos">🫀 Hipertensos</div>
+        <div class="filter-chip" data-filtro="diabeticos">🍬 Diabéticos</div>
+        <div class="filter-chip" data-filtro="gestantes">🤰 Gestantes</div>
+        <div class="filter-chip" data-filtro="acamados">🛏️ Acamados</div>
+        <div class="filter-chip" data-filtro="incompleto">⚠️ Incompleto</div>
+      </div>
     </div>
 
-    <!-- SCRIPT PARA ALTERNAR AS ABAS -->
-    <script>
-        function openTab(evt, tabName) {
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
+    <!-- Container da Lista de Cards (preenchido pelo JS) -->
+    <div class="family-list-scroll" id="familyGrid">
+      <p class="estado-vazio">Carregando famílias…</p>
+    </div>
+  </div>
 
-            const tabButtons = document.querySelectorAll('.tab-button');
-            tabButtons.forEach(button => {
-                button.classList.remove('active');
-            });
+  <!-- PAINEL DIREITO: DETALHES -->
+  <div class="detail-panel">
+    
+    <!-- Tela vazia inicial -->
+    <div class="detail-empty" id="detailEmpty">
+      <i class="ph ph-house-line"></i>
+      <h3>Selecione uma família</h3>
+      <p>Clique em um domicílio na lista ao lado para ver o prontuário completo, editar moradores ou iniciar uma visita.</p>
+    </div>
 
-            document.getElementById(tabName).classList.add('active');
-            evt.currentTarget.classList.add('active');
-        }
-    </script>
+    <!-- Conteúdo que aparece ao clicar num card (Preenchido via JS) -->
+    <div class="detail-content" id="detailContent">
+      <div class="detail-header">
+        <h2 class="detail-title" id="detalheTitulo">—</h2>
+        <div class="detail-subtitle">
+          <i class="ph ph-map-pin"></i> <span id="detalheBairro">—</span>
+        </div>
+        
+        <div class="action-bar">
+          <a class="btn-primary" id="detalheBtnVisita" href="#" style="text-decoration:none;"><i class="ph ph-clipboard-text"></i> Iniciar Visita</a>
+          <button class="btn-outline" id="detalheBtnEditar"><i class="ph ph-pencil-simple"></i> Editar Endereço</button>
+          <button class="btn-outline danger" id="detalheBtnExcluir"><i class="ph ph-trash"></i> Excluir</button>
+        </div>
+      </div>
+
+      <div class="section-title">
+        Membros da Família
+        <button class="btn-outline" id="detalheBtnAddCidadao" style="padding: 4px 10px; font-size: 11px;"><i class="ph ph-plus"></i> Cidadão</button>
+      </div>
+
+      <div id="detalheMembros">
+        <p class="estado-vazio">Carregando moradores…</p>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- OVERLAYS E DRAWERS (Você pode manter os seus formulários originais aqui, só apliquei a classe overlay pra modernizar a chamada) -->
+<div class="overlay" id="overlay" onclick="fecharTodosDrawers()"></div>
+
+<script>
+let familiasGlobais = [];
+let filtroAtual = 'todas';
+let termoBusca = '';
+
+function condicoesDe(cidadao) { return (cidadao.condicoes_saude || []).map(c => c.condicao); }
+function escapeHtml(str) { return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+function tagsFamilia(f) {
+  const todasCondicoes = (f.cidadaos || []).flatMap(condicoesDe);
+  const tags = [];
+  const has = todasCondicoes.filter(c => c === 'Hipertensão').length;
+  const dm = todasCondicoes.filter(c => c === 'Diabetes').length;
+  const gestante = todasCondicoes.filter(c => c === 'Gestante').length;
+  const acamado = todasCondicoes.filter(c => c === 'Acamado').length;
+  if (has) tags.push(`🫀 ${has} HAS`);
+  if (dm) tags.push(`🍬 ${dm} DM`);
+  if (gestante) tags.push(`🤰 ${gestante} Gestante${gestante === 1 ? '' : 's'}`);
+  if (acamado) tags.push(`🛏️ ${acamado} Acamado${acamado === 1 ? '' : 's'}`);
+  return tags;
+}
+
+function familiaIncompleta(f) {
+  return (f.cidadaos || []).length === 0 || !(f.cidadaos || []).some(c => c.e_responsavel_familiar);
+}
+
+function familiaBateFiltro(f) {
+  if (filtroAtual === 'todas') return true;
+  if (filtroAtual === 'incompleto') return familiaIncompleta(f);
+  const todasCondicoes = (f.cidadaos || []).flatMap(condicoesDe);
+  const mapa = { hipertensos: 'Hipertensão', diabeticos: 'Diabetes', gestantes: 'Gestante', acamados: 'Acamado' };
+  return todasCondicoes.includes(mapa[filtroAtual]);
+}
+
+function familiaBateBusca(f) {
+  if (!termoBusca) return true;
+  const t = termoBusca.toLowerCase();
+  const enderecoMatch = (f.logradouro || '').toLowerCase().includes(t) || (f.bairro || '').toLowerCase().includes(t);
+  const cidadaoMatch = (f.cidadaos || []).some(c =>
+    (c.nome || '').toLowerCase().includes(t) || (c.cns || '').includes(t) || (c.cpf || '').includes(t)
+  );
+  return enderecoMatch || cidadaoMatch;
+}
+
+async function carregarFamilias() {
+  const grid = document.getElementById('familyGrid');
+  const { data, error } = await db.from('familias').select('*, cidadaos(*, condicoes_saude(*))').order('logradouro');
+
+  if (error) {
+    console.error(error);
+    grid.innerHTML = '<p class="estado-erro">Não foi possível carregar as famílias. Verifique sua conexão.</p>';
+    return;
+  }
+
+  familiasGlobais = data || [];
+  renderizarLista();
+
+  // Se veio de busca.html?abrir=<id>, abre direto o detalhe daquela família
+  const abrirId = new URLSearchParams(location.search).get('abrir');
+  if (abrirId) {
+    const alvo = familiasGlobais.find(f => String(f.id) === String(abrirId));
+    if (alvo) mostrarDetalheFamilia(alvo);
+  }
+}
+
+function renderizarLista() {
+  const grid = document.getElementById('familyGrid');
+  const listaFiltrada = familiasGlobais.filter(f => familiaBateFiltro(f) && familiaBateBusca(f));
+
+  if (listaFiltrada.length === 0) {
+    grid.innerHTML = '<p class="estado-vazio">Nenhuma família encontrada.</p>';
+    return;
+  }
+
+  grid.innerHTML = listaFiltrada.map(f => {
+    const endereco = [f.logradouro, f.numero].filter(Boolean).join(', ') || 'Endereço não informado';
+    const responsavel = (f.cidadaos || []).find(c => c.e_responsavel_familiar)?.nome;
+    const qtd = (f.cidadaos || []).length;
+    const tags = tagsFamilia(f);
+    const incompleta = familiaIncompleta(f);
+
+    return `
+      <div class="family-card" data-id="${f.id}">
+        <div class="family-title">${escapeHtml(endereco)}</div>
+        <div class="family-info">${responsavel ? 'Resp: ' + escapeHtml(responsavel) + '<br>' : ''}📍 ${escapeHtml(f.bairro || 'Bairro não informado')}</div>
+        <div class="badges">
+          <span class="badge"><i class="ph ph-users"></i> ${qtd} morador${qtd === 1 ? '' : 'es'}</span>
+          ${tags.map(t => `<span class="badge">${t}</span>`).join('')}
+          ${incompleta ? '<span class="badge alert"><i class="ph ph-warning"></i> Incompleto</span>' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('.family-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const f = familiasGlobais.find(fam => String(fam.id) === card.dataset.id);
+      if (f) mostrarDetalheFamilia(f);
+    });
+  });
+}
+
+function mostrarDetalheFamilia(f) {
+  document.querySelectorAll('.family-card').forEach(c => c.classList.toggle('selected', c.dataset.id === String(f.id)));
+
+  document.getElementById('detailEmpty').style.display = 'none';
+  document.getElementById('detailContent').classList.add('active');
+
+  const endereco = [f.logradouro, f.numero].filter(Boolean).join(', ') || 'Endereço não informado';
+  document.getElementById('detalheTitulo').textContent = endereco;
+  document.getElementById('detalheBairro').textContent = f.bairro || 'Bairro não informado';
+  document.getElementById('detalheBtnVisita').href = `nova-visita.html?familia_id=${f.id}`;
+
+  const membros = f.cidadaos || [];
+  const membrosEl = document.getElementById('detalheMembros');
+
+  if (membros.length === 0) {
+    membrosEl.innerHTML = '<p class="estado-vazio">Nenhum morador cadastrado ainda.</p>';
+  } else {
+    membrosEl.innerHTML = membros.map(c => {
+      const idade = calcularIdade(c.data_nascimento);
+      const tags = condicoesDe(c);
+      const tagsTxt = tags.length > 0 ? tags.join(', ') : 'Nenhuma condição registrada';
+      return `
+        <div class="citizen-item">
+          <div class="citizen-info">
+            <div class="citizen-name">${escapeHtml(c.nome)}${idade !== null ? ` (${idade}a)` : ''} ${c.e_responsavel_familiar ? '<span class="badge" style="background:#e0f2fe; color:#0ea5e9;">Responsável</span>' : ''}</div>
+            <div class="citizen-cns">CNS: ${escapeHtml(c.cns || 'Não informado')} | ${escapeHtml(tagsTxt)}</div>
+          </div>
+          <div class="citizen-actions">
+            <button class="btn-icon" onclick="alert('Edição de cidadão ainda não está disponível nesta tela.')"><i class="ph ph-pencil-simple"></i></button>
+            <button class="btn-icon danger" onclick="alert('Exclusão de cidadão ainda não está disponível nesta tela.')"><i class="ph ph-trash"></i></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+// Busca e filtros
+document.getElementById('campoBuscaFamilias').addEventListener('input', e => {
+  termoBusca = e.target.value.trim();
+  renderizarLista();
+});
+
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    filtroAtual = chip.dataset.filtro;
+    renderizarLista();
+  });
+});
+
+document.getElementById('detalheBtnEditar').onclick = () => alert('Edição de endereço ainda não está disponível nesta tela.');
+document.getElementById('detalheBtnExcluir').onclick = () => alert('Exclusão de família ainda não está disponível nesta tela.');
+document.getElementById('detalheBtnAddCidadao').onclick = () => alert('Cadastro de novo morador ainda não está disponível nesta tela.');
+
+function abrirDrawer(id) { alert('Cadastro de nova família ainda não está disponível nesta tela.'); }
+function fecharTodosDrawers() { /* nenhum drawer implementado ainda */ }
+
+carregarFamilias();
+</script>
+
 </body>
 </html>

@@ -1,305 +1,270 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Configurações - ACS Digital</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .config-section {
-            margin-bottom: 30px;
-        }
-        .config-section h3 {
-            color: #2c5282;
-            border-bottom: 2px solid #edf2f7;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        .btn-backup {
-            background: #3182ce; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px;
-        }
-        .btn-restore {
-            background: #ed8936; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px;
-        }
-        .btn-danger {
-            background: #e53e3e; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Configurações - ACS Digital iPad</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>protegerPagina();</script>
+<script src="branding.js"></script>
+
+<!-- Phosphor Icons para estética minimalista -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #f9fafb;
+  --bg-card: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 16px;
+  --primary: #0ea5e9;
+  --primary-light: #e0f2fe;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
+
+* { 
+  margin: 0; padding: 0; box-sizing: border-box; 
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { 
+  display: flex; background: var(--bg-app); color: var(--text-main); 
+  height: 100vh; overflow: hidden; 
+}
+
+/* SIDEBAR - Padrão iPad */
+.sidebar {
+  width: 260px; background: var(--bg-card); border-right: 1px solid var(--border);
+  padding: 30px 20px; display: flex; flex-direction: column; flex-shrink: 0;
+  z-index: 10;
+}
+.sidebar h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.sidebar span { font-size: 13px; color: var(--text-muted); margin-top: 2px; display: block; }
+.nav-links { margin-top: 30px; display: flex; flex-direction: column; gap: 8px; list-style: none;}
+.nav-links a {
+  text-decoration: none; font-size: 14px; font-weight: 500; color: var(--text-muted);
+  padding: 10px 14px; border-radius: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s;
+}
+.nav-links a i { font-size: 20px; }
+.nav-links a:hover { background: #f3f4f6; color: var(--text-main); }
+.nav-links a.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-links a.active i { font-family: "Phosphor-Fill"; }
+.nav-divider { height: 1px; background: var(--border); margin: 8px 4px; list-style: none; }
+
+/* MAIN CONTENT */
+.main-content {
+  flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 40px;
+}
+
+.content-wrapper {
+  max-width: 800px; margin: 0 auto; width: 100%;
+}
+
+.page-header { margin-bottom: 40px; }
+.page-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; }
+.page-header p { font-size: 15px; color: var(--text-muted); }
+
+/* AVISO */
+.aviso-local {
+  background: var(--primary-light); border: 1px solid #bae6fd;
+  border-radius: var(--radius); padding: 16px 20px; font-size: 14px; color: #0369a1;
+  margin-bottom: 32px; display: flex; gap: 12px; align-items: flex-start; line-height: 1.5;
+}
+.aviso-local i { font-size: 24px; color: var(--primary); }
+
+/* CARDS DE CONFIGURAÇÃO */
+.settings-card { 
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); 
+  padding: 30px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.settings-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;}
+.settings-card h3 i { color: var(--primary); font-size: 22px;}
+.settings-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.field-row { margin-bottom: 20px; }
+.field-row label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-main);}
+.field-row input { 
+  width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; 
+  font-size: 15px; outline: none; background: var(--bg-app); color: var(--text-main); transition: 0.2s;
+}
+.field-row input:focus { border-color: var(--primary); background: var(--bg-card); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+.field-help { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+/* BARRA DE AÇÕES */
+.actions-row { 
+  display: flex; gap: 12px; align-items: center; margin-top: 32px; 
+  padding-top: 24px; border-top: 1px solid var(--border);
+}
+.btn-salvar { 
+  background: var(--primary); color: white; border: none; padding: 14px 28px; 
+  border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.btn-salvar:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);}
+.btn-restaurar { 
+  background: var(--bg-app); border: 1px solid var(--border); padding: 14px 20px; 
+  border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; color: var(--text-main); transition: 0.2s;
+}
+.btn-restaurar:hover { background: #f3f4f6; }
+
+.confirmacao { 
+  font-size: 14px; color: var(--success); font-weight: 600; display: flex; align-items: center; gap: 6px;
+  opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; 
+}
+.confirmacao.show { opacity: 1; transform: translateX(0); }
+
+/* SOBRE */
+.about-row { 
+  display: flex; justify-content: space-between; font-size: 14px; padding: 12px 0; 
+  border-bottom: 1px solid var(--border); 
+}
+.about-row:last-child { border-bottom: none; padding-bottom: 0;}
+.about-row span:first-child { color: var(--text-muted); font-weight: 500;}
+.about-row span:last-child { font-weight: 600; color: var(--text-main);}
+
+</style>
 </head>
-<body style="padding-bottom: 80px;">
-<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
+<body>
 
 <aside class="sidebar">
-  <div class="logo">💚 ACS Digital</div>
-  <nav>
-
-    <!-- PAINEL -->
-    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
-
-    <div class="nav-divisor"></div>
-
-    <!-- FAMÍLIAS E CIDADÃOS -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')">
-        <span>👨‍👩‍👧 Famílias e Cidadãos</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_familias">
-        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
-        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
-        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
-      </div>
-    </div>
-
-    <!-- VISITAS -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')">
-        <span>📅 Visitas</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_visitas">
-        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
-        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
-        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
-      </div>
-    </div>
-
-    <!-- RELATÓRIOS E METAS -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')">
-        <span>📊 Relatórios e Metas</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_relatorios">
-        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
-        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
-      </div>
-    </div>
-
-    <!-- PLANEJAMENTO -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')">
-        <span>🗓️ Planejamento</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_planejamento">
-        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
-        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
-        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
-      </div>
-    </div>
-
-    <div class="nav-divisor"></div>
-
-    <!-- CONFIGURAÇÕES -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')">
-        <span>⚙️ Configurações</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_config">
-        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
-        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
-      </div>
-    </div>
-
-  </nav>
-    <div class="user">
-    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
-    <div>
-      <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
-      <span id="sidebarMicroarea">Microárea 03</span>
-    </div>
+  <div class="sidebar-header">
+    <h2>ACS Digital</h2>
+    <span>Microárea 02</span>
   </div>
+  <ul class="nav-links">
+    <li><a href="index.html"><i class="ph ph-squares-four"></i> Dashboard</a></li>
+    <li><a href="meu-roteiro.html"><i class="ph ph-map-pin-line"></i> Meu Roteiro</a></li>
+    <li><a href="agenda.html"><i class="ph ph-calendar-blank"></i> Agenda</a></li>
+    <li><a href="nova-visita.html"><i class="ph ph-clipboard-text"></i> Visitas</a></li>
+    <li><a href="familias.html"><i class="ph ph-users"></i> Famílias</a></li>
+    <li><a href="mapa.html"><i class="ph ph-map-trifold"></i> Mapa</a></li>
+    <li><a href="indicadores.html"><i class="ph ph-chart-line-up"></i> Indicadores</a></li>
+    <li class="nav-divider"></li>
+    <li><a href="busca.html"><i class="ph ph-magnifying-glass"></i> Busca</a></li>
+    <li><a href="configuracoes.html" class="active"><i class="ph ph-gear"></i> Configurações</a></li>
+  </ul>
 </aside>
 
-<main class="main">
-    <header class="topbar">
-        <h1>⚙️ Configurações</h1>
-        <p style="color:#718096; font-size:14px;">Gerencie seus dados e perfil.</p>
-    </header>
+<main class="main-content">
+  <div class="content-wrapper">
 
-    <div class="grid" style="grid-template-columns: 1fr; gap: 20px;">
-        
-        <div class="box config-section">
-            <h3>👤 Meu Perfil</h3>
-            <div class="form-grid">
-                <div class="form-group span-full">
-                    <label>Foto de Perfil</label>
-                    <div style="display:flex;align-items:center;gap:16px;margin-top:4px;">
-                        <img id="previewFotoPerfil" src="gabriela.jpg" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #e2e8f0;">
-                        <div>
-                            <input type="file" id="fotoPerfilInput" accept="image/*" onchange="preVisualizarFotoPerfil(this)" style="font-size:13px;">
-                            <p style="font-size:12px;color:#718096;margin-top:4px;">Recomendado: foto quadrada, máx 2MB</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group span-full">
-                    <label>Nome do ACS</label>
-                    <input type="text" id="nomeAcs" placeholder="Seu nome completo..." value="ACS Digital">
-                </div>
-                <div class="form-group">
-                    <label>Unidade Básica de Saúde (UBS)</label>
-                    <input type="text" id="ubsAcs" value="UBS Guarda-Mor">
-                </div>
-                <div class="form-group">
-                    <label>Microárea</label>
-                    <input type="text" id="microareaAcs" value="03">
-                </div>
-                <div class="form-group span-full">
-                    <button onclick="salvarPerfil()" style="background: #48bb78; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;">Salvar Perfil</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="box config-section">
-            <h3>💾 Segurança e Backup de Dados</h3>
-            <p style="font-size: 14px; color: #4a5568; margin-bottom: 15px;">Seus dados ficam salvos apenas neste aparelho. Faça backups regulares para não perder informações de visitas e cadastros.</p>
-            
-          <button onclick="exportarBackup()" class="btn-backup">📥 Fazer Backup (Baixar Dados)</button>
-            
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #e2e8f0;">
-                <label style="font-size: 14px; font-weight: bold; color: #4a5568; display: block; margin-bottom: 5px;">Restaurar Backup Anterior:</label>
-                <input type="file" id="arquivoImportacao" accept=".json" style="margin-bottom: 10px; width: 100%;">
-                <button onclick="importarBackup()" class="btn-restore">📤 Restaurar Dados</button>
-            </div>
-        </div>
-
-        <div class="box config-section" style="border-left: 5px solid #e53e3e;">
-            <h3 style="color: #e53e3e;">⚠️ Zona de Perigo</h3>
-            <p style="font-size: 14px; color: #742a2a; margin-bottom: 15px;">Atenção: A ação abaixo apaga todos os registros do aplicativo neste aparelho. Use apenas se for começar do zero.</p>
-            <button onclick="limparTudo()" class="btn-danger">🗑️ Apagar Todos os Dados do App</button>
-        </div>
-
+    <div class="page-header">
+      <h1>Configurações</h1>
+      <p>Preferências de exibição e cálculos usados no aplicativo.</p>
     </div>
 
-    <nav class="bottom-nav no-print">
-        <a href="index.html" class="nav-item">🏠<span>Início</span></a>
-        <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
-        <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
-        <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
-    </nav>
+    <div class="aviso-local">
+      <i class="ph ph-info"></i>
+      <div>
+        <strong>Aviso sobre seus dados</strong><br>
+        Essas preferências ficam salvas apenas <strong>neste navegador/dispositivo</strong>. Como o sistema ainda não possui login, elas não acompanham você para outro computador ou celular.
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3><i class="ph ph-identification-card"></i> Identificação da equipe</h3>
+      <div class="settings-desc">Personaliza o cabeçalho do menu lateral em todas as páginas.</div>
+      
+      <div class="field-grid">
+        <div class="field-row">
+          <label for="campoNomeUbs">Nome da UBS</label>
+          <input type="text" id="campoNomeUbs" placeholder="Ex: UBS Guarda-Mor">
+        </div>
+        <div class="field-row">
+          <label for="campoMicroarea">Sua Microárea</label>
+          <input type="text" id="campoMicroarea" placeholder="Ex: Micro-área 03">
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3><i class="ph ph-sliders-horizontal"></i> Parâmetros do roteiro</h3>
+      <div class="settings-desc">
+        Usados para calcular o planejamento do dia no Dashboard e no Mapa. Lembre-se: o roteiro é uma estimativa inteligente, mas não substitui o seu julgamento profissional.
+      </div>
+      
+      <div class="field-grid">
+        <div class="field-row">
+          <label for="campoCapacidade">Visitas por dia</label>
+          <input type="number" id="campoCapacidade" min="1" max="40">
+          <div class="field-help">Quantas famílias cabem no seu roteiro diário.</div>
+        </div>
+        <div class="field-row">
+          <label for="campoTempoMedio">Tempo médio (minutos)</label>
+          <input type="number" id="campoTempoMedio" min="5" max="120">
+          <div class="field-help">Usado para estimar o tempo restante do dia.</div>
+        </div>
+      </div>
+      
+      <div class="field-row" style="margin-bottom: 0; max-width: 50%;">
+        <label for="campoMeta">Meta mensal de visitas</label>
+        <input type="number" id="campoMeta" min="1" max="1000">
+        <div class="field-help">Atualiza a barra de progresso no Dashboard.</div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-salvar" id="btnSalvar"><i class="ph ph-floppy-disk"></i> Salvar alterações</button>
+        <button class="btn-restaurar" id="btnRestaurar">Restaurar padrões</button>
+        <span class="confirmacao" id="confirmacao"><i class="ph ph-check-circle"></i> Salvo com sucesso!</span>
+      </div>
+    </div>
+
+    <div class="settings-card" style="margin-top: 32px;">
+      <h3><i class="ph ph-code"></i> Sobre o Sistema</h3>
+      <div class="about-row"><span>Aplicativo</span><span>ACS Digital Pro</span></div>
+      <div class="about-row"><span>Backend & Banco de Dados</span><span>Supabase</span></div>
+      <div class="about-row"><span>Autenticação de equipe</span><span style="color: var(--warning);">Pendente de implementação</span></div>
+    </div>
+
+  </div>
 </main>
 
-<script src="script.js"></script>
 <script>
-    // --- SALVAR PERFIL ---
-    let _fotoPerfil = null;
+// Mantendo a mesmíssima lógica que você já tinha construído![cite: 6]
+function preencherFormulario() {
+  const cfg = obterConfiguracaoLocal();
+  document.getElementById('campoNomeUbs').value = cfg.nomeUbs;
+  document.getElementById('campoMicroarea').value = cfg.microarea;
+  document.getElementById('campoCapacidade').value = cfg.capacidadeDiaria;
+  document.getElementById('campoTempoMedio').value = cfg.tempoMedioVisita;
+  document.getElementById('campoMeta').value = cfg.metaMensalVisitas;
+}
 
-    function preVisualizarFotoPerfil(input) {
-        if (!input.files || !input.files[0]) return;
-        if (input.files[0].size > 2 * 1024 * 1024) { alert("Foto muito grande. Máx 2MB."); return; }
-        const reader = new FileReader();
-        reader.onload = e => {
-            _fotoPerfil = e.target.result;
-            document.getElementById('previewFotoPerfil').src = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
+function mostrarConfirmacao() {
+  const el = document.getElementById('confirmacao');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
 
-    function salvarPerfil() {
-        const salvoAtual = JSON.parse(localStorage.getItem("acsPerfil")) || {};
-        const perfil = {
-            nome:      document.getElementById('nomeAcs').value,
-            ubs:       document.getElementById('ubsAcs').value,
-            microarea: document.getElementById('microareaAcs').value,
-            foto:      _fotoPerfil || salvoAtual.foto || null
-        };
-        localStorage.setItem("acsPerfil", JSON.stringify(perfil));
-        alert("Perfil salvo com sucesso!");
-    }
+document.getElementById('btnSalvar').addEventListener('click', () => {
+  salvarConfiguracaoLocal({
+    nomeUbs: document.getElementById('campoNomeUbs').value.trim() || CONFIG_LOCAL_PADRAO.nomeUbs,
+    microarea: document.getElementById('campoMicroarea').value.trim() || CONFIG_LOCAL_PADRAO.microarea,
+    capacidadeDiaria: parseInt(document.getElementById('campoCapacidade').value, 10) || CONFIG_LOCAL_PADRAO.capacidadeDiaria,
+    tempoMedioVisita: parseInt(document.getElementById('campoTempoMedio').value, 10) || CONFIG_LOCAL_PADRAO.tempoMedioVisita,
+    metaMensalVisitas: parseInt(document.getElementById('campoMeta').value, 10) || CONFIG_LOCAL_PADRAO.metaMensalVisitas,
+  });
+  aplicarBrandingNaSidebar();
+  mostrarConfirmacao();
+});
 
-    window.addEventListener('load', () => {
-        const salvo = JSON.parse(localStorage.getItem("acsPerfil"));
-        if (salvo) {
-            if (salvo.nome)      document.getElementById('nomeAcs').value      = salvo.nome;
-            if (salvo.ubs)       document.getElementById('ubsAcs').value       = salvo.ubs;
-            if (salvo.microarea) document.getElementById('microareaAcs').value = salvo.microarea;
-            if (salvo.foto)      document.getElementById('previewFotoPerfil').src = salvo.foto;
-        }
-    });
+document.getElementById('btnRestaurar').addEventListener('click', () => {
+  if(!confirm("Tem certeza que deseja restaurar as configurações originais?")) return;
+  restaurarConfiguracaoPadrao();
+  preencherFormulario();
+  aplicarBrandingNaSidebar();
+  mostrarConfirmacao();
+});
 
-    // --- EXPORTAR BACKUP ---
-    function exportarBackup() {
-        const dadosCompletos = {
-            familias: localStorage.getItem("familias"),
-            membros: localStorage.getItem("membros"),
-            visitas: localStorage.getItem("visitas"),
-            tarefas: localStorage.getItem("tarefas"),
-            roteiroDigital: localStorage.getItem("roteiroDigital"),
-            dadosAgenda: localStorage.getItem("dadosAgenda"),
-            metasConfig2: localStorage.getItem("metasConfig2")
-        };
-
-        const jsonStr = JSON.stringify(dadosCompletos);
-        const blob = new Blob([jsonStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        
-        const dataHoje = new Date().toISOString().split('T')[0];
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Backup_ACSDigital_${dataHoje}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        
-        alert("Backup criado! Guarde este ficheiro num local seguro (Google Drive, E-mail, etc).");
-
-        // Registra a data do backup para o lembrete automático
-        localStorage.setItem("ultimoBackup", new Date().toISOString());
-    }
-
-    // --- IMPORTAR BACKUP ---
-    function importarBackup() {
-        const input = document.getElementById('arquivoImportacao');
-        if (!input.files || input.files.length === 0) {
-            alert("Por favor, selecione um ficheiro de backup (.json) primeiro.");
-            return;
-        }
-
-        const confirmacao = confirm("ATENÇÃO: Restaurar um backup vai substituir TODOS os dados atuais do aplicativo. Tem certeza de que quer continuar?");
-        if (!confirmacao) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const dados = JSON.parse(e.target.result);
-                
-                // Restaura cada chave, se existir no backup
-                if(dados.familias) localStorage.setItem("familias", dados.familias);
-                if(dados.membros) localStorage.setItem("membros", dados.membros);
-                if(dados.visitas) localStorage.setItem("visitas", dados.visitas);
-                if(dados.tarefas) localStorage.setItem("tarefas", dados.tarefas);
-                if(dados.roteiroDigital) localStorage.setItem("roteiroDigital", dados.roteiroDigital);
-                if(dados.dadosAgenda) localStorage.setItem("dadosAgenda", dados.dadosAgenda);
-                if(dados.metasConfig2) localStorage.setItem("metasConfig2", dados.metasConfig2);
-
-                alert("Dados restaurados com sucesso! O aplicativo vai ser reiniciado.");
-                window.location.href = "index.html"; // Redireciona para atualizar
-            } catch (error) {
-                alert("Erro ao ler o ficheiro. Certifique-se de que é um backup válido do ACS Digital.");
-            }
-        };
-        reader.readAsText(input.files[0]);
-    }
-
-    // --- APAGAR TUDO ---
-    function limparTudo() {
-        const certeza1 = confirm("⚠️ ATENÇÃO EXTREMA! Isto vai apagar TODAS as famílias, cidadãos e visitas cadastradas. Deseja continuar?");
-        if (certeza1) {
-            const certeza2 = prompt("Para confirmar a exclusão, digite a palavra: APAGAR");
-            if (certeza2 === "APAGAR") {
-                localStorage.clear();
-                alert("Todos os dados foram apagados.");
-                window.location.href = "index.html";
-            } else {
-                alert("Exclusão cancelada.");
-            }
-        }
-    }
+preencherFormulario();
 </script>
 </body>
 </html>

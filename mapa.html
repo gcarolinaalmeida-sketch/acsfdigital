@@ -1,334 +1,287 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mapa da Microárea - ACS Digital</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <style>
-    #mapa { height: 420px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 16px; z-index: 1; }
-    .legenda { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; }
-    .legenda-item { display: flex; align-items: center; gap: 6px; }
-    .legenda-cor { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
-    .filtros-mapa { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-    .filtros-mapa button { padding: 6px 12px; border: 1px solid #cbd5e0; border-radius: 20px; background: white; font-size: 13px; cursor: pointer; transition: 0.2s; }
-    .filtros-mapa button.ativo { background: #2b6cb0; color: white; border-color: #2b6cb0; }
-    .lista-mapa { max-height: 300px; overflow-y: auto; }
-    .item-mapa { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #edf2f7; cursor: pointer; transition: 0.15s; }
-    .item-mapa:hover { background: #ebf8ff; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mapa da Micro-área - ACS Digital</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>protegerPagina();</script>
+<script src="branding.js"></script>
+<script src="roteiro.js"></script>
+<style>
+:root {
+--bg-color: #FAFAFA;
+--surface: #FFFFFF;
+--text-main: #111827;
+--text-muted: #6B7280;
+--border: #E5E7EB;
+--primary: #0A84FF;
+--success: #34C759;
+--danger: #FF3B30;
+--warning: #FF9500;
+--radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body { display: flex; height: 100vh; overflow: hidden; background-color: var(--bg-color); }
+/* Sidebar Base */
+.sidebar { width: 260px; background-color: var(--bg-color); border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; gap: 24px; z-index: 20; }
+.sidebar-header h2 { font-size: 14px; font-weight: 600; }
+.sidebar-header span { font-size: 12px; color: var(--text-muted); }
+.nav-links { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.nav-links li a { text-decoration: none; color: var(--text-muted); font-size: 14px; padding: 9px 12px; border-radius: 10px; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+.nav-links li a .nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-links li a:hover, .nav-links li a.active { background-color: #F3F4F6; color: var(--text-main); font-weight: 500; }
+.nav-links li.nav-divider { height: 1px; background: var(--border); margin: 8px 4px; list-style: none; }
+/* Área do Mapa */
+.map-container { flex: 1; position: relative; background-color: #E5E5EA; /* Simula a cor de fundo de um mapa */ overflow: hidden; }
+/* Simulação visual de ruas de mapa */
+.map-bg { position: absolute; inset: 0; background-image: linear-gradient(#D1D5DB 2px, transparent 2px), linear-gradient(90deg, #D1D5DB 2px, transparent 2px); background-size: 100px 100px; background-position: center; opacity: 0.5; }
+/* Controles flutuantes sobre o mapa */
+.floating-header { position: absolute; top: 24px; left: 24px; right: 24px; display: flex; gap: 12px; z-index: 10; pointer-events: none; }
+.search-box { pointer-events: auto; flex: 1; max-width: 400px; background: var(--surface); padding: 12px 16px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 15px; outline: none; }
+.btn-filter { pointer-events: auto; background: var(--surface); border: 1px solid var(--border); padding: 12px 20px; border-radius: 24px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; }
+/* Marcadores do Mapa (Pins) */
+.pin { position: absolute; width: 36px; height: 36px; background: var(--surface); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); cursor: pointer; border: 2px solid white; transition: 0.2s; transform: translate(-50%, -50%); }
+.pin:hover { transform: translate(-50%, -50%) scale(1.2); z-index: 15; }
+.pin.danger { background: var(--danger); color: white; }
+.pin.warning { background: var(--warning); color: white; }
+.pin.info { background: var(--primary); color: white; }
+.pin.done { background: var(--success); color: white; opacity: 0.6; }
+/* Popover (Card de Resumo) */
+.popover { position: absolute; width: 320px; background: var(--surface); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 20px; z-index: 20; opacity: 0; pointer-events: none; transition: 0.2s; transform: translate(-50%, 20px); }
+.popover.active { opacity: 1; pointer-events: auto; }
+.popover-close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-muted); }
+.popover-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.popover-address { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+.popover-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.tag { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.tag-danger { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
+.tag-warning { background: rgba(255, 149, 0, 0.1); color: var(--warning); }
+.tag-info { background: rgba(10, 132, 255, 0.1); color: var(--primary); }
+.popover-meta { font-size: 13px; color: var(--text-muted); }
+.popover-actions { display: flex; gap: 8px; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px; }
+.btn-popover { flex: 1; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; text-align: center; text-decoration: none; }
+.btn-visit { background: var(--primary); color: white; }
+.btn-record { background: #F2F2F7; color: var(--text-main); }
+/* Painel Roteirizador Lateral */
+.route-panel { position: absolute; right: 24px; top: 80px; bottom: 24px; width: 300px; background: var(--surface); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; pointer-events: auto; }
+.route-header { padding: 20px; border-bottom: 1px solid var(--border); }
+.route-header h3 { font-size: 16px; margin-bottom: 12px; }
+.btn-optimize { width: 100%; padding: 10px; background: rgba(10, 132, 255, 0.1); color: var(--primary); border: 1px dashed var(--primary); border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
+.route-list { flex: 1; overflow-y: auto; padding: 20px; }
+.route-section { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; margin-top: 16px; }
+.route-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; text-decoration: none; }
+.route-item:hover { background: var(--bg-color); }
+.route-item.completed { opacity: 0.5; background: var(--bg-color); border-color: transparent; }
+.route-checkbox { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.route-item.completed .route-checkbox { background: var(--success); border-color: var(--success); }
+.route-item.completed .route-checkbox::after { content: "✓"; color: white; font-size: 12px; font-weight: bold; }
+.route-info strong { display: block; font-size: 14px; margin-bottom: 2px; color: var(--text-main); }
+.route-info span { font-size: 12px; color: var(--text-muted); }
+.estado-vazio-mapa { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px; text-align: center; padding: 40px; }
+</style>
 </head>
-<body style="padding-bottom: 80px;">
-<!-- HAMBÚRGUER MOBILE -->
-<button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharSidebar()"></div>
-
+<body>
+<!-- Sidebar Principal -->
 <aside class="sidebar">
-  <div class="logo">💚 ACS Digital</div>
-  <nav>
-
-    <!-- PAINEL -->
-    <button onclick="window.location.href='index.html'" id="btn_inicio">🏠 Painel inicial</button>
-
-    <div class="nav-divisor"></div>
-
-    <!-- FAMÍLIAS E CIDADÃOS -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_familias" onclick="toggleGrupo('familias')">
-        <span>👨‍👩‍👧 Famílias e Cidadãos</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_familias">
-        <button onclick="window.location.href='familias_lista.html'">📋 Lista de Famílias</button>
-        <button onclick="window.location.href='familias.html'">➕ Nova Família</button>
-        <button onclick="window.location.href='cidadaos_lista.html'">👤 Cidadãos</button>
-      </div>
-    </div>
-
-    <!-- VISITAS -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_visitas" onclick="toggleGrupo('visitas')">
-        <span>📅 Visitas</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_visitas">
-        <button onclick="window.location.href='visitas_lista.html'">📋 Histórico de Visitas</button>
-        <button onclick="window.location.href='visitas.html'">➕ Nova Visita</button>
-        <button onclick="window.location.href='pendencias.html'">⚠️ Pendências</button>
-      </div>
-    </div>
-
-    <!-- RELATÓRIOS E METAS -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_relatorios" onclick="toggleGrupo('relatorios')">
-        <span>📊 Relatórios e Metas</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_relatorios">
-        <button onclick="window.location.href='relatorios.html'">📊 Relatório Consolidado</button>
-        <button onclick="window.location.href='metas.html'">🎯 Metas Brasil 360</button>
-      </div>
-    </div>
-
-    <!-- PLANEJAMENTO -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_planejamento" onclick="toggleGrupo('planejamento')">
-        <span>🗓️ Planejamento</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_planejamento">
-        <button onclick="window.location.href='agenda.html'">📅 Agenda</button>
-        <button onclick="window.location.href='percurso.html'">🚶 Percurso do Dia</button>
-        <button onclick="window.location.href='mapa.html'">🗺️ Mapa da Microárea</button>
-      </div>
-    </div>
-
-    <div class="nav-divisor"></div>
-
-    <!-- CONFIGURAÇÕES -->
-    <div class="nav-grupo">
-      <button class="nav-grupo-btn" id="btn_config" onclick="toggleGrupo('config')">
-        <span>⚙️ Configurações</span>
-        <span class="seta">›</span>
-      </button>
-      <div class="nav-submenu" id="sub_config">
-        <button onclick="window.location.href='configuracoes.html'">⚙️ Meu Perfil e Backup</button>
-        <button onclick="window.location.href='importador.html'">📥 Importar CSV</button>
-      </div>
-    </div>
-
-  </nav>
-    <div class="user">
-    <img id="sidebarFotoPerfil" src="gabriela.jpg" alt="Foto" style="width:40px;height:40px;min-width:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;">
-    <div>
-      <strong id="sidebarNomePerfil">Gabriela Almeida</strong>
-      <span id="sidebarMicroarea">Microárea 03</span>
-    </div>
-  </div>
+<div class="sidebar-header">
+<h2>UBS Guarda-Mor</h2>
+<span>Micro-área 03</span>
+</div>
+<ul class="nav-links">
+<li><a href="index.html"><span class="nav-icon">🏠</span> Dashboard</a></li>
+<li><a href="nova-visita.html"><span class="nav-icon">▶️</span> Meu Roteiro</a></li>
+<li><a href="agenda.html"><span class="nav-icon">🗓️</span> Agenda</a></li>
+<li><a href="nova-visita.html"><span class="nav-icon">📋</span> Visitas</a></li>
+<li><a href="familias.html"><span class="nav-icon">👨‍👩‍👧</span> Famílias</a></li>
+<li><a href="mapa.html" class="active"><span class="nav-icon">🗺️</span> Mapa</a></li>
+<li><a href="indicadores.html"><span class="nav-icon">📊</span> Indicadores</a></li>
+<li class="nav-divider"></li>
+<li><a href="busca.html"><span class="nav-icon">🔍</span> Busca</a></li>
+<li><a href="configuracoes.html"><span class="nav-icon">⚙️</span> Configurações</a></li>
+</ul>
 </aside>
+<!-- Área do Mapa -->
+<main class="map-container">
+<div class="map-bg"></div>
 
-<main class="main">
-  <div class="page-actions">
-    <h1>🗺️ Mapa da Microárea</h1>
-    <div class="page-actions-btns">
-      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
-      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
-    </div>
-  </div>
-
-  <!-- FILTROS -->
-  <div class="box" style="margin-bottom:12px;">
-    <div class="filtros-mapa" id="filtrosMapa">
-      <button class="ativo" onclick="filtrarMapa('todos',this)">🏠 Todas</button>
-      <button onclick="filtrarMapa('atrasada',this)">🚨 Sem visita +30d</button>
-      <button onclick="filtrarMapa('nunca',this)">⚠️ Nunca visitadas</button>
-      <button onclick="filtrarMapa('gestante',this)">🤰 Gestantes</button>
-      <button onclick="filtrarMapa('hipertensao',this)">❤️ Hipertensos</button>
-      <button onclick="filtrarMapa('diabetes',this)">🩸 Diabéticos</button>
-      <button onclick="filtrarMapa('idoso',this)">👴 Idosos</button>
-      <button onclick="filtrarMapa('acamado',this)">🛏️ Acamados</button>
-    </div>
-
-    <div class="legenda">
-      <div class="legenda-item"><div class="legenda-cor" style="background:#38a169;"></div> Visitada recentemente</div>
-      <div class="legenda-item"><div class="legenda-cor" style="background:#ed8936;"></div> Há mais de 30 dias</div>
-      <div class="legenda-item"><div class="legenda-cor" style="background:#e53e3e;"></div> Nunca visitada</div>
-      <div class="legenda-item"><div class="legenda-cor" style="background:#805ad5;"></div> Grupo prioritário</div>
-    </div>
-  </div>
-
-  <div id="avisoEndereco" style="display:none;background:#fffbeb;border:1px solid #f6ad55;border-left:4px solid #ed8936;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#744210;">
-    ⚠️ Algumas famílias não têm endereço completo cadastrado e não aparecem no mapa. Configure o logradouro e bairro no cadastro de cada família.
-  </div>
-
-  <!-- MAPA -->
-  <div id="mapa"></div>
-
-  <!-- BAIRRO DE REFERÊNCIA -->
-  <div class="box no-print" style="margin-bottom:12px;padding:14px;">
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <label style="font-size:13px;font-weight:bold;color:#4a5568;white-space:nowrap;">📍 Cidade de referência:</label>
-      <input type="text" id="cidadeReferencia" placeholder="Ex: Guarda-Mor, MG" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
-      <button onclick="centralizarMapa()" style="background:#2b6cb0;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:13px;">🔍 Centralizar</button>
-    </div>
-    <p style="font-size:12px;color:#718096;margin-top:8px;">Dica: As famílias são plotadas buscando o endereço + cidade no mapa. Para mais precisão, cadastre o logradouro completo.</p>
-  </div>
-
-  <!-- LISTA DAS FAMÍLIAS NO MAPA -->
-  <div class="box">
-    <h3>📋 Famílias no Mapa (<span id="contadorMapaFam">0</span>)</h3>
-    <div class="lista-mapa" id="listaMapaFamilias"></div>
-  </div>
-
-  <nav class="bottom-nav no-print">
-    <a href="index.html" class="nav-item">🏠<span>Início</span></a>
-    <a href="percurso.html" class="nav-item">🚶<span>Percurso</span></a>
-    <a href="agenda.html" class="nav-item">📅<span>Agenda</span></a>
-    <a href="familias_lista.html" class="nav-item">👥<span>Famílias</span></a>
-  </nav>
+<!-- Cabeçalho de Busca -->
+<div class="floating-header">
+<input type="text" class="search-box" id="mapaBusca" placeholder="Buscar endereço ou família...">
+<button class="btn-filter">⚙️ Filtros</button>
 </div>
 
-<script src="script.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script>
-  let mapa = null;
-  let marcadores = [];
-  let filtroAtivo = 'todos';
-  const cidadeDefault = "Guarda-Mor, MG, Brasil";
+<!-- Pins reais são inseridos aqui via JS -->
+<div id="pinsContainer"></div>
 
-  function iniciarMapa() {
-    mapa = L.map('mapa').setView([-17.7833, -47.0833], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 19
-    }).addTo(mapa);
+<!-- POPOVER DE INFORMAÇÕES DO MARCADOR -->
+<div class="popover" id="mapPopover">
+<button class="popover-close" onclick="fecharPopover()">×</button>
+<div class="popover-title" id="popTitle">Família</div>
+<div class="popover-address" id="popAddress">Endereço</div>
+<div class="popover-tags" id="popTags"></div>
+<div class="popover-meta" id="popMeta"></div>
+<div class="popover-actions" id="popActions"></div>
+</div>
 
-    const cidadeSalva = localStorage.getItem("cidadeMapa") || "";
-    if (cidadeSalva) document.getElementById("cidadeReferencia").value = cidadeSalva;
-
-    carregarFamiliasMapa('todos');
-  }
-
-  async function geocodificarEndereco(endereco) {
-    const cidade = document.getElementById("cidadeReferencia").value.trim() || cidadeDefault;
-    const query  = encodeURIComponent(`${endereco}, ${cidade}`);
-    try {
-      const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
-      const dados = await resp.json();
-      if (dados && dados.length > 0) return { lat: parseFloat(dados[0].lat), lon: parseFloat(dados[0].lon) };
-    } catch (e) { console.warn("Geocode falhou:", endereco); }
-    return null;
-  }
-
-  function corFamilia(f) {
-    const hoje = new Date();
-    const memFam = membros.filter(m => m.familia_id == f.id);
-    const temGrupo = memFam.some(m =>
-      m.gestante==="Sim" || m.doencas_lista?.includes("Hipertensão") ||
-      m.doencas_lista?.includes("Diabetes") || m.doencas_lista?.includes("Acamado") ||
-      (m.nascimento && Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25))>=60)
-    );
-    if (temGrupo) return '#805ad5';
-    const vFam = visitas.filter(v => v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
-    if (!vFam.length) return '#e53e3e';
-    const dias = Math.floor((hoje - new Date(vFam[0].data)) / (1000*60*60*24));
-    return dias > 30 ? '#ed8936' : '#38a169';
-  }
-
-  function criarIcone(cor) {
-    return L.divIcon({
-      className: '',
-      html: `<div style="width:22px;height:22px;border-radius:50%;background:${cor};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
-      iconSize: [22, 22], iconAnchor: [11, 11]
-    });
-  }
-
-  async function carregarFamiliasMapa(filtro) {
-    filtroAtivo = filtro;
-    marcadores.forEach(m => mapa.removeLayer(m));
-    marcadores = [];
-
-    const hoje = new Date();
-    let familiasFiltradas = familias.filter(f => {
-      if (!f.logradouro) return false;
-      const memFam = membros.filter(m => m.familia_id == f.id);
-      const vFam   = visitas.filter(v => v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
-      const ultima = vFam.length ? new Date(vFam[0].data) : null;
-      const dias   = ultima ? Math.floor((hoje-ultima)/(1000*60*60*24)) : 9999;
-
-      if (filtro === 'atrasada') return dias > 30 && ultima !== null;
-      if (filtro === 'nunca')    return !ultima;
-      if (filtro === 'gestante')    return memFam.some(m => m.gestante==="Sim");
-      if (filtro === 'hipertensao') return memFam.some(m => m.doencas_lista?.includes("Hipertensão"));
-      if (filtro === 'diabetes')    return memFam.some(m => m.doencas_lista?.includes("Diabetes"));
-      if (filtro === 'idoso')       return memFam.some(m => m.nascimento && Math.floor((hoje-new Date(m.nascimento))/(1000*60*60*24*365.25))>=60);
-      if (filtro === 'acamado')     return memFam.some(m => m.doencas_lista?.includes("Acamado"));
-      return true;
-    });
-
-    document.getElementById("contadorMapaFam").textContent = familiasFiltradas.length;
-    renderizarListaMapa(familiasFiltradas);
-
-    let semEndereco = 0;
-    for (const f of familiasFiltradas) {
-      const end = `${f.logradouro||''} ${f.numero||''}, ${f.bairro||''}`.trim();
-      const coords = await geocodificarEndereco(end);
-      if (coords) {
-        const cor = corFamilia(f);
-        const marcador = L.marker([coords.lat, coords.lon], { icon: criarIcone(cor) }).addTo(mapa);
-
-        const vFam = visitas.filter(v=>v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
-        const ultimaStr = vFam.length ? vFam[0].data.split('-').reverse().join('/') : 'Nunca';
-        const memFam = membros.filter(m=>m.familia_id==f.id);
-
-        marcador.bindPopup(`
-          <div style="font-size:13px;min-width:200px;">
-            <strong style="color:#2c5282;">Família ${f.numeroFamilia} — ${f.responsavel}</strong><br>
-            <span style="color:#718096;">📍 ${f.logradouro||''}, ${f.numero||''}</span><br>
-            <span style="color:#718096;">👥 ${memFam.length} membro(s)</span><br>
-            <span style="color:#718096;">🕐 Última visita: ${ultimaStr}</span><br>
-            <button onclick="window.location.href='familia_detalhe.html';localStorage.setItem('familiaAtual',${f.id})"
-              style="margin-top:8px;background:#2b6cb0;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;width:100%;font-size:12px;">
-              Ver família →
-            </button>
-          </div>`);
-        marcadores.push(marcador);
-      } else {
-        semEndereco++;
-      }
-    }
-
-    const aviso = document.getElementById("avisoEndereco");
-    aviso.style.display = semEndereco > 0 ? "block" : "none";
-
-    if (marcadores.length > 0) {
-      const grupo = L.featureGroup(marcadores);
-      mapa.fitBounds(grupo.getBounds().pad(0.2));
-    }
-  }
-
-  function renderizarListaMapa(familiasFiltradas) {
-    const lista = document.getElementById("listaMapaFamilias");
-    const hoje  = new Date();
-    if (familiasFiltradas.length === 0) {
-      lista.innerHTML = "<p style='text-align:center;padding:20px;color:#a0aec0;'>Nenhuma família encontrada com este filtro.</p>";
-      return;
-    }
-    lista.innerHTML = familiasFiltradas.sort((a,b)=>a.numeroFamilia-b.numeroFamilia).map(f => {
-      const cor = corFamilia(f);
-      const vFam = visitas.filter(v=>v.familiaId==f.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
-      const ultimaStr = vFam.length ? vFam[0].data.split('-').reverse().join('/') : 'Nunca';
-      return `
-      <div class="item-mapa" onclick="abrirFamilia(${f.id})">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:12px;height:12px;border-radius:50%;background:${cor};flex-shrink:0;"></div>
-          <div>
-            <strong style="font-size:13px;">Fam. ${f.numeroFamilia} — ${f.responsavel}</strong><br>
-            <span style="font-size:12px;color:#718096;">📍 ${f.logradouro||'Sem endereço'} · 🕐 ${ultimaStr}</span>
-          </div>
-        </div>
-        <span style="color:#a0aec0;font-size:16px;">›</span>
-      </div>`;
-    }).join('');
-  }
-
-  function filtrarMapa(filtro, btn) {
-    document.querySelectorAll('.filtros-mapa button').forEach(b => b.classList.remove('ativo'));
-    btn.classList.add('ativo');
-    carregarFamiliasMapa(filtro);
-  }
-
-  function centralizarMapa() {
-    const cidade = document.getElementById("cidadeReferencia").value.trim();
-    if (cidade) localStorage.setItem("cidadeMapa", cidade);
-    carregarFamiliasMapa(filtroAtivo);
-  }
-
-  window.addEventListener('load', iniciarMapa);
-</script>
+<!-- PAINEL ROTEIRIZADOR (DIREITA) -->
+<div class="route-panel">
+<div class="route-header">
+<h3>📍 Meu Roteiro de Hoje</h3>
+<button class="btn-optimize" onclick="alert('A otimização por proximidade depende de geolocalização real, que ainda não existe no cadastro. Em breve!')">🪄 Ordenar por Proximidade</button>
+</div>
+<div class="route-list" id="routeList">
+<p class="estado-vazio-mapa" style="position: static; padding: 20px 0;">Carregando roteiro...</p>
+</div>
+</div>
 </main>
+<script>
+/* ============================================================================
+   Mapa da Micro-área - dados reais via Supabase
+   ----------------------------------------------------------------------------
+   Esta página ainda NÃO possui latitude/longitude reais das famílias (não há
+   essa coluna no schema atual). Por isso os pinos usam POSIÇÕES ILUSTRATIVAS
+   (calculadas deterministicamente a partir do id da família), só para
+   visualizar prioridade/status. Quando o cadastro de domicílio passar a
+   capturar lat/long (ex: ao salvar endereço com geocodificação), substitua
+   `posicaoIlustrativa()` por coordenadas reais convertidas para % da tela
+   (ou troque a implementação por uma biblioteca de mapa real, como Leaflet).
+
+   A heurística de prioridade (calcularPrioridade, calcularRoteiroDoDia,
+   carregarFamiliasEnriquecidas etc.) vem de roteiro.js, compartilhado com
+   o Dashboard (index.html / dashboard.js), para os dois roteiros não
+   divergirem com o tempo.
+============================================================================ */
+
+// Posição ilustrativa determinística (mesma família = mesma posição sempre).
+function posicaoIlustrativa(id, indice) {
+  let hash = 0;
+  const str = String(id);
+  for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) % 10000;
+  const top = 18 + ((hash + indice * 17) % 64);
+  const left = 12 + ((hash * 7 + indice * 23) % 76);
+  return { top, left };
+}
+
+let roteiroGlobal = [];
+
+async function carregarMapa() {
+  let familiasEnriquecidas;
+  try {
+    const resultado = await carregarFamiliasEnriquecidas(); // roteiro.js
+    familiasEnriquecidas = resultado.familiasEnriquecidas;
+  } catch (erro) {
+    console.error(erro);
+    document.getElementById('pinsContainer').innerHTML = `<div class="estado-vazio-mapa">Não foi possível carregar os dados do mapa agora.</div>`;
+    return;
+  }
+
+  roteiroGlobal = calcularRoteiroDoDia(familiasEnriquecidas, 20); // roteiro.js
+  renderizarPins(roteiroGlobal);
+  renderizarRoteiro(roteiroGlobal);
+}
+
+function renderizarPins(roteiro) {
+  const container = document.getElementById('pinsContainer');
+  if (roteiro.length === 0) {
+    container.innerHTML = `<div class="estado-vazio-mapa">Nenhuma família cadastrada ainda. Cadastre domicílios em "Famílias".</div>`;
+    return;
+  }
+  container.innerHTML = roteiro.map((f, i) => {
+    const pos = posicaoIlustrativa(f.id, i);
+    const classe = f.visitouHoje ? 'done' : (f.prio.nivel === 'urgente' ? 'danger' : f.prio.nivel === 'atencao' ? 'warning' : 'info');
+    const icone = f.visitouHoje ? '✓' : '📍';
+    return `<div class="pin ${classe}" style="top:${pos.top}%; left:${pos.left}%;" data-familia-id="${f.id}" onclick="abrirPopoverFamilia('${f.id}', this)">${icone}</div>`;
+  }).join('');
+}
+
+function abrirPopoverFamilia(familiaId, elementoPin) {
+  const f = roteiroGlobal.find(x => x.id === familiaId);
+  if (!f) return;
+
+  const popover = document.getElementById('mapPopover');
+  const rect = elementoPin.getBoundingClientRect();
+
+  document.getElementById('popTitle').textContent = nomePrincipalDe(f);
+  document.getElementById('popAddress').textContent = enderecoDe(f) + (f.bairro ? ' - ' + f.bairro : '');
+
+  const tagClasse = f.prio.nivel === 'urgente' ? 'tag-danger' : f.prio.nivel === 'atencao' ? 'tag-warning' : 'tag-info';
+  document.getElementById('popTags').innerHTML = `
+    <span class="tag ${tagClasse}">${f.prio.tipoPrincipal.emoji} ${escapeHtml(f.prio.tipoPrincipal.label)}</span>
+    ${f.visitouHoje ? '<span class="tag" style="background: rgba(52,199,89,0.12); color: var(--success);">✓ Visitada hoje</span>' : ''}
+  `;
+
+  const ultimaVisitaTxt = f.totalVisitas > 0
+    ? `há ${f.diasDesdeUltimaVisita} dia${f.diasDesdeUltimaVisita === 1 ? '' : 's'}`
+    : 'nunca visitada';
+  document.getElementById('popMeta').textContent = `👨‍👩‍👧‍👦 ${f.membros.length} morador${f.membros.length === 1 ? '' : 'es'} | ⏱️ Últ. visita: ${ultimaVisitaTxt}`;
+
+  document.getElementById('popActions').innerHTML = `
+    <a href="nova-visita.html?familia_id=${f.id}" class="btn-popover btn-visit">Iniciar Visita</a>
+    <a href="familias.html" class="btn-popover btn-record">Ver no Diretório</a>
+  `;
+
+  popover.style.left = (rect.left + (rect.width / 2)) + 'px';
+  popover.style.top = (rect.top - 20) + 'px';
+  popover.classList.add('active');
+}
+
+function fecharPopover() {
+  document.getElementById('mapPopover').classList.remove('active');
+}
+
+document.querySelector('.map-container').addEventListener('click', function (e) {
+  if (!e.target.closest('.pin') && !e.target.closest('.popover')) fecharPopover();
+});
+
+function renderizarRoteiro(roteiro) {
+  const lista = document.getElementById('routeList');
+  const pendentes = roteiro.filter(f => !f.visitouHoje);
+  const concluidas = roteiro.filter(f => f.visitouHoje);
+
+  if (roteiro.length === 0) {
+    lista.innerHTML = `<p style="color: var(--text-muted); font-size: 13px;">Nenhuma família no roteiro ainda.</p>`;
+    return;
+  }
+
+  let html = `<div class="route-section">PENDENTES (${pendentes.length})</div>`;
+  html += pendentes.map((f, i) => `
+    <a class="route-item" href="nova-visita.html?familia_id=${f.id}">
+      <div class="route-checkbox"></div>
+      <div class="route-info">
+        <strong>${i + 1}. ${escapeHtml(nomePrincipalDe(f))}</strong>
+        <span>${escapeHtml(enderecoDe(f))}</span>
+      </div>
+    </a>
+  `).join('') || `<p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Tudo concluído por aqui. 🎉</p>`;
+
+  html += `<div class="route-section">CONCLUÍDAS (${concluidas.length})</div>`;
+  html += concluidas.map(f => `
+    <div class="route-item completed">
+      <div class="route-checkbox"></div>
+      <div class="route-info">
+        <strong>${escapeHtml(nomePrincipalDe(f))}</strong>
+        <span>${escapeHtml(enderecoDe(f))}</span>
+      </div>
+    </div>
+  `).join('') || `<p style="color: var(--text-muted); font-size: 13px;">Nenhuma visita concluída hoje ainda.</p>`;
+
+  lista.innerHTML = html;
+}
+
+// Busca simples por nome de família ou endereço, filtrando os pinos exibidos.
+document.getElementById('mapaBusca').addEventListener('input', (e) => {
+  const termo = e.target.value.trim().toLowerCase();
+  if (termo === '') { renderizarPins(roteiroGlobal); return; }
+  const filtrado = roteiroGlobal.filter(f =>
+    nomePrincipalDe(f).toLowerCase().includes(termo) || enderecoDe(f).toLowerCase().includes(termo)
+  );
+  renderizarPins(filtrado);
+});
+
+carregarMapa();
+</script>
 </body>
 </html>
