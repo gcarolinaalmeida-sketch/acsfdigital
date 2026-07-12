@@ -1,171 +1,324 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ACS Digital">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Controle de Receitas</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  /* ── ESTILOS DOS ALERTAS (Iguais aos do cidadão) ── */
-  .alerta-receita {
-    border-radius: 10px; padding: 16px; margin-bottom: 12px;
-    display: flex; align-items: flex-start; gap: 12px;
-    border-left: 5px solid; background: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  }
-  .alerta-receita.urgente { background: #fff5f5; border-color: #e53e3e; }
-  .alerta-receita.atencao { background: #fffbeb; border-color: #ed8936; }
-  .alerta-receita.ok      { background: #f0fff4; border-color: #38a169; }
-  .alerta-receita .icone-alerta { font-size: 26px; flex-shrink: 0; margin-top: 2px; }
-  .alerta-receita .corpo { flex: 1; }
-  .alerta-receita .nome-paciente { font-size: 13px; font-weight: 800; color: #2c5282; margin-bottom: 4px; text-transform: uppercase; }
-  .alerta-receita .titulo { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
-  .alerta-receita.urgente .titulo { color: #c53030; }
-  .alerta-receita.atencao .titulo { color: #744210; }
-  .alerta-receita .detalhe { font-size: 13px; color: #4a5568; margin-top: 3px; }
-  .alerta-receita .prazo { font-size: 13px; font-weight: 600; margin-top: 6px; }
-  .alerta-receita.urgente .prazo { color: #e53e3e; }
-  .alerta-receita.atencao .prazo { color: #ed8936; }
-  
-  .btn-ver-paciente {
-    background: transparent; border: 1px solid currentColor; color: inherit; 
-    border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 12px; 
-    font-weight: bold; margin-left: 10px; height: fit-content; align-self: center;
-  }
-  .btn-ver-paciente:hover { opacity: 0.8; }
+<title>Receitas - ACS Digital iPad</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>protegerPagina();</script>
+<script src="branding.js"></script>
 
-  /* ── EMPTY STATE ── */
-  .empty-state { text-align: center; padding: 40px 20px; color: #a0aec0; background: white; border-radius: 12px; }
-  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 15px; }
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #f9fafb;
+  --bg-card: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 16px;
+  --primary: #0ea5e9;
+  --primary-light: #e0f2fe;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+}
+
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex; background: var(--bg-app); color: var(--text-main);
+  height: 100vh; overflow: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px; background: var(--bg-card); border-right: 1px solid var(--border);
+  padding: 30px 20px; display: flex; flex-direction: column; flex-shrink: 0;
+  z-index: 10;
+}
+.sidebar-header h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.sidebar-header span { font-size: 13px; color: var(--text-muted); margin-top: 2px; display: block; }
+.nav-links { margin-top: 30px; display: flex; flex-direction: column; gap: 8px; list-style: none;}
+.nav-links a {
+  text-decoration: none; font-size: 14px; font-weight: 500; color: var(--text-muted);
+  padding: 10px 14px; border-radius: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s;
+}
+.nav-links a i { font-size: 20px; }
+.nav-links a:hover { background: #f3f4f6; color: var(--text-main); }
+.nav-links a.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-links a.active i { font-family: "Phosphor-Fill"; }
+.nav-divider { height: 1px; background: var(--border); margin: 8px 4px; list-style: none; }
+
+/* MAIN */
+.main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+.content-wrapper { padding: 40px 48px 64px; max-width: 900px; margin: 0 auto; width: 100%; }
+
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.page-header p { font-size: 14px; color: var(--text-muted); }
+
+.search-box { position: relative; margin-bottom: 20px; }
+.search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 18px; }
+.search-bar {
+  width: 100%; padding: 12px 16px 12px 40px; border: 1px solid var(--border);
+  border-radius: 12px; font-size: 15px; background: var(--bg-card); outline: none; transition: 0.2s;
+}
+.search-bar:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+
+.filters-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 24px; scrollbar-width: none; }
+.filters-scroll::-webkit-scrollbar { display: none; }
+.filter-chip {
+  padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer; color: var(--text-muted);
+}
+.filter-chip.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+
+.summary-row { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.summary-card { flex: 1; min-width: 140px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+.summary-card .num { font-size: 24px; font-weight: 700; }
+.summary-card .lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.summary-card.atrasada .num { color: var(--danger); }
+.summary-card.em-breve .num { color: #b45309; }
+
+.receita-item {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+}
+.receita-item-main { flex: 1; cursor: pointer; }
+.receita-nome { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.receita-paciente { font-size: 13px; color: var(--text-main); font-weight: 600; }
+.receita-paciente i { color: var(--text-muted); margin-right: 4px; }
+.receita-meta { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.receita-status { font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+.receita-status.atrasada { background: var(--danger-light); color: var(--danger); }
+.receita-status.em-breve { background: var(--warning-light); color: #b45309; }
+.receita-status.ok { background: var(--success-light); color: #047857; }
+.receita-item-actions { display: flex; gap: 6px; }
+.btn-icon { background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; }
+.btn-icon:hover { background: #f3f4f6; color: var(--text-main); }
+
+.estado-vazio { color: var(--text-muted); text-align: center; padding: 60px 20px; font-size: 14px; }
+.estado-erro { color: var(--danger); text-align: center; padding: 40px 20px; font-size: 14px; }
 </style>
 </head>
 <body>
 
-<div class="main" style="margin-left:0; width:100%;">
-  <div class="page-actions">
-    <h1>Controle de Receitas</h1>
-    <div class="page-actions-btns">
-      <button onclick="window.location.href='index.html'" class="btn btn-home">🏠 Início</button>
-      <button onclick="window.history.back()" class="btn btn-secondary">⬅️ Voltar</button>
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>ACS Digital</h2>
+    <span>Microárea 02</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"><i class="ph ph-squares-four"></i> Dashboard</a></li>
+    <li><a href="meu-roteiro.html"><i class="ph ph-map-pin-line"></i> Meu Roteiro</a></li>
+    <li><a href="agenda.html"><i class="ph ph-calendar-blank"></i> Agenda</a></li>
+    <li><a href="nova-visita.html"><i class="ph ph-clipboard-text"></i> Visitas</a></li>
+    <li><a href="familias.html"><i class="ph ph-users"></i> Famílias</a></li>
+    <li><a href="mapa.html"><i class="ph ph-map-trifold"></i> Mapa</a></li>
+    <li><a href="indicadores.html"><i class="ph ph-chart-line-up"></i> Indicadores</a></li>
+    <li><a href="receitas.html" class="active"><i class="ph ph-pill"></i> Receitas</a></li>
+    <li class="nav-divider"></li>
+    <li><a href="busca.html"><i class="ph ph-magnifying-glass"></i> Busca</a></li>
+    <li><a href="configuracoes.html"><i class="ph ph-gear"></i> Configurações</a></li>
+  </ul>
+</aside>
+
+<main class="main-content">
+  <div class="content-wrapper">
+    <div class="page-header">
+      <h1>Receitas a Renovar</h1>
+      <p>Medicamentos de uso contínuo (30 dias, 60 dias ou 6 em 6 meses) que precisam de renovação.</p>
+    </div>
+
+    <div class="summary-row" id="summaryRow"></div>
+
+    <div class="search-box">
+      <i class="ph ph-magnifying-glass"></i>
+      <input type="text" class="search-bar" id="campoBuscaReceitas" placeholder="Buscar por paciente ou medicamento...">
+    </div>
+
+    <div class="filters-scroll">
+      <div class="filter-chip" data-filtro="atrasadas">⏰ Atrasadas</div>
+      <div class="filter-chip active" data-filtro="semana">📅 Esta Semana</div>
+      <div class="filter-chip" data-filtro="30dias">🗓️ Próximos 30 dias</div>
+      <div class="filter-chip" data-filtro="todas">Todas</div>
+    </div>
+
+    <div id="receitasList">
+      <p class="estado-vazio">Carregando receitas…</p>
     </div>
   </div>
+</main>
 
-  <div class="box" style="margin-bottom: 20px; background: #ebf8ff; border: 1px solid #bee3f8; color: #2b6cb0;">
-    <p style="font-size: 14px; margin: 0;">ℹ️ Este painel varre todos os cidadãos da sua microárea e lista automaticamente as receitas de uso contínuo ou controladas que estão a vencer nos próximos 20 dias.</p>
-  </div>
-
-  <div id="listaAlertasGlobais">
-    <div style="text-align:center; padding:30px;"><span style="font-size:24px;">⏳</span><br>A carregar receitas...</div>
-  </div>
-
-</div>
-
-<script src="script.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  gerarAlertasGlobais();
-});
+let receitasGlobais = [];
+let filtroAtual = 'semana';
+let termoBusca = '';
 
-function gerarAlertasGlobais() {
-  const todosMembros = JSON.parse(localStorage.getItem('membros') || '[]');
-  const container = document.getElementById('listaAlertasGlobais');
-  container.innerHTML = '';
+function escapeHtml(str) { return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
+// As 4 funções abaixo eram chamadas mas não existiam em lugar nenhum do
+// código (nem aqui, nem em config.js/roteiro.js) — a página quebrava com
+// "function is not defined" assim que tentava carregar as receitas.
+
+// Soma o intervalo do tipo de receita à data da última renovação.
+function calcularProximaRenovacao(dataUltimaRenovacaoISO, tipo) {
+  const d = new Date(dataUltimaRenovacaoISO + 'T00:00:00');
+  if (tipo === '30_dias') d.setDate(d.getDate() + 30);
+  else if (tipo === '60_dias') d.setDate(d.getDate() + 60);
+  else if (tipo === '6_meses') d.setMonth(d.getMonth() + 6);
+  return d.toISOString().slice(0, 10);
+}
+
+// Quantos dias faltam (negativo = já passou) até a data informada.
+function diasParaData(dataISO) {
   const hoje = new Date();
-  hoje.setHours(0,0,0,0);
+  hoje.setHours(0, 0, 0, 0);
+  const alvo = new Date(dataISO + 'T00:00:00');
+  return Math.round((alvo - hoje) / 86400000);
+}
 
-  let alertasGerados = [];
+// Domingo a sábado da semana atual, em ISO (comparável direto com outras datas ISO).
+function limitesSemanaAtual() {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const inicio = new Date(hoje);
+  inicio.setDate(hoje.getDate() - hoje.getDay());
+  const fim = new Date(inicio);
+  fim.setDate(inicio.getDate() + 6);
+  return { inicio: inicio.toISOString().slice(0, 10), fim: fim.toISOString().slice(0, 10) };
+}
 
-  // Percorre todos os cidadãos cadastrados
-  todosMembros.forEach(membro => {
-    // A mesma lógica de ID que usámos no saude_cidadao.html
-    const idUnico = membro.id || membro.cns || membro.cpf;
-    if (!idUnico) return;
+function labelTipoReceita(tipo) {
+  if (tipo === '30_dias') return 'Renovação a cada 30 dias';
+  if (tipo === '60_dias') return 'Renovação a cada 60 dias';
+  if (tipo === '6_meses') return 'Renovação a cada 6 meses';
+  return 'Uso contínuo';
+}
 
-    // Busca os medicamentos daquele cidadão específico
-    const key = 'saudeCidadao_' + idUnico + '_medicamentos';
-    const meds = JSON.parse(localStorage.getItem(key) || '[]');
+async function carregarReceitas() {
+  const lista = document.getElementById('receitasList');
+  const { data, error } = await db.from('receitas')
+    .select('*, cidadaos(id, nome, cns, familias(logradouro, numero, bairro))')
+    .eq('ativa', true);
 
-    meds.forEach(m => {
-      if (!m.dataReceita || !m.validade) return;
-
-      const dataReceita  = new Date(m.dataReceita + 'T12:00:00');
-      const dataVenc     = new Date(dataReceita);
-      dataVenc.setDate(dataVenc.getDate() + m.validade);
-      dataVenc.setHours(0,0,0,0);
-
-      const diasRestantes = Math.floor((dataVenc - hoje) / (24 * 60 * 60 * 1000));
-
-      // Filtra apenas as que estão a vencer em 20 dias ou menos
-      if (diasRestantes <= 20) {
-        alertasGerados.push({
-          membro: membro,
-          medicamento: m,
-          vencimento: dataVenc,
-          diasRestantes: diasRestantes
-        });
-      }
-    });
-  });
-
-  // Se não houver nenhum alerta
-  if (alertasGerados.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="emoji">✅</div>
-        <h3 style="color:#2f855a; margin-bottom:8px;">Tudo em dia!</h3>
-        <p>Não há receitas vencidas ou perto de vencer na sua microárea.</p>
-      </div>`;
+  if (error) {
+    console.error(error);
+    lista.innerHTML = '<p class="estado-erro">Não foi possível carregar as receitas. Verifique sua conexão.</p>';
     return;
   }
 
-  // Ordena para mostrar as mais urgentes (vencidas ou com menos dias) primeiro
-  alertasGerados.sort((a, b) => a.diasRestantes - b.diasRestantes);
-
-  // Desenha os alertas na tela
-  alertasGerados.forEach(alerta => {
-    const { membro, medicamento, vencimento, diasRestantes } = alerta;
-    let classe = '', icone = '', titulo = '', prazo = '';
-
-    if (diasRestantes < 0) {
-      classe = 'urgente'; icone = '🚨';
-      titulo = `Receita VENCIDA: ${medicamento.nome}`;
-      prazo  = `Venceu há ${Math.abs(diasRestantes)} dia(s) — renovação urgente!`;
-    } else if (diasRestantes <= 10) {
-      classe = 'urgente'; icone = '⚠️';
-      titulo = `Vence em ${diasRestantes} dia(s): ${medicamento.nome}`;
-      prazo  = `Vence dia ${vencimento.toLocaleDateString('pt-BR')}`;
-    } else {
-      classe = 'atencao'; icone = '📋';
-      titulo = `Aviso: expira em ${diasRestantes} dias`;
-      prazo  = `${medicamento.nome} — Vence dia ${vencimento.toLocaleDateString('pt-BR')}`;
-    }
-
-    const div = document.createElement('div');
-    div.className = `alerta-receita ${classe}`;
-    div.innerHTML = `
-      <div class="icone-alerta">${icone}</div>
-      <div class="corpo">
-        <div class="nome-paciente">👤 ${membro.nome}</div>
-        <div class="titulo">${titulo}</div>
-        <div class="detalhe">${medicamento.dose || ''} · ${medicamento.tipo === 'controlada' ? 'Receita Controlada' : 'Uso Contínuo'}</div>
-        <div class="prazo">${prazo}</div>
-      </div>
-      <button onclick="abrirHistoricoSaude(${membro.id})" class="btn-ver-paciente">Ver Prontuário</button>
-    `;
-    container.appendChild(div);
+  receitasGlobais = (data || []).map(r => {
+    const proxima = calcularProximaRenovacao(r.data_ultima_renovacao, r.tipo);
+    return { ...r, _proxima: proxima, _dias: diasParaData(proxima) };
   });
+
+  renderizarResumo();
+  renderizarLista();
 }
 
-function abrirHistoricoSaude(membroId) {
-  localStorage.setItem("membroSaudeAtual", membroId);
-  window.location.href = "saude_cidadao.html";
+function renderizarResumo() {
+  const atrasadas = receitasGlobais.filter(r => r._dias < 0).length;
+  const { inicio, fim } = limitesSemanaAtual();
+  const estaSemana = receitasGlobais.filter(r => r._proxima >= inicio && r._proxima <= fim).length;
+  const proximos30 = receitasGlobais.filter(r => r._dias >= 0 && r._dias <= 30).length;
+
+  document.getElementById('summaryRow').innerHTML = `
+    <div class="summary-card atrasada"><div class="num">${atrasadas}</div><div class="lbl">Atrasadas</div></div>
+    <div class="summary-card em-breve"><div class="num">${estaSemana}</div><div class="lbl">Esta semana</div></div>
+    <div class="summary-card"><div class="num">${proximos30}</div><div class="lbl">Próximos 30 dias</div></div>
+    <div class="summary-card"><div class="num">${receitasGlobais.length}</div><div class="lbl">Total ativas</div></div>
+  `;
 }
+
+function receitaBateFiltro(r) {
+  if (filtroAtual === 'todas') return true;
+  if (filtroAtual === 'atrasadas') return r._dias < 0;
+  if (filtroAtual === '30dias') return r._dias >= 0 && r._dias <= 30;
+  if (filtroAtual === 'semana') {
+    const { inicio, fim } = limitesSemanaAtual();
+    return r._proxima >= inicio && r._proxima <= fim;
+  }
+  return true;
+}
+
+function receitaBateBusca(r) {
+  if (!termoBusca) return true;
+  const t = termoBusca.toLowerCase();
+  const nomePaciente = (r.cidadaos?.nome || '').toLowerCase();
+  const medicamento = (r.medicamento || '').toLowerCase();
+  return nomePaciente.includes(t) || medicamento.includes(t);
+}
+
+function renderizarLista() {
+  const lista = document.getElementById('receitasList');
+  const filtradas = receitasGlobais
+    .filter(r => receitaBateFiltro(r) && receitaBateBusca(r))
+    .sort((a, b) => new Date(a._proxima) - new Date(b._proxima));
+
+  if (filtradas.length === 0) {
+    lista.innerHTML = '<p class="estado-vazio">Nenhuma receita encontrada para este filtro. 🎉</p>';
+    return;
+  }
+
+  lista.innerHTML = filtradas.map(r => {
+    const c = r.cidadaos || {};
+    const endereco = c.familias ? [c.familias.logradouro, c.familias.numero].filter(Boolean).join(', ') : '';
+    let statusClasse = 'ok', statusTexto = `Em ${r._dias}d`;
+    if (r._dias < 0) { statusClasse = 'atrasada'; statusTexto = `Atrasada ${Math.abs(r._dias)}d`; }
+    else if (r._dias <= 7) { statusClasse = 'em-breve'; statusTexto = r._dias === 0 ? 'Hoje' : `Em ${r._dias}d`; }
+
+    return `
+      <div class="receita-item">
+        <div class="receita-item-main" onclick="location.href='prontuario.html?id=${c.id}'">
+          <div class="receita-nome">${escapeHtml(r.medicamento)}${r.posologia ? ' — ' + escapeHtml(r.posologia) : ''}</div>
+          <div class="receita-paciente"><i class="ph ph-user"></i>${escapeHtml(c.nome || 'Paciente não encontrado')}</div>
+          <div class="receita-meta">${labelTipoReceita(r.tipo)} · próxima renovação: ${formatarDataBR(r._proxima)}${endereco ? ' · 📍 ' + escapeHtml(endereco) : ''}</div>
+        </div>
+        <span class="receita-status ${statusClasse}">${statusTexto}</span>
+        <div class="receita-item-actions">
+          <button class="btn-icon" title="Renovar agora" onclick="renovarReceita(${r.id})"><i class="ph ph-arrow-clockwise"></i></button>
+          <button class="btn-icon" title="Abrir prontuário" onclick="location.href='prontuario.html?id=${c.id}'"><i class="ph ph-folder-user"></i></button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function renovarReceita(receitaId) {
+  const hoje = new Date().toISOString().slice(0, 10);
+  const { error } = await db.from('receitas').update({ data_ultima_renovacao: hoje }).eq('id', receitaId);
+  if (error) { alert('Erro ao renovar: ' + error.message); console.error(error); return; }
+  await carregarReceitas();
+}
+
+document.getElementById('campoBuscaReceitas').addEventListener('input', e => {
+  termoBusca = e.target.value.trim();
+  renderizarLista();
+});
+
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    filtroAtual = chip.dataset.filtro;
+    renderizarLista();
+  });
+});
+
+carregarReceitas();
 </script>
+
 </body>
 </html>
